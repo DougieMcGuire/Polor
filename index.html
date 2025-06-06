@@ -1,27 +1,114 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Polor</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Polor — Coming Soon</title>
   <style>
-    html, body {
+    :root {
+      --main-color: #ffefd5;
+      --accent-color: #d94a38;
+      --text-color: #3b3b3b;
+    }
+
+    body {
       margin: 0;
       padding: 0;
-      background: #000;
-      height: 100%;
-      overflow: hidden;
+      font-family: 'Comic Sans MS', 'Arial Rounded MT Bold', sans-serif;
+      background-color: var(--main-color);
+      color: var(--text-color);
+      text-align: center;
     }
-    img {
-      width: 100vw;
-      height: 100vh;
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .coming-soon-img {
+      width: 100%;
+      max-width: 500px;
+      margin: 2rem auto;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      font-size: 2rem;
+      color: var(--accent-color);
+    }
+
+    .section {
+      margin: 3rem 0;
+    }
+
+    .profile-pic {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
       object-fit: cover;
-      user-select: none;
-      pointer-events: none;
-      display: block;
+      margin-bottom: 0.5rem;
+      border: 4px solid var(--accent-color);
+    }
+
+    .handle {
+      font-size: 1.2rem;
+      font-weight: bold;
+      margin-bottom: 1rem;
+    }
+
+    .social-icons {
+      display: flex;
+      justify-content: center;
+      gap: 1.2rem;
+      flex-wrap: wrap;
+    }
+
+    .social-icons a {
+      width: 50px;
+      height: 50px;
+      background-color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      transition: transform 0.2s;
+    }
+
+    .social-icons a:hover {
+      transform: scale(1.1);
+    }
+
+    .social-icons img {
+      width: 26px;
+      height: 26px;
     }
   </style>
 </head>
 <body>
-  <img src="https://i.ibb.co/NgTZn4Lr/polor.png" alt="Polor">
+  <div class="container">
+    <img class="coming-soon-img" src="A5B4C914-8501-4065-8C85-9AADF8D9D0F2.jpeg" alt="Coming Soon" />
+
+    <div class="section">
+      <h2>What’s to come?</h2>
+      <p>This site is in the works! Polor will be a space to catch up on updates, read articles on a mix of topics, and dive into original content and news from the mind of the creator. Stay tuned as it all comes together.</p>
+    </div>
+
+    <div class="section">
+      <h2>Socials</h2>
+      <img class="profile-pic" src="https://i.ibb.co/NnWZ3Vhf/IMG-5608.jpg" alt="@icepolor profile picture">
+      <div class="handle">@icepolor</div>
+      <div class="social-icons">
+        <a href="https://www.tiktok.com/@icepolor" target="_blank"><img src="https://cdn-icons-png.flaticon.com/512/3046/3046122.png" alt="TikTok"></a>
+        <a href="https://www.instagram.com/icepolor" target="_blank"><img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="Instagram"></a>
+        <a href="https://www.youtube.com/@icepolor" target="_blank"><img src="https://cdn-icons-png.flaticon.com/512/1384/1384060.png" alt="YouTube"></a>
+        <a href="https://twitter.com/icepolor" target="_blank"><img src="https://cdn-icons-png.flaticon.com/512/3670/3670151.png" alt="X"></a>
+        <a href="https://www.snapchat.com/add/icepolor" target="_blank"><img src="https://cdn-icons-png.flaticon.com/512/733/733622.png" alt="Snapchat"></a>
+      </div>
+    </div>
+  </div>
 </body>
 </html>
