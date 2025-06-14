@@ -1,116 +1,95 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Join Lobby</title>
-<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-database-compat.js"></script>
+  <meta charset="UTF-8" />
+  <title>Join Lobby - Polor</title>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 2rem; max-width: 400px; margin: auto; }
+    label, input, button { display: block; width: 100%; margin: 10px 0; }
+    #message { margin-top: 10px; color: green; }
+  </style>
 </head>
 <body>
   <h1>Join Lobby</h1>
-  <p id="lobbyInfo"></p>
 
-  <form id="joinForm">
-    <label>
-      Enter Display Name:<br />
-      <input type="text" id="displayName" required />
-    </label>
-    <br /><br />
-    <button type="submit">Join</button>
-  </form>
+  <label for="lobbyCode">Lobby Code:</label>
+  <input type="text" id="lobbyCode" maxlength="6" placeholder="Enter 6-digit code" />
 
-  <p id="message"></p>
+  <label for="playerName">Your Display Name:</label>
+  <input type="text" id="playerName" maxlength="30" placeholder="Enter your name" />
+
+  <button id="joinBtn">Join</button>
+  <div id="message"></div>
 
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyA8HcTDiCQtJHRiMES2p1iUlA30AkZPx1Y",
       authDomain: "polor-62c29.firebaseapp.com",
+      databaseURL: "https://polor-62c29-default-rtdb.firebaseio.com",
       projectId: "polor-62c29",
-      appId: "1:232986823513:web:a6ee6bef6b0609ace3da48",
-      databaseURL: "https://polor-62c29-default-rtdb.firebaseio.com"
+      appId: "1:232986823513:web:a6ee6bef6b0609ace3da48"
     };
     firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
     const db = firebase.database();
 
-    const lobbyInfo = document.getElementById('lobbyInfo');
-    const joinForm = document.getElementById('joinForm');
-    const displayNameInput = document.getElementById('displayName');
-    const message = document.getElementById('message');
+    const lobbyCodeInput = document.getElementById('lobbyCode');
+    const playerNameInput = document.getElementById('playerName');
+    const joinBtn = document.getElementById('joinBtn');
+    const messageDiv = document.getElementById('message');
 
-    // Parse code from URL ?=CODE
+    // If lobby code is in URL, autofill input
     const urlParams = new URLSearchParams(window.location.search);
-    const lobbyCode = urlParams.get('') || ''; // ?=CODE means empty key, so get('')
-
-    if (!lobbyCode) {
-      lobbyInfo.textContent = "Invalid lobby code in URL.";
-      joinForm.style.display = 'none';
-    } else {
-      // Check lobby exists
-      db.ref('lobbies/' + lobbyCode).get().then(snapshot => {
-        if (!snapshot.exists()) {
-          lobbyInfo.textContent = "Lobby not found or closed.";
-          joinForm.style.display = 'none';
-        } else {
-          lobbyInfo.textContent = `Joining Lobby: ${snapshot.val().name} (Code: ${lobbyCode})`;
-        }
-      });
+    if (urlParams.has('code')) {
+      lobbyCodeInput.value = urlParams.get('code').slice(0,6);
     }
 
-    joinForm.addEventListener('submit', e => {
-      e.preventDefault();
-      const displayName = displayNameInput.value.trim();
-      if (!displayName) {
-        message.textContent = "Please enter a display name.";
+    function generatePlayerId() {
+      return Math.random().toString(36).substring(2, 10);
+    }
+
+    joinBtn.onclick = () => {
+      const code = lobbyCodeInput.value.trim();
+      const playerName = playerNameInput.value.trim();
+
+      if (!code.match(/^\d{6}$/)) {
+        messageDiv.style.color = 'red';
+        messageDiv.textContent = "Please enter a valid 6-digit lobby code.";
+        return;
+      }
+      if (!playerName || playerName.length > 30) {
+        messageDiv.style.color = 'red';
+        messageDiv.textContent = "Please enter a valid display name (1-30 characters).";
         return;
       }
 
-      // Sign in anonymously if not signed in
-      if (!auth.currentUser) {
-        auth.signInAnonymously().catch(err => {
-          message.textContent = "Auth error: " + err.message;
-        });
-      }
-
-      auth.onAuthStateChanged(user => {
-        if (!user) {
-          message.textContent = "User not signed in.";
-          return;
-        }
-
-        // Add player to lobby in DB
-        const playerRef = db.ref(`lobbies/${lobbyCode}/players/${user.uid}`);
-
-        // Check maxPlayers limit
-        db.ref(`lobbies/${lobbyCode}`).get().then(snapshot => {
-          const lobby = snapshot.val();
-          if (!lobby) {
-            message.textContent = "Lobby no longer exists.";
+      // Check if lobby exists
+      db.ref('lobbies/' + code).get()
+        .then(snapshot => {
+          if (!snapshot.exists()) {
+            messageDiv.style.color = 'red';
+            messageDiv.textContent = "Lobby not found.";
             return;
           }
-          const maxPlayers = lobby.maxPlayers || 20;
-          const currentPlayersCount = lobby.players ? Object.keys(lobby.players).length : 0;
+          // Write player name anonymously
+          const playerId = generatePlayerId();
+          return db.ref(`lobbies/${code}/players/${playerId}`).set(playerName)
+            .then(() => {
+              // Save playerId & lobby code locally for later
+              localStorage.setItem('playerId', playerId);
+              localStorage.setItem('lobbyCode', code);
+              localStorage.setItem('playerName', playerName);
 
-          if (currentPlayersCount >= maxPlayers) {
-            message.textContent = "Lobby is full.";
-            return;
-          }
-
-          // Add player data
-          playerRef.set({
-            name: displayName,
-            isOwner: false
-          }).then(() => {
-            // Redirect to lobby page
-            window.location.href = `lobby.html?=${lobbyCode}`;
-          }).catch(err => {
-            message.textContent = "Error joining lobby: " + err.message;
-          });
+              // Redirect to lobby page
+              window.location.href = `lobby.html?code=${code}`;
+            });
+        })
+        .catch(err => {
+          messageDiv.style.color = 'red';
+          messageDiv.textContent = "Error checking lobby: " + err.message;
         });
-      });
-    });
+    };
   </script>
 </body>
 </html>
