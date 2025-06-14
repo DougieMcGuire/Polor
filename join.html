@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Join Lobby</title>
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-database-compat.js"></script>
+</head>
+<body>
+  <h1>Join Lobby</h1>
+  <p id="lobbyInfo"></p>
+
+  <form id="joinForm">
+    <label>
+      Enter Display Name:<br />
+      <input type="text" id="displayName" required />
+    </label>
+    <br /><br />
+    <button type="submit">Join</button>
+  </form>
+
+  <p id="message"></p>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyA8HcTDiCQtJHRiMES2p1iUlA30AkZPx1Y",
+      authDomain: "polor-62c29.firebaseapp.com",
+      projectId: "polor-62c29",
+      appId: "1:232986823513:web:a6ee6bef6b0609ace3da48",
+      databaseURL: "https://polor-62c29-default-rtdb.firebaseio.com"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database();
+
+    const lobbyInfo = document.getElementById('lobbyInfo');
+    const joinForm = document.getElementById('joinForm');
+    const displayNameInput = document.getElementById('displayName');
+    const message = document.getElementById('message');
+
+    // Parse code from URL ?=CODE
+    const urlParams = new URLSearchParams(window.location.search);
+    const lobbyCode = urlParams.get('') || ''; // ?=CODE means empty key, so get('')
+
+    if (!lobbyCode) {
+      lobbyInfo.textContent = "Invalid lobby code in URL.";
+      joinForm.style.display = 'none';
+    } else {
+      // Check lobby exists
+      db.ref('lobbies/' + lobbyCode).get().then(snapshot => {
+        if (!snapshot.exists()) {
+          lobbyInfo.textContent = "Lobby not found or closed.";
+          joinForm.style.display = 'none';
+        } else {
+          lobbyInfo.textContent = `Joining Lobby: ${snapshot.val().name} (Code: ${lobbyCode})`;
+        }
+      });
+    }
+
+    joinForm.addEventListener('submit', e => {
+      e.preventDefault();
+      const displayName = displayNameInput.value.trim();
+      if (!displayName) {
+        message.textContent = "Please enter a display name.";
+        return;
+      }
+
+      // Sign in anonymously if not signed in
+      if (!auth.currentUser) {
+        auth.signInAnonymously().catch(err => {
+          message.textContent = "Auth error: " + err.message;
+        });
+      }
+
+      auth.onAuthStateChanged(user => {
+        if (!user) {
+          message.textContent = "User not signed in.";
+          return;
+        }
+
+        // Add player to lobby in DB
+        const playerRef = db.ref(`lobbies/${lobbyCode}/players/${user.uid}`);
+
+        // Check maxPlayers limit
+        db.ref(`lobbies/${lobbyCode}`).get().then(snapshot => {
+          const lobby = snapshot.val();
+          if (!lobby) {
+            message.textContent = "Lobby no longer exists.";
+            return;
+          }
+          const maxPlayers = lobby.maxPlayers || 20;
+          const currentPlayersCount = lobby.players ? Object.keys(lobby.players).length : 0;
+
+          if (currentPlayersCount >= maxPlayers) {
+            message.textContent = "Lobby is full.";
+            return;
+          }
+
+          // Add player data
+          playerRef.set({
+            name: displayName,
+            isOwner: false
+          }).then(() => {
+            // Redirect to lobby page
+            window.location.href = `lobby.html?=${lobbyCode}`;
+          }).catch(err => {
+            message.textContent = "Error joining lobby: " + err.message;
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>
