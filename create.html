@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Create Lobby</title>
+
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-database-compat.js"></script>
+
+</head>
+<body>
+  <h1>Create Lobby</h1>
+
+  <form id="createForm">
+    <label>
+      Lobby Name:<br />
+      <input type="text" id="lobbyName" required />
+    </label>
+    <br /><br />
+    <label>
+      Max Players (2-20):<br />
+      <input type="number" id="maxPlayers" min="2" max="20" required />
+    </label>
+    <br /><br />
+    <button type="submit">Create Lobby</button>
+  </form>
+
+  <p id="message"></p>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyA8HcTDiCQtJHRiMES2p1iUlA30AkZPx1Y",
+      authDomain: "polor-62c29.firebaseapp.com",
+      projectId: "polor-62c29",
+      appId: "1:232986823513:web:a6ee6bef6b0609ace3da48",
+      databaseURL: "https://polor-62c29-default-rtdb.firebaseio.com" // add your DB url
+    };
+    firebase.initializeApp(firebaseConfig);
+
+    const auth = firebase.auth();
+    const db = firebase.database();
+
+    const createForm = document.getElementById('createForm');
+    const message = document.getElementById('message');
+
+    function generateCode() {
+      return Math.floor(100000 + Math.random() * 900000).toString();
+    }
+
+    auth.onAuthStateChanged(user => {
+      if (!user) {
+        window.location.href = 'auth.html';
+      }
+    });
+
+    createForm.addEventListener('submit', e => {
+      e.preventDefault();
+
+      const lobbyName = document.getElementById('lobbyName').value.trim();
+      const maxPlayers = parseInt(document.getElementById('maxPlayers').value);
+
+      if (!lobbyName) {
+        message.textContent = "Lobby name is required.";
+        return;
+      }
+      if (!maxPlayers || maxPlayers < 2 || maxPlayers > 20) {
+        message.textContent = "Max players must be between 2 and 20.";
+        return;
+      }
+
+      const user = auth.currentUser;
+      if (!user) {
+        message.textContent = "Not logged in.";
+        return;
+      }
+
+      message.textContent = "Creating lobby...";
+
+      // Generate unique lobby code
+      const lobbyCode = generateCode();
+
+      // Create lobby data object
+      const lobbyData = {
+        name: lobbyName,
+        maxPlayers: maxPlayers,
+        owner: {
+          uid: user.uid,
+          email: user.email
+        },
+        players: {
+          [user.uid]: {
+            name: user.email,
+            isOwner: true
+          }
+        },
+        createdAt: Date.now()
+      };
+
+      // Check if lobby code already exists, if yes regenerate (simple naive approach)
+      const lobbyRef = db.ref('lobbies/' + lobbyCode);
+      lobbyRef.get().then(snapshot => {
+        if (snapshot.exists()) {
+          // Lobby code exists, regenerate and overwrite (for demo simplicity)
+          // In production you'd want to check uniqueness in a loop or use push keys
+          // For now let's just overwrite and warn
+          message.textContent = "Lobby code collision, retrying...";
+          // Just regenerate once and continue
+          // (In prod: loop with retries)
+          const newCode = generateCode();
+          createLobby(newCode, lobbyData);
+        } else {
+          createLobby(lobbyCode, lobbyData);
+        }
+      }).catch(err => {
+        message.textContent = "Error checking lobby code: " + err.message;
+      });
+
+      function createLobby(code, data) {
+        db.ref('lobbies/' + code).set(data)
+          .then(() => {
+            message.textContent = `Lobby created! Your code: ${code}`;
+            setTimeout(() => {
+              window.location.href = `lobby.html?=${code}`;
+            }, 1000);
+          })
+          .catch(err => {
+            message.textContent = "Error creating lobby: " + err.message;
+          });
+      }
+    });
+  </script>
+</body>
+</html>
