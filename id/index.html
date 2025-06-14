@@ -62,9 +62,11 @@
     text-align: center;
   }
 </style>
-<!-- Firebase SDKs -->
-<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js"></script>
+
+<!-- Firebase compat SDKs -->
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
+
 </head>
 <body>
 
@@ -86,86 +88,87 @@
 </div>
 
 <script>
-// Your Firebase config here — replace with your real config:
-const firebaseConfig = {
-  apiKey: "AIzaSyA8HcTDiCQtJHRiMES2p1iUlA30AkZPx1Y",
-  authDomain: "polor-62c29.firebaseapp.com",
-  projectId: "polor-62c29",
-  appId: "1:232986823513:web:a6ee6bef6b0609ace3da48"
-};
+  // Your Firebase config here
+  const firebaseConfig = {
+    apiKey: "AIzaSyA8HcTDiCQtJHRiMES2p1iUlA30AkZPx1Y",
+    authDomain: "polor-62c29.firebaseapp.com",
+    projectId: "polor-62c29",
+    appId: "1:232986823513:web:a6ee6bef6b0609ace3da48"
+  };
 
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
 
-const emailInput = document.getElementById('email');
-const passwordInput = document.getElementById('password');
-const messageBox = document.getElementById('message');
-const authBox = document.getElementById('auth-box');
-const userBox = document.getElementById('user-box');
-const welcomeText = document.getElementById('welcomeText');
+  const emailInput = document.getElementById('email');
+  const passwordInput = document.getElementById('password');
+  const messageBox = document.getElementById('message');
+  const authBox = document.getElementById('auth-box');
+  const userBox = document.getElementById('user-box');
+  const welcomeText = document.getElementById('welcomeText');
 
-function showMessage(text, success = true) {
-  messageBox.style.color = success ? 'green' : 'red';
-  messageBox.textContent = text;
-}
-
-document.getElementById('signupBtn').addEventListener('click', () => {
-  const email = emailInput.value.trim();
-  const password = passwordInput.value.trim();
-
-  if (!email || !password) {
-    showMessage('Please enter email and password.', false);
-    return;
+  function showMessage(text, success = true) {
+    messageBox.style.color = success ? 'green' : 'red';
+    messageBox.textContent = text;
   }
 
-  auth.createUserWithEmailAndPassword(email, password)
-    .then(userCredential => {
-      showMessage(`Signed up successfully as ${userCredential.user.email}`);
-    })
-    .catch(error => {
-      showMessage(`Sign up error: ${error.message}`, false);
-    });
-});
+  document.getElementById('signupBtn').addEventListener('click', () => {
+    const email = emailInput.value.trim();
+    const password = passwordInput.value.trim();
 
-document.getElementById('loginBtn').addEventListener('click', () => {
-  const email = emailInput.value.trim();
-  const password = passwordInput.value.trim();
+    if (!email || !password) {
+      showMessage('Please enter email and password.', false);
+      return;
+    }
 
-  if (!email || !password) {
-    showMessage('Please enter email and password.', false);
-    return;
-  }
-
-  auth.signInWithEmailAndPassword(email, password)
-    .then(userCredential => {
-      showMessage(`Logged in successfully as ${userCredential.user.email}`);
-    })
-    .catch(error => {
-      showMessage(`Login error: ${error.message}`, false);
-    });
-});
-
-document.getElementById('logoutBtn').addEventListener('click', () => {
-  auth.signOut().then(() => {
-    showMessage('Logged out.');
+    auth.createUserWithEmailAndPassword(email, password)
+      .then(userCredential => {
+        showMessage(`Signed up successfully as ${userCredential.user.email}`);
+      })
+      .catch(error => {
+        showMessage(`Sign up error: ${error.message}`, false);
+      });
   });
-});
 
-// Update UI on auth state change
-auth.onAuthStateChanged(user => {
-  if (user) {
-    authBox.style.display = 'none';
-    userBox.style.display = 'block';
-    welcomeText.textContent = `Welcome, ${user.email}`;
-    showMessage('');
-  } else {
-    authBox.style.display = 'block';
-    userBox.style.display = 'none';
-    emailInput.value = '';
-    passwordInput.value = '';
-    showMessage('');
-  }
-});
+  document.getElementById('loginBtn').addEventListener('click', () => {
+    const email = emailInput.value.trim();
+    const password = passwordInput.value.trim();
+
+    if (!email || !password) {
+      showMessage('Please enter email and password.', false);
+      return;
+    }
+
+    auth.signInWithEmailAndPassword(email, password)
+      .then(userCredential => {
+        showMessage(`Logged in successfully as ${userCredential.user.email}`);
+      })
+      .catch(error => {
+        showMessage(`Login error: ${error.message}`, false);
+      });
+  });
+
+  document.getElementById('logoutBtn').addEventListener('click', () => {
+    auth.signOut().then(() => {
+      showMessage('Logged out.');
+    });
+  });
+
+  // Update UI on auth state change
+  auth.onAuthStateChanged(user => {
+    if (user) {
+      authBox.style.display = 'none';
+      userBox.style.display = 'block';
+      welcomeText.textContent = `Welcome, ${user.email}`;
+      showMessage('');
+    } else {
+      authBox.style.display = 'block';
+      userBox.style.display = 'none';
+      emailInput.value = '';
+      passwordInput.value = '';
+      showMessage('');
+    }
+  });
 </script>
 
 </body>
