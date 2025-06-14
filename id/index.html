@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Polor Auth</title>
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js"></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <div id="auth-box">
+    <h2>Polor - Host Login</h2>
+    <input type="email" id="email" placeholder="Email"><br>
+    <input type="password" id="password" placeholder="Password"><br>
+    <button id="signupBtn">Sign Up</button>
+    <button id="loginBtn">Log In</button>
+  </div>
+
+  <div id="user-box" style="display: none;">
+    <p id="welcomeText"></p>
+    <button id="logoutBtn">Log Out</button>
+  </div>
+</body>
+</html>
