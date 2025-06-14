@@ -1,171 +1,123 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Lobby</title>
-
-<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-database-compat.js"></script>
-
-<style>
-  .owner {
-    border: 2px solid red;
-    padding: 5px;
-    display: inline-block;
-    margin: 5px;
-  }
-  .player {
-    border: 1px solid #ccc;
-    padding: 5px;
-    margin: 5px;
-    display: inline-block;
-  }
-</style>
+  <meta charset="UTF-8" />
+  <title>Lobby - Polor</title>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 2rem; max-width: 600px; margin: auto; }
+    h1 { margin-bottom: 0.2em; }
+    #playersList { margin-top: 1em; }
+    .player { padding: 6px; border: 1px solid #ddd; margin-bottom: 5px; border-radius: 4px; }
+    .owner { border: 2px solid red; font-weight: bold; }
+    #endGameBtn { margin-top: 20px; padding: 10px; background: red; color: white; border: none; cursor: pointer; }
+  </style>
 </head>
 <body>
-  <h1>Lobby</h1>
-  <p id="lobbyInfo"></p>
-  <div>
-    <h3>Players:</h3>
-    <div id="playersList"></div>
-  </div>
-  <button id="leaveBtn" style="display:none;">Leave Lobby</button>
-  <button id="stopBtn" style="display:none; background:red; color:white;">Stop Lobby</button>
+  <h1 id="lobbyName">Loading Lobby...</h1>
+  <div>Max Players: <span id="maxPlayers">-</span></div>
+  <div>Lobby Code: <span id="lobbyCodeDisplay">-</span></div>
 
-  <p id="message"></p>
+  <h2>Players</h2>
+  <div id="playersList">Loading players...</div>
+
+  <button id="endGameBtn" style="display:none;">End Game (Host Only)</button>
 
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyA8HcTDiCQtJHRiMES2p1iUlA30AkZPx1Y",
       authDomain: "polor-62c29.firebaseapp.com",
+      databaseURL: "https://polor-62c29-default-rtdb.firebaseio.com",
       projectId: "polor-62c29",
-      appId: "1:232986823513:web:a6ee6bef6b0609ace3da48",
-      databaseURL: "https://polor-62c29-default-rtdb.firebaseio.com"
+      appId: "1:232986823513:web:a6ee6bef6b0609ace3da48"
     };
     firebase.initializeApp(firebaseConfig);
-
     const auth = firebase.auth();
     const db = firebase.database();
 
-    const lobbyInfo = document.getElementById('lobbyInfo');
-    const playersList = document.getElementById('playersList');
-    const leaveBtn = document.getElementById('leaveBtn');
-    const stopBtn = document.getElementById('stopBtn');
-    const message = document.getElementById('message');
+    const lobbyNameEl = document.getElementById('lobbyName');
+    const maxPlayersEl = document.getElementById('maxPlayers');
+    const lobbyCodeEl = document.getElementById('lobbyCodeDisplay');
+    const playersListEl = document.getElementById('playersList');
+    const endGameBtn = document.getElementById('endGameBtn');
 
-    // Parse code from URL ?=CODE
+    // Get lobby code from URL
     const urlParams = new URLSearchParams(window.location.search);
-    const lobbyCode = urlParams.get('') || '';
+    const lobbyCode = urlParams.get('code');
 
-    if (!lobbyCode) {
-      lobbyInfo.textContent = "Invalid lobby code.";
-      leaveBtn.style.display = 'none';
-      stopBtn.style.display = 'none';
+    if (!lobbyCode || !lobbyCode.match(/^\d{6}$/)) {
+      lobbyNameEl.textContent = "Invalid lobby code!";
+      throw new Error("Invalid lobby code");
     }
 
-    let lobbyData = null;
-    let currentUser = null;
-    let isOwner = false;
+    lobbyCodeEl.textContent = lobbyCode;
 
+    let currentUserUid = null;
+    let lobbyOwnerUid = null;
+
+    // Listen for auth state to identify host
     auth.onAuthStateChanged(user => {
-      if (!user) {
-        // Redirect to auth or join page? Let's redirect to join.html for simplicity
-        window.location.href = `join.html?=${lobbyCode}`;
+      currentUserUid = user ? user.uid : null;
+      checkHost();
+    });
+
+    // Fetch lobby data and listen for updates
+    const lobbyRef = db.ref('lobbies/' + lobbyCode);
+    lobbyRef.on('value', snapshot => {
+      const data = snapshot.val();
+      if (!data) {
+        lobbyNameEl.textContent = "Lobby not found or ended.";
+        playersListEl.innerHTML = "";
+        endGameBtn.style.display = 'none';
         return;
       }
-      currentUser = user;
-
-      // Listen for lobby changes
-      const lobbyRef = db.ref('lobbies/' + lobbyCode);
-      lobbyRef.on('value', snapshot => {
-        if (!snapshot.exists()) {
-          message.textContent = "Lobby closed or does not exist.";
-          playersList.innerHTML = '';
-          leaveBtn.style.display = 'none';
-          stopBtn.style.display = 'none';
-          return;
-        }
-        lobbyData = snapshot.val();
-
-        lobbyInfo.textContent = `Lobby: ${lobbyData.name} (Max Players: ${lobbyData.maxPlayers})`;
-
-        // Render players
-        playersList.innerHTML = '';
-        const players = lobbyData.players || {};
-
-        for (const [uid, player] of Object.entries(players)) {
-          const div = document.createElement('div');
-          div.textContent = player.name + (player.isOwner ? " (Host)" : "");
-          div.className = player.isOwner ? 'owner' : 'player';
-          playersList.appendChild(div);
-        }
-
-        // Are we owner?
-        isOwner = lobbyData.owner.uid === currentUser.uid;
-
-        if (isOwner) {
-          stopBtn.style.display = 'inline-block';
-          leaveBtn.style.display = 'none';
-        } else if (players[currentUser.uid]) {
-          leaveBtn.style.display = 'inline-block';
-          stopBtn.style.display = 'none';
-        } else {
-          // Somehow not in players list? maybe just hide buttons
-          leaveBtn.style.display = 'none';
-          stopBtn.style.display = 'none';
-        }
-      });
+      lobbyNameEl.textContent = data.name || "Unnamed Lobby";
+      maxPlayersEl.textContent = data.maxPlayers || "-";
+      lobbyOwnerUid = data.owner?.uid || null;
+      renderPlayers(data.players || {});
+      checkHost();
     });
 
-    leaveBtn.addEventListener('click', () => {
-      if (!lobbyCode || !currentUser) return;
-
-      db.ref(`lobbies/${lobbyCode}/players/${currentUser.uid}`).remove()
-        .then(() => {
-          message.textContent = "You left the lobby.";
-          window.location.href = "home.html";
-        })
-        .catch(err => {
-          message.textContent = "Error leaving lobby: " + err.message;
-        });
-    });
-
-    stopBtn.addEventListener('click', () => {
-      if (!lobbyCode || !currentUser) return;
-
-      // Confirm owner is stopping lobby
-      if (!isOwner) {
-        message.textContent = "Only the host can stop the lobby.";
-        return;
+    // Render players list
+    function renderPlayers(players) {
+      playersListEl.innerHTML = '';
+      for (const [playerId, playerName] of Object.entries(players)) {
+        const div = document.createElement('div');
+        div.textContent = playerName;
+        div.classList.add('player');
+        // Highlight owner if present as player (optional)
+        if (currentUserUid && lobbyOwnerUid === currentUserUid && playerId === currentUserUid) {
+          div.classList.add('owner');
+          div.textContent += " (Host)";
+        }
+        playersListEl.appendChild(div);
       }
+    }
 
-      // Delete lobby from DB
-      db.ref('lobbies/' + lobbyCode).remove()
-        .then(() => {
-          message.textContent = "Lobby stopped and deleted.";
-          window.location.href = "home.html";
-        })
-        .catch(err => {
-          message.textContent = "Error stopping lobby: " + err.message;
-        });
-    });
-
-    // Auto cleanup on tab/window close or refresh
-    window.addEventListener('beforeunload', e => {
-      if (!lobbyCode || !currentUser) return;
-
-      if (isOwner) {
-        // Delete entire lobby
-        navigator.sendBeacon(db.ref('lobbies/' + lobbyCode).path.toString(), '');
-        // Or just remove using normal remove - sendBeacon not reliable for DB though
-        db.ref('lobbies/' + lobbyCode).remove();
+    // Show end game button only for host
+    function checkHost() {
+      if (currentUserUid && currentUserUid === lobbyOwnerUid) {
+        endGameBtn.style.display = 'block';
       } else {
-        // Remove self from players list
-        db.ref(`lobbies/${lobbyCode}/players/${currentUser.uid}`).remove();
+        endGameBtn.style.display = 'none';
       }
-    });
+    }
+
+    // End game: delete lobby from database
+    endGameBtn.onclick = () => {
+      if (confirm("Are you sure you want to end the game and delete the lobby?")) {
+        lobbyRef.remove()
+          .then(() => {
+            alert("Lobby ended and deleted.");
+            window.location.href = "create.html";  // Redirect to create page
+          })
+          .catch(err => {
+            alert("Failed to end lobby: " + err.message);
+          });
+      }
+    };
   </script>
 </body>
 </html>
