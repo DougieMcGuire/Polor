@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Polor Home</title>
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
+</head>
+<body>
+  <h1>Polor Home</h1>
+  <p id="welcome"></p>
+  <button id="createGameBtn">Create Game</button>
+  <button id="logoutBtn">Log Out</button>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyA8HcTDiCQtJHRiMES2p1iUlA30AkZPx1Y",
+      authDomain: "polor-62c29.firebaseapp.com",
+      projectId: "polor-62c29",
+      appId: "1:232986823513:web:a6ee6bef6b0609ace3da48"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    const welcome = document.getElementById('welcome');
+    const createGameBtn = document.getElementById('createGameBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+
+    auth.onAuthStateChanged(user => {
+      if (!user) {
+        // Not logged in, redirect to auth page
+        window.location.href = 'auth.html';
+        return;
+      }
+      welcome.textContent = `Welcome, ${user.email}`;
+    });
+
+    createGameBtn.addEventListener('click', () => {
+      window.location.href = 'create.html';
+    });
+
+    logoutBtn.addEventListener('click', () => {
+      auth.signOut();
+    });
+  </script>
+</body>
+</html>
