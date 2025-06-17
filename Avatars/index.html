@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Avatar Generator</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: #000;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      color: #fff;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 400px 1fr;
+      gap: 30px;
+      align-items: start;
+    }
+
+    .editor-panel, .preview-panel {
+      background: #111;
+      border: 2px solid #333;
+      border-radius: 10px;
+      padding: 25px;
+    }
+
+    .avatar-display {
+      text-align: center;
+      background: #111;
+      border: 2px solid #333;
+      border-radius: 10px;
+      padding: 25px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #fff;
+      font-size: 2.5em;
+      margin-bottom: 30px;
+      grid-column: 1 / -1;
+      font-weight: 900;
+    }
+
+    h2 {
+      color: #fff;
+      font-size: 1.4em;
+      margin-bottom: 15px;
+      border-bottom: 2px solid #fff;
+      padding-bottom: 5px;
+      font-weight: 700;
+    }
+
+    .category {
+      margin-bottom: 20px;
+    }
+
+    .category label {
+      display: block;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 8px;
+      text-transform: capitalize;
+    }
+
+    .preview-select {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .preview-option {
+      position: relative;
+      width: 60px;
+      height: 60px;
+      border: 2px solid #333;
+      border-radius: 8px;
+      cursor: pointer;
+      background: #222;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+
+    .preview-option:hover {
+      border-color: #666;
+      transform: scale(1.05);
+    }
+
+    .preview-option.selected {
+      border-color: #fff;
+      background: #333;
+    }
+
+    .preview-option img {
+      width: 50px;
+      height: 50px;
+      object-fit: cover;
+      border-radius: 4px;
+      image-rendering: pixelated;
+    }
+
+    .preview-option.none {
+      color: #666;
+      font-size: 12px;
+      text-align: center;
+      line-height: 1.2;
+    }
+
+    .preview-option.none:hover {
+      color: #fff;
+    }
+
+    #avatar {
+      position: relative;
+      width: 300px;
+      height: 300px;
+      margin: 0 auto 20px;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 2px solid #333;
+      background: #222;
+      image-rendering: pixelated;
+    }
+
+    #avatar img {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      object-fit: contain; /* add this line */
+      pointer-events: none;
+      user-select: none;
+      -webkit-user-drag: none;
+      left: 0;
+      top: 0;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    button {
+      background: #fff;
+      color: #000;
+      border: 2px solid #fff;
+      padding: 12px 24px;
+      border-radius: 6px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-transform: uppercase;
+      font-size: 12px;
+      letter-spacing: 1px;
+    }
+
+    button:hover {
+      background: #000;
+      color: #fff;
+      transform: translateY(-2px);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    .url-display {
+      background: #222;
+      border: 2px solid #333;
+      border-radius: 6px;
+      padding: 15px;
+      margin: 15px 0;
+      font-family: 'Courier New', monospace;
+      font-size: 11px;
+      word-break: break-all;
+      color: #fff;
+    }
+
+    .generated-image {
+      max-width: 100%;
+      border-radius: 6px;
+      margin: 15px 0;
+      border: 2px solid #333;
+    }
+
+    #canvas {
+      display: none;
+    }
+
+    .status {
+      text-align: center;
+      padding: 10px;
+      border-radius: 6px;
+      margin: 10px 0;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 12px;
+      letter-spacing: 1px;
+    }
+
+    .status.success {
+      background: #fff;
+      color: #000;
+      border: 2px solid #fff;
+    }
+
+    .status.error {
+      background: #000;
+      color: #fff;
+      border: 2px solid #fff;
+    }
+
+    .randomize-btn {
+      background: #000;
+      color: #fff;
+      border: 2px solid #fff;
+    }
+
+    .randomize-btn:hover {
+      background: #fff;
+      color: #000;
+    }
+
+    /* Iframe mode styles */
+    .iframe-mode {
+      padding: 10px;
+    }
+
+    .iframe-mode .container {
+      grid-template-columns: 1fr;
+      gap: 20px;
+      max-width: 600px;
+    }
+
+    .iframe-mode h1 {
+      font-size: 1.8em;
+      margin-bottom: 20px;
+      grid-column: 1;
+    }
+
+    .iframe-mode .preview-panel {
+      display: none;
+    }
+
+    .iframe-mode .editor-panel {
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .iframe-mode .preview-select {
+      grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
+    }
+
+    .iframe-mode .preview-option {
+      width: 40px;
+      height: 40px;
+    }
+
+    .iframe-mode .preview-option img {
+      width: 35px;
+      height: 35px;
+    }
+
+    .iframe-mode #avatar {
+      width: 200px;
+      height: 200px;
+    }
+
+    /* Scrollbar styling */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #000;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #333;
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #666;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎨 AVATAR GENERATOR</h1>
+    
+    <div class="editor-panel">
+      <h2>CUSTOMIZE</h2>
+      <div id="controls"></div>
+      <div class="action-buttons">
+        <button onclick="randomizeAvatar()" class="randomize-btn">🎲 RANDOM</button>
+        <button onclick="clearAvatar()">🗑️ CLEAR</button>
+      </div>
+    </div>
+
+    <div class="avatar-display">
+      <div id="avatar"></div>
+      <div class="action-buttons">
+        <button onclick="generateImage()">📸 GENERATE & UPLOAD</button>
+        <button onclick="copyURL()">🔗 COPY URL</button>
+      </div>
+      <canvas id="canvas" width="300" height="300"></canvas>
+      <div id="status"></div>
+      <div id="generated-result"></div>
+    </div>
+
+    <div class="preview-panel">
+      <h2>AVATAR URL</h2>
+      <div id="current-url" class="url-display">Build your avatar to see the URL...</div>
+      
+      <h2>USAGE</h2>
+      <p><strong>Viewer:</strong> Share the URL to display avatars.</p>
+      <p><strong>Image:</strong> Generate & upload for permanent image URLs.</p>
+      <p><strong>Embed:</strong> Use ?iframe=1 in URL for iframe embedding.</p>
+    </div>
+  </div>
+
+  <script>
+    let manifest = {};
+    const layeringOrder = ["tops", "bases", "hair", "hats", "eyes", "brows", "nose", "mouth", "glasses", "neck", "ears", "extra", "face"];
+    let currentAvatar = {};
+    let isIframeMode = false;
+
+    async function loadManifest() {
+      try {
+        const res = await fetch('./manifest.json');
+        if (!res.ok) throw new Error('Failed to load manifest.json');
+        manifest = await res.json();
+        return true;
+      } catch (err) {
+        console.error('Error loading manifest:', err);
+        showStatus('Failed to load manifest.json', 'error');
+        return false;
+      }
+    }
+
+    async function getApiKey() {
+      try {
+        const response = await fetch('https://dougie.wtf/randomapikey');
+        if (!response.ok) throw new Error('Failed to fetch API key');
+        const apiKey = (await response.text()).trim();
+        return apiKey;
+      } catch (error) {
+        console.error('Error fetching API key:', error);
+        return 'b67152898b5211b8132b6bb959510033'; // Fallback
+      }
+    }
+
+    function checkIframeMode() {
+      const params = new URLSearchParams(window.location.search);
+      isIframeMode = params.get('iframe') === '1';
+      
+      if (isIframeMode) {
+        document.body.classList.add('iframe-mode');
+      }
+    }
+
+    function initializeControls() {
+      const controlsDiv = document.getElementById('controls');
+      
+      layeringOrder.forEach(category => {
+        if (manifest[category] && manifest[category].length > 0) {
+          const div = document.createElement('div');
+          div.className = 'category';
+          
+          const label = document.createElement('label');
+          label.textContent = category.toUpperCase();
+          
+          const previewContainer = document.createElement('div');
+          previewContainer.className = 'preview-select';
+          
+          // Add "None" option
+          const noneOption = document.createElement('div');
+          noneOption.className = 'preview-option none';
+          noneOption.textContent = 'NONE';
+          noneOption.dataset.category = category;
+          noneOption.dataset.value = '';
+          noneOption.addEventListener('click', () => selectOption(category, '', noneOption));
+          previewContainer.appendChild(noneOption);
+          
+          // Add preview options for each item
+          manifest[category].forEach(item => {
+            const option = document.createElement('div');
+            option.className = 'preview-option';
+            option.dataset.category = category;
+            option.dataset.value = item;
+            
+            const img = document.createElement('img');
+            img.src = `./characters/${category}/${item}`;
+            img.alt = item.replace('.png', '');
+            img.onerror = () => {
+              option.style.background = '#333';
+              option.innerHTML = '❌';
+            };
+            
+            option.appendChild(img);
+            option.addEventListener('click', () => selectOption(category, item, option));
+            previewContainer.appendChild(option);
+          });
+          
+          div.appendChild(label);
+          div.appendChild(previewContainer);
+          controlsDiv.appendChild(div);
+        }
+      });
+    }
+
+    function selectOption(category, value, element) {
+      // Remove selected class from all options in this category
+      const categoryOptions = document.querySelectorAll(`[data-category="${category}"]`);
+      categoryOptions.forEach(opt => opt.classList.remove('selected'));
+      
+      // Add selected class to clicked option
+      element.classList.add('selected');
+      
+      // Update avatar
+      currentAvatar[category] = value;
+      renderAvatar();
+      updateURL();
+    }
+
+    function renderAvatar() {
+      const avatarDiv = document.getElementById('avatar');
+      avatarDiv.innerHTML = '';
+      
+      layeringOrder.forEach(category => {
+        if (currentAvatar[category]) {
+          const img = document.createElement('img');
+          img.src = `./characters/${category}/${currentAvatar[category]}`;
+          img.addEventListener('contextmenu', e => e.preventDefault());
+          img.onerror = () => {
+            console.warn(`Failed to load: ${img.src}`);
+          };
+          avatarDiv.appendChild(img);
+        }
+      });
+    }
+
+    function updateURL() {
+      const params = new URLSearchParams();
+      Object.entries(currentAvatar).forEach(([key, value]) => {
+        if (value) params.set(key, value);
+      });
+      
+      if (isIframeMode) params.set('iframe', '1');
+      
+      const url = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
+      const urlDisplay = document.getElementById('current-url');
+      if (urlDisplay) urlDisplay.textContent = url;
+    }
+
+    function loadFromURL() {
+      const params = new URLSearchParams(window.location.search);
+      
+      layeringOrder.forEach(category => {
+        const value = params.get(category);
+        if (value && manifest[category]?.includes(value)) {
+          currentAvatar[category] = value;
+          // Select the corresponding preview option
+          const option = document.querySelector(`[data-category="${category}"][data-value="${value}"]`);
+          if (option) option.classList.add('selected');
+        } else {
+          // Select "None" option
+          const noneOption = document.querySelector(`[data-category="${category}"][data-value=""]`);
+          if (noneOption) noneOption.classList.add('selected');
+        }
+      });
+      
+      renderAvatar();
+      updateURL();
+    }
+
+    function randomizeAvatar() {
+      // Clear current selection
+      document.querySelectorAll('.preview-option').forEach(opt => opt.classList.remove('selected'));
+      currentAvatar = {};
+      
+      // Randomize each category (60% chance to include each)
+      layeringOrder.forEach(category => {
+        if (manifest[category] && manifest[category].length > 0) {
+          if (Math.random() > 0.4) {
+            const randomIndex = Math.floor(Math.random() * manifest[category].length);
+            const value = manifest[category][randomIndex];
+            currentAvatar[category] = value;
+            
+            const option = document.querySelector(`[data-category="${category}"][data-value="${value}"]`);
+            if (option) option.classList.add('selected');
+          } else {
+            const noneOption = document.querySelector(`[data-category="${category}"][data-value=""]`);
+            if (noneOption) noneOption.classList.add('selected');
+          }
+        }
+      });
+      
+      renderAvatar();
+      updateURL();
+    }
+
+    function clearAvatar() {
+      currentAvatar = {};
+      
+      // Select all "None" options
+      document.querySelectorAll('.preview-option').forEach(opt => opt.classList.remove('selected'));
+      document.querySelectorAll('.preview-option.none').forEach(opt => opt.classList.add('selected'));
+      
+      renderAvatar();
+      updateURL();
+    }
+
+    function copyURL() {
+      const urlDisplay = document.getElementById('current-url');
+      if (!urlDisplay) return;
+      
+      const url = urlDisplay.textContent;
+      navigator.clipboard.writeText(url).then(() => {
+        showStatus('URL COPIED!', 'success');
+      }).catch(() => {
+        showStatus('COPY FAILED', 'error');
+      });
+    }
+
+    async function generateImage() {
+      const avatarDiv = document.getElementById('avatar');
+      const canvas = document.getElementById('canvas');
+      const ctx = canvas.getContext('2d');
+      
+      // Clear canvas
+      ctx.clearRect(0, 0, 300, 300);
+      
+      const images = avatarDiv.querySelectorAll('img');
+      const totalImages = images.length;
+      
+      if (totalImages === 0) {
+        showStatus('NO AVATAR TO GENERATE!', 'error');
+        return;
+      }
+      
+      showStatus('GENERATING...', 'success');
+      
+      function drawNextImage(index) {
+        if (index >= totalImages) {
+          // All images loaded and drawn, convert to blob and upload
+          canvas.toBlob(async blob => {
+            try {
+              showStatus('UPLOADING...', 'success');
+              const imgbbUrl = await uploadToImgBB(blob);
+              
+              // Create preview and links
+              const img = document.createElement('img');
+              img.src = imgbbUrl;
+              img.className = 'generated-image';
+              
+              const copyLinkBtn = document.createElement('button');
+              copyLinkBtn.textContent = '🔗 COPY IMAGE URL';
+              copyLinkBtn.onclick = () => {
+                navigator.clipboard.writeText(imgbbUrl);
+                showStatus('IMAGE URL COPIED!', 'success');
+              };
+              
+              const downloadLink = document.createElement('a');
+              downloadLink.href = imgbbUrl;
+              downloadLink.download = 'avatar.png';
+              downloadLink.textContent = '💾 DOWNLOAD';
+              downloadLink.style.display = 'inline-block';
+              downloadLink.style.marginLeft = '10px';
+              downloadLink.style.padding = '8px 16px';
+              downloadLink.style.background = '#fff';
+              downloadLink.style.color = '#000';
+              downloadLink.style.textDecoration = 'none';
+              downloadLink.style.borderRadius = '6px';
+              downloadLink.style.border = '2px solid #fff';
+              downloadLink.style.fontWeight = '700';
+              downloadLink.style.fontSize = '12px';
+              downloadLink.style.letterSpacing = '1px';
+              
+              const urlDisplay = document.createElement('div');
+              urlDisplay.className = 'url-display';
+              urlDisplay.textContent = imgbbUrl;
+              urlDisplay.style.fontSize = '10px';
+              urlDisplay.style.marginTop = '10px';
+              
+              const resultDiv = document.getElementById('generated-result');
+              resultDiv.innerHTML = '';
+              resultDiv.appendChild(img);
+              
+              const buttonContainer = document.createElement('div');
+              buttonContainer.style.textAlign = 'center';
+              buttonContainer.style.margin = '15px 0';
+              buttonContainer.appendChild(copyLinkBtn);
+              buttonContainer.appendChild(downloadLink);
+              resultDiv.appendChild(buttonContainer);
+              
+              resultDiv.appendChild(urlDisplay);
+              
+              showStatus('UPLOAD COMPLETE!', 'success');
+            } catch (error) {
+              console.error('Upload failed:', error);
+              showStatus('UPLOAD FAILED', 'error');
+            }
+          }, 'image/png');
+          return;
+        }
+        
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => {
+          ctx.drawImage(img, 0, 0, 300, 300);
+          drawNextImage(index + 1);
+        };
+        img.onerror = () => {
+          console.warn(`Failed to load image for canvas: ${images[index].src}`);
+          drawNextImage(index + 1);
+        };
+        img.src = images[index].src;
+      }
+      
+      drawNextImage(0);
+    }
+
+    async function uploadToImgBB(blob) {
+      const API_KEY = await getApiKey();
+      
+      // Convert blob to base64
+      const base64 = await new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const base64data = reader.result.split(',')[1];
+          resolve(base64data);
+        };
+        reader.readAsDataURL(blob);
+      });
+      
+      // Upload to ImgBB
+      const formData = new FormData();
+      formData.append('image', base64);
+      
+      const response = await fetch(`https://api.imgbb.com/1/upload?key=${API_KEY}`, {
+        method: 'POST',
+        body: formData
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      if (!data.success) {
+        throw new Error('ImgBB upload failed');
+      }
+      
+      return data.data.url;
+    }
+
+    function showStatus(message, type) {
+      const statusDiv = document.getElementById('status');
+      statusDiv.textContent = message;
+      statusDiv.className = `status ${type}`;
+      
+      setTimeout(() => {
+        statusDiv.textContent = '';
+        statusDiv.className = 'status';
+      }, 3000);
+    }
+
+    // Initialize the app
+    async function init() {
+      checkIframeMode();
+      const manifestLoaded = await loadManifest();
+      
+      if (manifestLoaded) {
+        initializeControls();
+        loadFromURL();
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>
