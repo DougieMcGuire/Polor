@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Polor - Join A Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background: url('https://media.giphy.com/media/3o7abKhOpu0NwenH3O/giphy.gif') center/cover no-repeat fixed;
+            background-size: cover;
+            height: 100vh;
+            overflow: hidden;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
+
+        .background-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            z-index: 1;
+        }
+
+        .header {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
+            border-bottom: 5px solid #333;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .polor-logo {
+            height: 60px;
+            cursor: pointer;
+            margin-right: 20px;
+            transition: transform 0.2s ease;
+        }
+
+        .polor-logo:hover {
+            transform: scale(1.1);
+        }
+
+        .header-text {
+            font-size: 36px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 
+                -3px -3px 0 #333,
+                3px -3px 0 #333,
+                -3px 3px 0 #333,
+                3px 3px 0 #333,
+                0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .main-container {
+            position: relative;
+            z-index: 5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: calc(100vh - 120px);
+            gap: 30px;
+        }
+
+        .avatar-container {
+            position: relative;
+            width: 150px;
+            height: 150px;
+        }
+
+        .avatar-circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: 5px solid #333;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+            transition: transform 0.2s ease;
+        }
+
+        .avatar-circle:hover {
+            transform: scale(1.05);
+        }
+
+        .avatar-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .edit-button {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            width: 40px;
+            height: 40px;
+            background: #ff6b6b;
+            border: 3px solid #333;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .edit-button:hover {
+            background: #ff5252;
+            transform: scale(1.1);
+        }
+
+        .edit-icon {
+            width: 20px;
+            height: 20px;
+            filter: brightness(0) invert(1);
+        }
+
+        .code-input-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 20px;
+            border: 4px solid #333;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .code-input {
+            width: 300px;
+            height: 50px;
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            border: 3px solid #333;
+            border-radius: 15px;
+            padding: 10px;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .code-input:focus {
+            border-color: #4ecdc4;
+            box-shadow: 0 0 10px rgba(78, 205, 196, 0.5);
+        }
+
+        .submit-button {
+            width: 50px;
+            height: 50px;
+            background: #4ecdc4;
+            border: 3px solid #333;
+            border-radius: 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .submit-button:hover {
+            background: #45b7b8;
+            transform: scale(1.1);
+        }
+
+        .checkmark {
+            width: 25px;
+            height: 25px;
+            filter: brightness(0) invert(1);
+        }
+
+        /* Avatar Editor Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            width: 600px;
+            height: 700px;
+            background: white;
+            border: 5px solid #333;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-top {
+            height: 50%;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            border-bottom: 3px solid #333;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        }
+
+        .close-button {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 35px;
+            height: 35px;
+            background: #ff6b6b;
+            border: 3px solid #333;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: bold;
+            color: white;
+            transition: all 0.2s ease;
+        }
+
+        .close-button:hover {
+            background: #ff5252;
+            transform: scale(1.1);
+        }
+
+        .avatar-preview {
+            width: 200px;
+            height: 200px;
+            border: 4px solid #333;
+            border-radius: 20px;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .save-button {
+            background: #4ecdc4;
+            border: 3px solid #333;
+            padding: 12px 30px;
+            border-radius: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+        }
+
+        .save-button:hover {
+            background: #45b7b8;
+            transform: scale(1.05);
+        }
+
+        .modal-bottom {
+            height: 50%;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .category-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .category-tab {
+            padding: 8px 16px;
+            background: #e9ecef;
+            border: 2px solid #333;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s ease;
+            font-size: 14px;
+        }
+
+        .category-tab.active {
+            background: #4ecdc4;
+            color: white;
+        }
+
+        .category-tab:hover {
+            transform: scale(1.05);
+        }
+
+        .item-selector {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            height: 100px;
+        }
+
+        .nav-arrow {
+            width: 40px;
+            height: 40px;
+            background: #ff6b6b;
+            border: 3px solid #333;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: bold;
+            color: white;
+            transition: all 0.2s ease;
+        }
+
+        .nav-arrow:hover {
+            background: #ff5252;
+            transform: scale(1.1);
+        }
+
+        .nav-arrow.disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .current-item {
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            min-width: 200px;
+            padding: 10px;
+            background: rgba(78, 205, 196, 0.1);
+            border: 2px solid #4ecdc4;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="background-overlay"></div>
+    
+    <div class="header">
+        <img src="assets/polortext.png" alt="Polor Logo" class="polor-logo" onclick="window.open('https://polor.org', '_blank')">
+        <h1 class="header-text">Join A Game</h1>
+    </div>
+
+    <div class="main-container">
+        <div class="avatar-container">
+            <div class="avatar-circle" id="avatarCircle">
+                <canvas id="avatarCanvas" width="140" height="140" class="avatar-image"></canvas>
+            </div>
+            <div class="edit-button" onclick="openAvatarEditor()">
+                <svg class="edit-icon" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                </svg>
+            </div>
+        </div>
+
+        <div class="code-input-container">
+            <input type="text" class="code-input" id="codeInput" placeholder="Enter Game Code" maxlength="6">
+            <div class="submit-button" onclick="joinGame()">
+                <svg class="checkmark" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <!-- Avatar Editor Modal -->
+    <div class="modal-overlay" id="avatarModal">
+        <div class="modal-content">
+            <div class="modal-top">
+                <div class="close-button" onclick="closeAvatarEditor()">×</div>
+                <div class="avatar-preview">
+                    <canvas id="previewCanvas" width="190" height="190"></canvas>
+                </div>
+                <button class="save-button" onclick="saveAvatar()">Save Avatar</button>
+            </div>
+            <div class="modal-bottom">
+                <div class="category-tabs" id="categoryTabs"></div>
+                <div class="item-selector">
+                    <div class="nav-arrow" id="prevArrow" onclick="previousItem()">‹</div>
+                    <div class="current-item" id="currentItem">Loading...</div>
+                    <div class="nav-arrow" id="nextArrow" onclick="nextItem()">›</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Avatar data from the manifest
+        const avatarData = {
+            "bases": ["1.png", "2.png", "3.png", "4.png", "5.png", "6.png", "7.png", "8.png"],
+            "brows": ["Basic.png", "LeftSlit.png", "questioning.png", "RightSlit.png"],
+            "ears": [],
+            "extra": [],
+            "eyes": ["BasicFemale.png", "BasicMale.png", "closed.png", "crazy.png", "crossed.png", "cyclopes.png", "googly.png", "hearts.png", "mad.png", "money.png", "rolled.png", "starboy.png", "stargirl.png", "wink1.png", "wink2.png", "yuk.png"],
+            "face": [],
+            "glasses": ["3d.png", "blue.png", "circle.png", "clout.png", "diva.png", "eyepatch.png", "glasses.png", "goggles.png", "heartblack.png", "heartred.png", "mask.png", "nerd.png", "popped.png", "professor.png", "red.png", "shades.png", "sports.png", "trance.png", "whiteflames.png"],
+            "hair": ["1.png", "10.png", "100.png", "101.png", "102.png", "103.png", "104.png", "105.png", "106.png", "107.png", "108.png", "109.png", "11.png", "110.png", "111.png", "112.png", "113.png", "114.png", "115.png", "116.png", "117.png", "118.png", "119.png", "12.png", "120.png", "121.png", "122.png", "13.png", "14.png", "15.png", "16.png", "17.png", "18.png", "19.png", "2.png", "20.png", "21.png", "22.png", "23.png", "24.png", "25.png", "26.png", "27.png", "28.png", "29.png", "3.png", "30.png", "31.png", "32.png", "33.png", "34.png", "35.png", "36.png", "37.png", "38.png", "39.png", "4.png", "40.png", "5.png", "50.png", "51.png", "52.png", "53.png", "54.png", "55.png", "56.png", "57.png", "58.png", "59.png", "6.png", "60.png", "61.png", "62.png", "63.png", "64.png", "65.png", "66.png", "67.png", "68.png", "69.png", "7.png", "70.png", "71.png", "72.png", "73.png", "74.png", "75.png", "76.png", "77.png", "78.png", "79.png", "8.png", "80.png", "81.png", "82.png", "83.png", "84.png", "85.png", "86.png", "87.png", "88.png", "89.png", "9.png", "90.png", "91.png", "92.png", "93.png", "94.png", "95.png", "96.png", "97.png", "98.png", "99.png"],
+            "hats": ["7.png", "8.png", "9.png", "beanie.png", "beanie2.png", "beanie3.png", "beanie4.png", "beanie5.png", "blackcap.png", "blackcrown.png", "BlackHijab.png", "bluecap.png", "BlueHijab.png", "bonnet.png", "bow.png", "bow2.png", "bowler.png", "browncap.png", "bucket1.png", "bucket2.png", "bunny.png", "chef.png", "cop.png", "cowboy.png", "crown.png", "earmuffs.png", "firefighter.png", "GreenHijab.png", "halo.png", "headphones.png", "kippah.png", "kittybeanie.png", "pirate.png", "redcap.png", "RedHijab.png", "scholar.png", "scholar2.png", "sleepy.png", "tin.png", "vikings.png", "WhiteHijab.png", "witch.png"],
+            "mouth": ["baller.png", "Basic.png", "beard1.png", "beard2.png", "beard3.png", "beard4.png", "beard5.png", "beard6.png", "braces.png", "buddy.png", "chad.png", "cheese.png", "frown.png", "goatee.png", "grin.png", "lips.png", "stache.png", "Tested.png", "tunes.png", "uneasy.png", "yuk.png"],
+            "neck": ["chain.png", "cross.png"],
+            "nose": ["basic.png", "bleed.png", "bulky.png", "clown.png", "liar.png", "point.png", "ring.png", "rung.png", "snowman.png"],
+            "tops": ["1.png", "10.png", "100.png", "101.png", "102.png", "103.png", "104.png", "105.png", "106.png", "107.png", "108.png", "109.png", "11.png", "110.png", "111.png", "112.png", "113.png", "12.png", "13.png", "14.png", "15.png", "16.png", "17.png", "18.png", "19.png", "2.png", "20.png", "21.png", "22.png", "23.png", "24.png", "25.png", "26.png", "27.png", "28.png", "29.png", "3.png", "30.png", "31.png", "32.png", "33.png", "34.png", "35.png", "36.png", "37.png", "38.png", "39.png", "4.png", "40.png", "42.png", "43.png", "44.png", "45.png", "46.png", "47.png", "48.png", "49.png", "5.png", "50.png", "51.png", "52.png", "53.png", "54.png", "55.png", "56.png", "57.png", "58.png", "59.png", "6.png", "60.png", "61.png", "62.png", "63.png", "64.png", "65.png", "66.png", "67.png", "68.png", "69.png", "7.png", "70.png", "71.png", "72.png", "73.png", "74.png", "75.png", "76.png", "77.png", "78.png", "79.png", "8.png", "80.png", "81.png", "82.png", "83.png", "84.png", "85.png", "86.png", "87.png", "88.png", "89.png", "9.png", "90.png", "92.png", "93.png", "94.png", "95.png", "96.png", "97.png", "98.png", "99.png"]
+        };
+
+        // Current avatar state
+        let currentAvatar = {
+            bases: 'bases/1.png',
+            hair: 'hair/1.png',
+            eyes: 'eyes/BasicFemale.png',
+            mouth: 'mouth/Basic.png',
+            nose: 'nose/basic.png',
+            tops: 'tops/1.png',
+            brows: null,
+            glasses: null,
+            hats: null,
+            neck: null
+        };
+
+        // Editor state
+        let currentCategory = 'bases';
+        let currentIndex = 0;
+
+        // Load saved avatar from cache
+        function loadSavedAvatar() {
+            const savedAvatar = localStorage.getItem('avatar');
+            if (savedAvatar) {
+                // Load from imgbb URL format
+                const avatarImg = new Image();
+                avatarImg.crossOrigin = 'anonymous';
+                avatarImg.onload = function() {
+                    const canvas = document.getElementById('avatarCanvas');
+                    const ctx = canvas.getContext('2d');
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    ctx.drawImage(avatarImg, 0, 0, canvas.width, canvas.height);
+                };
+                avatarImg.src = `https://i.ibb.co/${savedAvatar}.png`;
+            } else {
+                renderAvatar();
+            }
+        }
+
+        // Render avatar on canvas
+        function renderAvatar() {
+            const canvas = document.getElementById('avatarCanvas');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const loadOrder = ['bases', 'tops', 'hair', 'eyes', 'nose', 'mouth', 'brows', 'neck', 'glasses', 'hats'];
+            let loadedCount = 0;
+
+            loadOrder.forEach(category => {
+                if (currentAvatar[category]) {
+                    const img = new Image();
+                    img.crossOrigin = 'anonymous';
+                    img.onload = function() {
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        loadedCount++;
+                    };
+                    img.src = `assets/avatar/${currentAvatar[category]}`;
+                } else {
+                    loadedCount++;
+                }
+            });
+        }
+
+        // Render preview avatar
+        function renderPreviewAvatar() {
+            const canvas = document.getElementById('previewCanvas');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const loadOrder = ['bases', 'tops', 'hair', 'eyes', 'nose', 'mouth', 'brows', 'neck', 'glasses', 'hats'];
+            
+            loadOrder.forEach(category => {
+                if (currentAvatar[category]) {
+                    const img = new Image();
+                    img.crossOrigin = 'anonymous';
+                    img.onload = function() {
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    };
+                    img.src = `assets/avatar/${currentAvatar[category]}`;
+                }
+            });
+        }
+
+        // Open avatar editor
+        function openAvatarEditor() {
+            document.getElementById('avatarModal').style.display = 'flex';
+            initializeEditor();
+            renderPreviewAvatar();
+        }
+
+        // Close avatar editor
+        function closeAvatarEditor() {
+            document.getElementById('avatarModal').style.display = 'none';
+        }
+
+        // Initialize editor
+        function initializeEditor() {
+            const tabsContainer = document.getElementById('categoryTabs');
+            tabsContainer.innerHTML = '';
+            
+            Object.keys(avatarData).forEach(category => {
+                if (avatarData[category].length > 0) {
+                    const tab = document.createElement('div');
+                    tab.className = `category-tab ${category === currentCategory ? 'active' : ''}`;
+                    tab.textContent = category.charAt(0).toUpperCase() + category.slice(1);
+                    tab.onclick = () => selectCategory(category);
+                    tabsContainer.appendChild(tab);
+                }
+            });
+            
+            updateCurrentItem();
+        }
+
+        // Select category
+        function selectCategory(category) {
+            currentCategory = category;
+            currentIndex = 0;
+            
+            document.querySelectorAll('.category-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            updateCurrentItem();
+        }
+
+        // Update current item display
+        function updateCurrentItem() {
+            const items = avatarData[currentCategory];
+            if (items.length === 0) return;
+            
+            const currentItemElement = document.getElementById('currentItem');
+            currentItemElement.textContent = items[currentIndex] || 'None';
+            
+            // Update navigation arrows
+            document.getElementById('prevArrow').classList.toggle('disabled', currentIndex === 0);
+            document.getElementById('nextArrow').classList.toggle('disabled', currentIndex === items.length - 1);
+            
+            // Update avatar preview
+            if (items[currentIndex]) {
+                currentAvatar[currentCategory] = `${currentCategory}/${items[currentIndex]}`;
+            } else {
+                currentAvatar[currentCategory] = null;
+            }
+            renderPreviewAvatar();
+        }
+
+        // Navigate items
+        function previousItem() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                updateCurrentItem();
+            }
+        }
+
+        function nextItem() {
+            const items = avatarData[currentCategory];
+            if (currentIndex < items.length - 1) {
+                currentIndex++;
+                updateCurrentItem();
+            }
+        }
+
+        // Save avatar
+        async function saveAvatar() {
+            const canvas = document.getElementById('previewCanvas');
+            const dataURL = canvas.toDataURL('image/png');
+            
+            try {
+                // Try to get API key from dougie.wtf/apikey
+                let apiKey = 'b67152898b5211b8132b6bb959510033'; // fallback key
+                try {
+                    const response = await fetch('https://dougie.wtf/apikey');
+                    if (response.ok) {
+                        const keyData = await response.text();
+                        if (keyData.trim()) {
+                            apiKey = keyData.trim();
+                        }
+                    }
+                } catch (e) {
+                    console.log('Using fallback API key');
+                }
+
+                // Convert dataURL to blob
+                const response = await fetch(dataURL);
+                const blob = await response.blob();
+                
+                // Create form data
+                const formData = new FormData();
+                formData.append('image', blob);
+                formData.append('key', apiKey);
+                
+                // Upload to imgbb
+                const uploadResponse = await fetch('https://api.imgbb.com/1/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await uploadResponse.json();
+                
+                if (result.success) {
+                    // Extract the ID from the URL
+                    const urlParts = result.data.url.split('/');
+                    const imageId = urlParts[urlParts.length - 1].replace('.png', '');
+                    const folder = urlParts[urlParts.length - 2];
+                    const avatarKey = `${folder}/${imageId}`;
+                    
+                    // Save to localStorage
+                    localStorage.setItem('avatar', avatarKey);
+                    
+                    // Update main avatar display
+                    renderAvatar();
+                    
+                    closeAvatarEditor();
+                    alert('Avatar saved successfully!');
+                } else {
+                    alert('Failed to save avatar. Please try again.');
+                }
+            } catch (error) {
+                console.error('Error saving avatar:', error);
+                alert('Failed to save avatar. Please try again.');
+            }
+        }
+
+        // Join game
+        function joinGame() {
+            const code = document.getElementById('codeInput').value.trim();
+            if (code) {
+                window.location.href = `https://polor.org/join?=${code}`;
+            } else {
+                alert('Please enter a game code!');
+            }
+        }
+
+        // Handle enter key in code input
+        document.getElementById('codeInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                joinGame();
+            }
+        });
+
+        // Initialize on page load
+        window.onload = function() {
+            loadSavedAvatar();
+        };
+    </script>
+</body>
+</html>
