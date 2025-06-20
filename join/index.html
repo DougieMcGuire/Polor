@@ -354,14 +354,21 @@
         }
 
         .current-item {
-            font-size: 18px;
-            font-weight: bold;
-            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             min-width: 200px;
+            height: 80px;
             padding: 10px;
             background: rgba(78, 205, 196, 0.1);
             border: 2px solid #4ecdc4;
             border-radius: 10px;
+        }
+
+        .current-item-image {
+            max-width: 60px;
+            max-height: 60px;
+            object-fit: contain;
         }
     </style>
 </head>
@@ -417,36 +424,37 @@
     </div>
 
     <script>
-        // Avatar data from the manifest
-        const avatarData = {
-            "bases": ["1.png", "2.png", "3.png", "4.png", "5.png", "6.png", "7.png", "8.png"],
-            "brows": ["Basic.png", "LeftSlit.png", "questioning.png", "RightSlit.png"],
-            "ears": [],
-            "extra": [],
-            "eyes": ["BasicFemale.png", "BasicMale.png", "closed.png", "crazy.png", "crossed.png", "cyclopes.png", "googly.png", "hearts.png", "mad.png", "money.png", "rolled.png", "starboy.png", "stargirl.png", "wink1.png", "wink2.png", "yuk.png"],
-            "face": [],
-            "glasses": ["3d.png", "blue.png", "circle.png", "clout.png", "diva.png", "eyepatch.png", "glasses.png", "goggles.png", "heartblack.png", "heartred.png", "mask.png", "nerd.png", "popped.png", "professor.png", "red.png", "shades.png", "sports.png", "trance.png", "whiteflames.png"],
-            "hair": ["1.png", "10.png", "100.png", "101.png", "102.png", "103.png", "104.png", "105.png", "106.png", "107.png", "108.png", "109.png", "11.png", "110.png", "111.png", "112.png", "113.png", "114.png", "115.png", "116.png", "117.png", "118.png", "119.png", "12.png", "120.png", "121.png", "122.png", "13.png", "14.png", "15.png", "16.png", "17.png", "18.png", "19.png", "2.png", "20.png", "21.png", "22.png", "23.png", "24.png", "25.png", "26.png", "27.png", "28.png", "29.png", "3.png", "30.png", "31.png", "32.png", "33.png", "34.png", "35.png", "36.png", "37.png", "38.png", "39.png", "4.png", "40.png", "5.png", "50.png", "51.png", "52.png", "53.png", "54.png", "55.png", "56.png", "57.png", "58.png", "59.png", "6.png", "60.png", "61.png", "62.png", "63.png", "64.png", "65.png", "66.png", "67.png", "68.png", "69.png", "7.png", "70.png", "71.png", "72.png", "73.png", "74.png", "75.png", "76.png", "77.png", "78.png", "79.png", "8.png", "80.png", "81.png", "82.png", "83.png", "84.png", "85.png", "86.png", "87.png", "88.png", "89.png", "9.png", "90.png", "91.png", "92.png", "93.png", "94.png", "95.png", "96.png", "97.png", "98.png", "99.png"],
-            "hats": ["7.png", "8.png", "9.png", "beanie.png", "beanie2.png", "beanie3.png", "beanie4.png", "beanie5.png", "blackcap.png", "blackcrown.png", "BlackHijab.png", "bluecap.png", "BlueHijab.png", "bonnet.png", "bow.png", "bow2.png", "bowler.png", "browncap.png", "bucket1.png", "bucket2.png", "bunny.png", "chef.png", "cop.png", "cowboy.png", "crown.png", "earmuffs.png", "firefighter.png", "GreenHijab.png", "halo.png", "headphones.png", "kippah.png", "kittybeanie.png", "pirate.png", "redcap.png", "RedHijab.png", "scholar.png", "scholar2.png", "sleepy.png", "tin.png", "vikings.png", "WhiteHijab.png", "witch.png"],
-            "mouth": ["baller.png", "Basic.png", "beard1.png", "beard2.png", "beard3.png", "beard4.png", "beard5.png", "beard6.png", "braces.png", "buddy.png", "chad.png", "cheese.png", "frown.png", "goatee.png", "grin.png", "lips.png", "stache.png", "Tested.png", "tunes.png", "uneasy.png", "yuk.png"],
-            "neck": ["chain.png", "cross.png"],
-            "nose": ["basic.png", "bleed.png", "bulky.png", "clown.png", "liar.png", "point.png", "ring.png", "rung.png", "snowman.png"],
-            "tops": ["1.png", "10.png", "100.png", "101.png", "102.png", "103.png", "104.png", "105.png", "106.png", "107.png", "108.png", "109.png", "11.png", "110.png", "111.png", "112.png", "113.png", "12.png", "13.png", "14.png", "15.png", "16.png", "17.png", "18.png", "19.png", "2.png", "20.png", "21.png", "22.png", "23.png", "24.png", "25.png", "26.png", "27.png", "28.png", "29.png", "3.png", "30.png", "31.png", "32.png", "33.png", "34.png", "35.png", "36.png", "37.png", "38.png", "39.png", "4.png", "40.png", "42.png", "43.png", "44.png", "45.png", "46.png", "47.png", "48.png", "49.png", "5.png", "50.png", "51.png", "52.png", "53.png", "54.png", "55.png", "56.png", "57.png", "58.png", "59.png", "6.png", "60.png", "61.png", "62.png", "63.png", "64.png", "65.png", "66.png", "67.png", "68.png", "69.png", "7.png", "70.png", "71.png", "72.png", "73.png", "74.png", "75.png", "76.png", "77.png", "78.png", "79.png", "8.png", "80.png", "81.png", "82.png", "83.png", "84.png", "85.png", "86.png", "87.png", "88.png", "89.png", "9.png", "90.png", "92.png", "93.png", "94.png", "95.png", "96.png", "97.png", "98.png", "99.png"]
-        };
+        // Avatar data - loaded from polor.org/Avatars/manifest.json
+        let avatarData = {};
 
         // Current avatar state
         let currentAvatar = {
             bases: 'bases/1.png',
             hair: 'hair/1.png',
-            eyes: 'eyes/BasicMale.png',
+            eyes: 'eyes/BasicFemale.png',
             mouth: 'mouth/Basic.png',
             nose: 'nose/basic.png',
             tops: 'tops/1.png',
-            brows: 'Basic.png',
+            brows: null,
             glasses: null,
             hats: null,
             neck: null
         };
+
+        // Load manifest from polor.org
+        async function loadManifest() {
+            try {
+                const response = await fetch('https://polor.org/Avatars/manifest.json');
+                avatarData = await response.json();
+            } catch (error) {
+                console.error('Failed to load manifest:', error);
+                // Fallback to empty structure
+                avatarData = {
+                    bases: [], hair: [], eyes: [], mouth: [], nose: [], tops: [],
+                    brows: [], glasses: [], hats: [], neck: [], ears: [], extra: [], face: []
+                };
+            }
+        }
 
         // Editor state
         let currentCategory = 'bases';
@@ -488,7 +496,7 @@
                         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
                         loadedCount++;
                     };
-                    img.src = `assets/avatar/${currentAvatar[category]}`;
+                    img.src = `https://polor.org/Avatars/characters/${currentAvatar[category]}`;
                 } else {
                     loadedCount++;
                 }
@@ -510,7 +518,7 @@
                     img.onload = function() {
                         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
                     };
-                    img.src = `assets/avatar/${currentAvatar[category]}`;
+                    img.src = `https://polor.org/Avatars/characters/${currentAvatar[category]}`;
                 }
             });
         }
@@ -564,7 +572,17 @@
             if (items.length === 0) return;
             
             const currentItemElement = document.getElementById('currentItem');
-            currentItemElement.textContent = items[currentIndex] || 'None';
+            currentItemElement.innerHTML = '';
+            
+            if (items[currentIndex]) {
+                const img = document.createElement('img');
+                img.className = 'current-item-image';
+                img.src = `https://polor.org/Avatars/characters/${currentCategory}/${items[currentIndex]}`;
+                img.onerror = function() {
+                    this.style.display = 'none';
+                };
+                currentItemElement.appendChild(img);
+            }
             
             // Update navigation arrows
             document.getElementById('prevArrow').classList.toggle('disabled', currentIndex === 0);
