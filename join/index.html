@@ -566,7 +566,8 @@
             updateCurrentItem();
         }
 
-function updateCurrentItem() {
+        // Update current item display
+        function updateCurrentItem() {
     const items = avatarData[currentCategory] || [null]; // default to array of 1 item
     if (items.length === 0) return;
 
@@ -577,11 +578,6 @@ function updateCurrentItem() {
     // Your actual update logic goes here
 }
 
-}
-
-            
-            const currentItemElement = document.getElementById('currentItem');
-            currentItemElement.innerHTML = '';
             
             if (items[currentIndex]) {
                 const img = document.createElement('img');
@@ -607,21 +603,20 @@ function updateCurrentItem() {
         }
 
         // Navigate items
-function nextItem() {
-    const items = avatarData[currentCategory] || [null];
-    if (currentIndex < items.length - 1) {
-        currentIndex++;
-        updateCurrentItem();
-    }
-}
+        function previousItem() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                updateCurrentItem();
+            }
+        }
 
-function previousItem() {
-    if (currentIndex > 0) {
-        currentIndex--;
-        updateCurrentItem();
-    }
-}
-
+        function nextItem() {
+            const items = avatarData[currentCategory];
+            if (currentIndex < items.length - 1) {
+                currentIndex++;
+                updateCurrentItem();
+            }
+        }
 
         // Save avatar
         async function saveAvatar() {
