@@ -437,9 +437,9 @@
 
         // Current avatar configuration
         let currentAvatar = {
-            bases: 'bases/1.png',
-            hair: 'hair/1.png', 
-            eyes: 'eyes/BasicFemale.png',
+            bases: 'bases/7.png',
+            hair: null,
+            eyes: 'eyes/BasicMale.png',
             mouth: 'mouth/Basic.png',
             nose: 'nose/basic.png',
             tops: 'tops/1.png',
@@ -454,7 +454,7 @@
 
         // Editor state
         let currentCategory = 'bases';
-        let currentIndex = 0;
+        let categoryIndices = {}; // Remember index for each category
 
         // Load manifest from polor.org
         async function loadManifest() {
@@ -468,11 +468,33 @@
                 manifestLoaded = true;
                 console.log('Manifest loaded:', avatarData);
                 
-                // Initialize with first available items
+                // Initialize category indices
                 Object.keys(avatarData).forEach(category => {
                     if (avatarData[category] && avatarData[category].length > 0) {
-                        if (!currentAvatar[category]) {
-                            currentAvatar[category] = `${category}/${avatarData[category][0]}`;
+                        // Set default indices based on current avatar
+                        if (category === 'bases' && currentAvatar.bases) {
+                            const filename = currentAvatar.bases.split('/')[1];
+                            const index = avatarData[category].indexOf(filename);
+                            categoryIndices[category] = index >= 0 ? index : 0;
+                        } else if (category === 'tops' && currentAvatar.tops) {
+                            const filename = currentAvatar.tops.split('/')[1];
+                            const index = avatarData[category].indexOf(filename);
+                            categoryIndices[category] = index >= 0 ? index : 0;
+                        } else if (category === 'eyes' && currentAvatar.eyes) {
+                            const filename = currentAvatar.eyes.split('/')[1];
+                            const index = avatarData[category].indexOf(filename);
+                            categoryIndices[category] = index >= 0 ? index : 0;
+                        } else if (category === 'nose' && currentAvatar.nose) {
+                            const filename = currentAvatar.nose.split('/')[1];
+                            const index = avatarData[category].indexOf(filename);
+                            categoryIndices[category] = index >= 0 ? index : 0;
+                        } else if (category === 'mouth' && currentAvatar.mouth) {
+                            const filename = currentAvatar.mouth.split('/')[1];
+                            const index = avatarData[category].indexOf(filename);
+                            categoryIndices[category] = index >= 0 ? index : 0;
+                        } else {
+                            // For categories with "None" option, start at 0 (None)
+                            categoryIndices[category] = 0;
                         }
                     }
                 });
@@ -482,9 +504,9 @@
                 manifestLoaded = false;
                 // Use fallback minimal structure
                 avatarData = {
-                    bases: ['1.png', '2.png', '3.png'],
+                    bases: ['1.png', '2.png', '3.png', '7.png'],
                     hair: ['1.png', '2.png', '3.png'],
-                    eyes: ['BasicFemale.png', 'BasicMale.png'],
+                    eyes: ['BasicMale.png', 'BasicFemale.png'],
                     mouth: ['Basic.png'],
                     nose: ['basic.png'],
                     tops: ['1.png', '2.png', '3.png'],
@@ -496,6 +518,10 @@
                     extra: [],
                     face: []
                 };
+                // Initialize fallback indices
+                Object.keys(avatarData).forEach(category => {
+                    categoryIndices[category] = 0;
+                });
             }
         }
 
@@ -522,73 +548,95 @@
             }
         }
 
-        // Render avatar on canvas
+        // Render avatar on canvas (optimized to reduce flashing)
         function renderAvatar() {
             const canvas = document.getElementById('avatarCanvas');
             const ctx = canvas.getContext('2d');
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Create offscreen canvas for smoother rendering
+            const offscreenCanvas = document.createElement('canvas');
+            offscreenCanvas.width = canvas.width;
+            offscreenCanvas.height = canvas.height;
+            const offscreenCtx = offscreenCanvas.getContext('2d');
 
             const renderOrder = ['bases', 'tops', 'hair', 'eyes', 'nose', 'mouth', 'brows', 'neck', 'glasses', 'hats', 'ears', 'extra', 'face'];
-            let loadedImages = 0;
+            let imagesLoaded = 0;
             const totalImages = renderOrder.filter(cat => currentAvatar[cat]).length;
 
             if (totalImages === 0) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
                 return;
             }
 
-            function drawNextLayer(index) {
-                if (index >= renderOrder.length) return;
-                
-                const category = renderOrder[index];
+            function checkComplete() {
+                imagesLoaded++;
+                if (imagesLoaded === totalImages) {
+                    // Only update visible canvas when all images are loaded
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    ctx.drawImage(offscreenCanvas, 0, 0);
+                }
+            }
+
+            renderOrder.forEach(category => {
                 if (currentAvatar[category]) {
                     const img = new Image();
                     img.crossOrigin = 'anonymous';
                     img.onload = function() {
-                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                        drawNextLayer(index + 1);
+                        offscreenCtx.drawImage(img, 0, 0, offscreenCanvas.width, offscreenCanvas.height);
+                        checkComplete();
                     };
                     img.onerror = function() {
                         console.warn(`Failed to load ${category} image:`, currentAvatar[category]);
-                        drawNextLayer(index + 1);
+                        checkComplete();
                     };
                     img.src = `https://polor.org/Avatars/characters/${currentAvatar[category]}`;
-                } else {
-                    drawNextLayer(index + 1);
                 }
-            }
-
-            drawNextLayer(0);
+            });
         }
 
-        // Render preview avatar in editor
+        // Render preview avatar in editor (optimized)
         function renderPreviewAvatar() {
             const canvas = document.getElementById('previewCanvas');
             const ctx = canvas.getContext('2d');
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Create offscreen canvas for smoother rendering
+            const offscreenCanvas = document.createElement('canvas');
+            offscreenCanvas.width = canvas.width;
+            offscreenCanvas.height = canvas.height;
+            const offscreenCtx = offscreenCanvas.getContext('2d');
 
             const renderOrder = ['bases', 'tops', 'hair', 'eyes', 'nose', 'mouth', 'brows', 'neck', 'glasses', 'hats', 'ears', 'extra', 'face'];
-            
-            function drawNextLayer(index) {
-                if (index >= renderOrder.length) return;
-                
-                const category = renderOrder[index];
+            let imagesLoaded = 0;
+            const totalImages = renderOrder.filter(cat => currentAvatar[cat]).length;
+
+            if (totalImages === 0) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                return;
+            }
+
+            function checkComplete() {
+                imagesLoaded++;
+                if (imagesLoaded === totalImages) {
+                    // Only update visible canvas when all images are loaded
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    ctx.drawImage(offscreenCanvas, 0, 0);
+                }
+            }
+
+            renderOrder.forEach(category => {
                 if (currentAvatar[category]) {
                     const img = new Image();
                     img.crossOrigin = 'anonymous';
                     img.onload = function() {
-                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                        drawNextLayer(index + 1);
+                        offscreenCtx.drawImage(img, 0, 0, offscreenCanvas.width, offscreenCanvas.height);
+                        checkComplete();
                     };
                     img.onerror = function() {
-                        drawNextLayer(index + 1);
+                        checkComplete();
                     };
                     img.src = `https://polor.org/Avatars/characters/${currentAvatar[category]}`;
-                } else {
-                    drawNextLayer(index + 1);
                 }
-            }
-
-            drawNextLayer(0);
+            });
         }
 
         // Open avatar editor
@@ -625,7 +673,6 @@
             // Reset to valid category if current one is empty
             if (!avatarData[currentCategory] || avatarData[currentCategory].length === 0) {
                 currentCategory = Object.keys(avatarData).find(cat => avatarData[cat] && avatarData[cat].length > 0) || 'bases';
-                currentIndex = 0;
             }
             
             updateCurrentItem();
@@ -634,7 +681,6 @@
         // Select category
         function selectCategory(category) {
             currentCategory = category;
-            currentIndex = 0;
             
             // Update active tab
             document.querySelectorAll('.category-tab').forEach(tab => {
@@ -653,47 +699,75 @@
                 return;
             }
             
+            // Get current index for this category
+            const currentIndex = categoryIndices[currentCategory] || 0;
             const currentItemElement = document.getElementById('currentItem');
             currentItemElement.innerHTML = '';
             
-            if (items[currentIndex]) {
-                const img = document.createElement('img');
-                img.className = 'current-item-image';
-                img.src = `https://polor.org/Avatars/characters/${currentCategory}/${items[currentIndex]}`;
-                img.onerror = function() {
-                    currentItemElement.innerHTML = '<span class="loading">Failed to load</span>';
-                };
-                currentItemElement.appendChild(img);
+            // Categories that should have "None" option
+            const noneCategories = ['neck', 'hats', 'glasses', 'hair'];
+            const hasNoneOption = noneCategories.includes(currentCategory);
+            
+            if (currentIndex === 0 && hasNoneOption) {
+                // Show "None" option
+                const noneDiv = document.createElement('div');
+                noneDiv.textContent = 'None';
+                noneDiv.style.fontWeight = 'bold';
+                noneDiv.style.color = '#666';
+                currentItemElement.appendChild(noneDiv);
                 
-                // Update avatar
-                currentAvatar[currentCategory] = `${currentCategory}/${items[currentIndex]}`;
-            } else {
-                currentItemElement.innerHTML = '<span class="loading">None</span>';
+                // Set avatar to null for this category
                 currentAvatar[currentCategory] = null;
+            } else {
+                // Show actual item
+                const itemIndex = hasNoneOption ? currentIndex - 1 : currentIndex;
+                if (items[itemIndex]) {
+                    const img = document.createElement('img');
+                    img.className = 'current-item-image';
+                    img.src = `https://polor.org/Avatars/characters/${currentCategory}/${items[itemIndex]}`;
+                    img.onerror = function() {
+                        currentItemElement.innerHTML = '<span class="loading">Failed to load</span>';
+                    };
+                    currentItemElement.appendChild(img);
+                    
+                    // Update avatar
+                    currentAvatar[currentCategory] = `${currentCategory}/${items[itemIndex]}`;
+                } else {
+                    currentItemElement.innerHTML = '<span class="loading">None</span>';
+                    currentAvatar[currentCategory] = null;
+                }
             }
             
             // Update navigation arrows
             const prevArrow = document.getElementById('prevArrow');
             const nextArrow = document.getElementById('nextArrow');
             
+            const maxIndex = hasNoneOption ? items.length : items.length - 1;
+            
             prevArrow.classList.toggle('disabled', currentIndex === 0);
-            nextArrow.classList.toggle('disabled', currentIndex >= items.length - 1);
+            nextArrow.classList.toggle('disabled', currentIndex >= maxIndex);
             
             renderPreviewAvatar();
         }
 
         // Navigation functions
         function previousItem() {
+            const currentIndex = categoryIndices[currentCategory] || 0;
             if (currentIndex > 0) {
-                currentIndex--;
+                categoryIndices[currentCategory] = currentIndex - 1;
                 updateCurrentItem();
             }
         }
 
         function nextItem() {
             const items = avatarData[currentCategory];
-            if (items && currentIndex < items.length - 1) {
-                currentIndex++;
+            const currentIndex = categoryIndices[currentCategory] || 0;
+            const noneCategories = ['neck', 'hats', 'glasses', 'hair'];
+            const hasNoneOption = noneCategories.includes(currentCategory);
+            const maxIndex = hasNoneOption ? items.length : items.length - 1;
+            
+            if (items && currentIndex < maxIndex) {
+                categoryIndices[currentCategory] = currentIndex + 1;
                 updateCurrentItem();
             }
         }
