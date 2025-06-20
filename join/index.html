@@ -567,9 +567,13 @@
         }
 
         // Update current item display
-        function updateCurrentItem() {
-            const items = avatarData[currentCategory];
-            if (items.length === 0) return;
+function updateCurrentItem() {
+    const items = avatarData[currentCategory];
+    if (!items || items.length === 0) return;
+
+    // ...your code to update the item
+}
+
             
             const currentItemElement = document.getElementById('currentItem');
             currentItemElement.innerHTML = '';
