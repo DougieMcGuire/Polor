@@ -566,12 +566,17 @@
             updateCurrentItem();
         }
 
-        // Update current item display
 function updateCurrentItem() {
-    const items = avatarData[currentCategory];
-    if (!items || items.length === 0) return;
+    const items = avatarData[currentCategory] || [null]; // default to array of 1 item
+    if (items.length === 0) return;
 
-    // ...your code to update the item
+    // safely use items[ currentIndex ] below
+    const currentItem = items[currentIndex] || items[0]; // fallback to first if index is invalid
+    console.log("Current item:", currentItem);
+
+    // Your actual update logic goes here
+}
+
 }
 
             
@@ -602,20 +607,21 @@ function updateCurrentItem() {
         }
 
         // Navigate items
-        function previousItem() {
-            if (currentIndex > 0) {
-                currentIndex--;
-                updateCurrentItem();
-            }
-        }
+function nextItem() {
+    const items = avatarData[currentCategory] || [null];
+    if (currentIndex < items.length - 1) {
+        currentIndex++;
+        updateCurrentItem();
+    }
+}
 
-        function nextItem() {
-            const items = avatarData[currentCategory];
-            if (currentIndex < items.length - 1) {
-                currentIndex++;
-                updateCurrentItem();
-            }
-        }
+function previousItem() {
+    if (currentIndex > 0) {
+        currentIndex--;
+        updateCurrentItem();
+    }
+}
+
 
         // Save avatar
         async function saveAvatar() {
