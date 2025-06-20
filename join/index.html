@@ -1,703 +1,335 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Polor - Join A Game</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8">
+  <title>Polor - Join A Game</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      user-select: none;
+    }
 
-        body {
-            font-family: 'Comic Sans MS', cursive, sans-serif;
-            background: url('https://media.giphy.com/media/3o7abKhOpu0NwenH3O/giphy.gif') center/cover no-repeat fixed;
-            background-size: cover;
-            height: 100vh;
-            overflow: hidden;
-            user-select: none;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-        }
+    body, html {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: 'Comic Sans MS', cursive, sans-serif;
+    }
 
-        .background-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.3);
-            z-index: 1;
-        }
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: url('your-background.gif') no-repeat center center / cover;
+      z-index: -1;
+    }
 
-        .header {
-            position: relative;
-            z-index: 10;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
-            border-bottom: 5px solid #333;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-        }
+    header {
+      display: flex;
+      align-items: center;
+      padding: 10px 20px;
+    }
 
-        .polor-logo {
-            height: 60px;
-            cursor: pointer;
-            margin-right: 20px;
-            transition: transform 0.2s ease;
-        }
+    header img {
+      height: 40px;
+      cursor: pointer;
+    }
 
-        .polor-logo:hover {
-            transform: scale(1.1);
-        }
+    header h1 {
+      font-size: 32px;
+      color: white;
+      text-shadow: 2px 2px black;
+      margin-left: 10px;
+    }
 
-        .header-text {
-            font-size: 36px;
-            font-weight: bold;
-            color: white;
-            text-shadow: 
-                -3px -3px 0 #333,
-                3px -3px 0 #333,
-                -3px 3px 0 #333,
-                3px 3px 0 #333,
-                0 0 10px rgba(0, 0, 0, 0.5);
-        }
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: calc(100% - 80px);
+    }
 
-        .main-container {
-            position: relative;
-            z-index: 5;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: calc(100vh - 120px);
-            gap: 30px;
-        }
+    .avatar-wrapper {
+      position: relative;
+      width: 120px;
+      height: 120px;
+      border: 3px solid black;
+      border-radius: 50%;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
 
-        .avatar-container {
-            position: relative;
-            width: 150px;
-            height: 150px;
-        }
+    .avatar-wrapper img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
 
-        .avatar-circle {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            border: 5px solid #333;
-            background: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
-            transition: transform 0.2s ease;
-        }
+    .avatar-wrapper .edit {
+      position: absolute;
+      bottom: 5px;
+      right: 5px;
+      background: white;
+      border: 2px solid black;
+      border-radius: 50%;
+      padding: 4px;
+      cursor: pointer;
+    }
 
-        .avatar-circle:hover {
-            transform: scale(1.05);
-        }
+    .code-entry {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
 
-        .avatar-image {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
+    .code-entry input {
+      font-size: 20px;
+      padding: 10px;
+      border: 3px solid black;
+      border-radius: 10px;
+      outline: none;
+    }
 
-        .edit-button {
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
-            width: 40px;
-            height: 40px;
-            background: #ff6b6b;
-            border: 3px solid #333;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-        }
+    .code-entry button {
+      padding: 10px 15px;
+      font-size: 20px;
+      border: none;
+      background: green;
+      color: white;
+      border-radius: 10px;
+      cursor: pointer;
+    }
 
-        .edit-button:hover {
-            background: #ff5252;
-            transform: scale(1.1);
-        }
+    .popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 90%;
+      max-width: 500px;
+      height: 80%;
+      background: white;
+      border: 4px solid black;
+      display: none;
+      flex-direction: column;
+      z-index: 1000;
+    }
 
-        .edit-icon {
-            width: 20px;
-            height: 20px;
-            filter: brightness(0) invert(1);
-        }
+    .popup .top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px;
+      border-bottom: 2px solid black;
+    }
 
-        .code-input-container {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            background: rgba(255, 255, 255, 0.95);
-            padding: 20px;
-            border-radius: 20px;
-            border: 4px solid #333;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
-        }
+    .popup .top img {
+      height: 80px;
+    }
 
-        .code-input {
-            width: 300px;
-            height: 50px;
-            font-size: 24px;
-            font-weight: bold;
-            text-align: center;
-            border: 3px solid #333;
-            border-radius: 15px;
-            padding: 10px;
-            font-family: 'Comic Sans MS', cursive, sans-serif;
-            outline: none;
-            transition: all 0.2s ease;
-        }
+    .popup .bottom {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 10px;
+      overflow: hidden;
+    }
 
-        .code-input:focus {
-            border-color: #4ecdc4;
-            box-shadow: 0 0 10px rgba(78, 205, 196, 0.5);
-        }
+    .options-section {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
 
-        .submit-button {
-            width: 50px;
-            height: 50px;
-            background: #4ecdc4;
-            border: 3px solid #333;
-            border-radius: 15px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s ease;
-        }
+    .option-arrow {
+      font-size: 30px;
+      cursor: pointer;
+      user-select: none;
+    }
 
-        .submit-button:hover {
-            background: #45b7b8;
-            transform: scale(1.1);
-        }
-
-        .checkmark {
-            width: 25px;
-            height: 25px;
-            filter: brightness(0) invert(1);
-        }
-
-        /* Avatar Editor Modal */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-
-        .modal-content {
-            width: 600px;
-            height: 700px;
-            background: white;
-            border: 5px solid #333;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            display: flex;
-            flex-direction: column;
-        }
-
-        .modal-top {
-            height: 50%;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            border-bottom: 3px solid #333;
-            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-        }
-
-        .close-button {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            width: 35px;
-            height: 35px;
-            background: #ff6b6b;
-            border: 3px solid #333;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            font-weight: bold;
-            color: white;
-            transition: all 0.2s ease;
-        }
-
-        .close-button:hover {
-            background: #ff5252;
-            transform: scale(1.1);
-        }
-
-        .avatar-preview {
-            width: 200px;
-            height: 200px;
-            border: 4px solid #333;
-            border-radius: 20px;
-            background: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            margin-bottom: 20px;
-            position: relative;
-        }
-
-        .save-button {
-            background: #4ecdc4;
-            border: 3px solid #333;
-            padding: 12px 30px;
-            border-radius: 15px;
-            font-size: 18px;
-            font-weight: bold;
-            color: white;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-family: 'Comic Sans MS', cursive, sans-serif;
-        }
-
-        .save-button:hover {
-            background: #45b7b8;
-            transform: scale(1.05);
-        }
-
-        .modal-bottom {
-            height: 50%;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .category-tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-
-        .category-tab {
-            padding: 8px 16px;
-            background: #e9ecef;
-            border: 2px solid #333;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.2s ease;
-            font-size: 14px;
-        }
-
-        .category-tab.active {
-            background: #4ecdc4;
-            color: white;
-        }
-
-        .category-tab:hover {
-            transform: scale(1.05);
-        }
-
-        .item-selector {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 20px;
-            height: 100px;
-        }
-
-        .nav-arrow {
-            width: 40px;
-            height: 40px;
-            background: #ff6b6b;
-            border: 3px solid #333;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            font-weight: bold;
-            color: white;
-            transition: all 0.2s ease;
-        }
-
-        .nav-arrow:hover {
-            background: #ff5252;
-            transform: scale(1.1);
-        }
-
-        .nav-arrow.disabled {
-            background: #ccc;
-            cursor: not-allowed;
-            opacity: 0.5;
-        }
-
-        .current-item {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-width: 200px;
-            height: 80px;
-            padding: 10px;
-            background: rgba(78, 205, 196, 0.1);
-            border: 2px solid #4ecdc4;
-            border-radius: 10px;
-        }
-
-        .current-item-image {
-            max-width: 60px;
-            max-height: 60px;
-            object-fit: contain;
-        }
-    </style>
+    .option-display {
+      height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  </style>
 </head>
 <body>
-    <div class="background-overlay"></div>
-    
-    <div class="header">
-        <img src="assets/polortext.png" alt="Polor Logo" class="polor-logo" onclick="window.open('https://polor.org', '_blank')">
-        <h1 class="header-text">Join A Game</h1>
+  <header>
+    <img src="assets/polortext.png" onclick="location.href='https://polor.org'">
+    <h1>Join A Game</h1>
+  </header>
+
+  <div class="container">
+    <div class="avatar-wrapper">
+      <img id="avatarImage" src="default-avatar.png">
+      <div class="edit" onclick="openAvatarEditor()">✏️</div>
     </div>
 
-    <div class="main-container">
-        <div class="avatar-container">
-            <div class="avatar-circle" id="avatarCircle">
-                <canvas id="avatarCanvas" width="140" height="140" class="avatar-image"></canvas>
-            </div>
-            <div class="edit-button" onclick="openAvatarEditor()">
-                <svg class="edit-icon" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
-                </svg>
-            </div>
-        </div>
-
-        <div class="code-input-container">
-            <input type="text" class="code-input" id="codeInput" placeholder="Enter Game Code" maxlength="6">
-            <div class="submit-button" onclick="joinGame()">
-                <svg class="checkmark" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
-                </svg>
-            </div>
-        </div>
+    <div class="code-entry">
+      <input id="codeInput" placeholder="Enter game code" onkeydown="if(event.key === 'Enter') joinGame()">
+      <button onclick="joinGame()">✔️</button>
     </div>
+  </div>
 
-    <!-- Avatar Editor Modal -->
-    <div class="modal-overlay" id="avatarModal">
-        <div class="modal-content">
-            <div class="modal-top">
-                <div class="close-button" onclick="closeAvatarEditor()">×</div>
-                <div class="avatar-preview">
-                    <canvas id="previewCanvas" width="190" height="190"></canvas>
-                </div>
-                <button class="save-button" onclick="saveAvatar()">Save Avatar</button>
-            </div>
-            <div class="modal-bottom">
-                <div class="category-tabs" id="categoryTabs"></div>
-                <div class="item-selector">
-                    <div class="nav-arrow" id="prevArrow" onclick="previousItem()">‹</div>
-                    <div class="current-item" id="currentItem">Loading...</div>
-                    <div class="nav-arrow" id="nextArrow" onclick="nextItem()">›</div>
-                </div>
-            </div>
-        </div>
+  <div class="popup" id="avatarEditor">
+    <div class="top">
+      <img id="livePreview" src="default-avatar.png">
+      <div>
+        <button onclick="saveAvatar()">✔️</button>
+        <button onclick="closeAvatarEditor()">❌</button>
+      </div>
     </div>
+    <div class="bottom">
+      <div class="options-section" id="sectionTabs"></div>
+      <div class="option-display">
+        <span class="option-arrow" onclick="prevOption()">⬅️</span>
+        <img id="currentOptionImg" src="">
+        <span class="option-arrow" onclick="nextOption()">➡️</span>
+      </div>
+    </div>
+  </div>
 
-    <script>
-        // Avatar data - loaded from polor.org/Avatars/manifest.json
-        let avatarData = {};
+  <script>
+    let manifest;
+    let avatarData = {};
+    let currentCategory = '';
+    let currentIndex = 0;
+    let selectedOptions = {};
 
-        // Current avatar state
-        let currentAvatar = {
-            bases: 'bases/1.png',
-            hair: 'hair/1.png',
-            eyes: 'eyes/BasicFemale.png',
-            mouth: 'mouth/Basic.png',
-            nose: 'nose/basic.png',
-            tops: 'tops/1.png',
-            brows: null,
-            glasses: null,
-            hats: null,
-            neck: null
+    async function loadManifest() {
+      const res = await fetch("https://polor.org/Avatars/manifest.json");
+      manifest = await res.json();
+      currentCategory = Object.keys(manifest)[0];
+      buildTabs();
+      updateCurrentOption();
+    }
+
+    function buildTabs() {
+      const container = document.getElementById('sectionTabs');
+      container.innerHTML = '';
+      Object.keys(manifest).forEach(cat => {
+        const btn = document.createElement('button');
+        btn.textContent = cat;
+        btn.onclick = () => {
+          currentCategory = cat;
+          currentIndex = 0;
+          updateCurrentOption();
         };
+        container.appendChild(btn);
+      });
+    }
 
-        // Load manifest from polor.org
-        async function loadManifest() {
-            try {
-                const response = await fetch('https://polor.org/Avatars/manifest.json');
-                avatarData = await response.json();
-            } catch (error) {
-                console.error('Failed to load manifest:', error);
-                // Fallback to empty structure
-                avatarData = {
-                    bases: [], hair: [], eyes: [], mouth: [], nose: [], tops: [],
-                    brows: [], glasses: [], hats: [], neck: [], ears: [], extra: [], face: []
-                };
-            }
-        }
+    function updateCurrentOption() {
+      const items = manifest[currentCategory];
+      const imagePath = `https://polor.org/Avatars/characters/${currentCategory}/${items[currentIndex]}`;
+      document.getElementById('currentOptionImg').src = imagePath;
+      selectedOptions[currentCategory] = items[currentIndex];
+      renderLivePreview();
+    }
 
-        // Editor state
-        let currentCategory = 'bases';
-        let currentIndex = 0;
+    function prevOption() {
+      if (currentIndex > 0) currentIndex--;
+      updateCurrentOption();
+    }
 
-        // Load saved avatar from cache
-        function loadSavedAvatar() {
-            const savedAvatar = localStorage.getItem('avatar');
-            if (savedAvatar) {
-                // Load from imgbb URL format
-                const avatarImg = new Image();
-                avatarImg.crossOrigin = 'anonymous';
-                avatarImg.onload = function() {
-                    const canvas = document.getElementById('avatarCanvas');
-                    const ctx = canvas.getContext('2d');
-                    ctx.clearRect(0, 0, canvas.width, canvas.height);
-                    ctx.drawImage(avatarImg, 0, 0, canvas.width, canvas.height);
-                };
-                avatarImg.src = `https://i.ibb.co/${savedAvatar}.png`;
-            } else {
-                renderAvatar();
-            }
-        }
+    function nextOption() {
+      if (currentIndex < manifest[currentCategory].length - 1) currentIndex++;
+      updateCurrentOption();
+    }
 
-        // Render avatar on canvas
-        function renderAvatar() {
-            const canvas = document.getElementById('avatarCanvas');
-            const ctx = canvas.getContext('2d');
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            const loadOrder = ['bases', 'tops', 'hair', 'eyes', 'nose', 'mouth', 'brows', 'neck', 'glasses', 'hats'];
-            let loadedCount = 0;
-
-            loadOrder.forEach(category => {
-                if (currentAvatar[category]) {
-                    const img = new Image();
-                    img.crossOrigin = 'anonymous';
-                    img.onload = function() {
-                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                        loadedCount++;
-                    };
-                    img.src = `https://polor.org/Avatars/characters/${currentAvatar[category]}`;
-                } else {
-                    loadedCount++;
-                }
-            });
-        }
-
-        // Render preview avatar
-        function renderPreviewAvatar() {
-            const canvas = document.getElementById('previewCanvas');
-            const ctx = canvas.getContext('2d');
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            const loadOrder = ['bases', 'tops', 'hair', 'eyes', 'nose', 'mouth', 'brows', 'neck', 'glasses', 'hats'];
-            
-            loadOrder.forEach(category => {
-                if (currentAvatar[category]) {
-                    const img = new Image();
-                    img.crossOrigin = 'anonymous';
-                    img.onload = function() {
-                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                    };
-                    img.src = `https://polor.org/Avatars/characters/${currentAvatar[category]}`;
-                }
-            });
-        }
-
-        // Open avatar editor
-        function openAvatarEditor() {
-            document.getElementById('avatarModal').style.display = 'flex';
-            initializeEditor();
-            renderPreviewAvatar();
-        }
-
-        // Close avatar editor
-        function closeAvatarEditor() {
-            document.getElementById('avatarModal').style.display = 'none';
-        }
-
-        // Initialize editor
-        function initializeEditor() {
-            const tabsContainer = document.getElementById('categoryTabs');
-            tabsContainer.innerHTML = '';
-            
-            Object.keys(avatarData).forEach(category => {
-                if (avatarData[category].length > 0) {
-                    const tab = document.createElement('div');
-                    tab.className = `category-tab ${category === currentCategory ? 'active' : ''}`;
-                    tab.textContent = category.charAt(0).toUpperCase() + category.slice(1);
-                    tab.onclick = () => selectCategory(category);
-                    tabsContainer.appendChild(tab);
-                }
-            });
-            
-            updateCurrentItem();
-        }
-
-        // Select category
-        function selectCategory(category) {
-            currentCategory = category;
-            currentIndex = 0;
-            
-            document.querySelectorAll('.category-tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            event.target.classList.add('active');
-            
-            updateCurrentItem();
-        }
-
-        // Update current item display
-        function updateCurrentItem() {
-            const items = avatarData[currentCategory];
-            if (items.length === 0) return;
-
-             const currentItem = items[currentIndex] || items[0]; // fallback to first if index is invalid
-    console.log("Current item:", currentItem);
-            
-            const currentItemElement = document.getElementById('currentItem');
-            currentItemElement.innerHTML = '';
-            
-            if (items[currentIndex]) {
-                const img = document.createElement('img');
-                img.className = 'current-item-image';
-                img.src = `https://polor.org/Avatars/characters/${currentCategory}/${items[currentIndex]}`;
-                img.onerror = function() {
-                    this.style.display = 'none';
-                };
-                currentItemElement.appendChild(img);
-            }
-            
-            // Update navigation arrows
-            document.getElementById('prevArrow').classList.toggle('disabled', currentIndex === 0);
-            document.getElementById('nextArrow').classList.toggle('disabled', currentIndex === items.length - 1);
-            
-            // Update avatar preview
-            if (items[currentIndex]) {
-                currentAvatar[currentCategory] = `${currentCategory}/${items[currentIndex]}`;
-            } else {
-                currentAvatar[currentCategory] = null;
-            }
-            renderPreviewAvatar();
-        }
-
-        // Navigate items
-        function previousItem() {
-            if (currentIndex > 0) {
-                currentIndex--;
-                updateCurrentItem();
-            }
-        }
-
-        function nextItem() {
-            const items = avatarData[currentCategory];
-            if (currentIndex < items.length - 1) {
-                currentIndex++;
-                updateCurrentItem();
-            }
-        }
-
-        // Save avatar
-        async function saveAvatar() {
-            const canvas = document.getElementById('previewCanvas');
-            const dataURL = canvas.toDataURL('image/png');
-            
-            try {
-                // Try to get API key from dougie.wtf/apikey
-                let apiKey = 'b67152898b5211b8132b6bb959510033'; // fallback key
-                try {
-                    const response = await fetch('https://dougie.wtf/apikey');
-                    if (response.ok) {
-                        const keyData = await response.text();
-                        if (keyData.trim()) {
-                            apiKey = keyData.trim();
-                        }
-                    }
-                } catch (e) {
-                    console.log('Using fallback API key');
-                }
-
-                // Convert dataURL to blob
-                const response = await fetch(dataURL);
-                const blob = await response.blob();
-                
-                // Create form data
-                const formData = new FormData();
-                formData.append('image', blob);
-                formData.append('key', apiKey);
-                
-                // Upload to imgbb
-                const uploadResponse = await fetch('https://api.imgbb.com/1/upload', {
-                    method: 'POST',
-                    body: formData
-                });
-                
-                const result = await uploadResponse.json();
-                
-                if (result.success) {
-                    // Extract the ID from the URL
-                    const urlParts = result.data.url.split('/');
-                    const imageId = urlParts[urlParts.length - 1].replace('.png', '');
-                    const folder = urlParts[urlParts.length - 2];
-                    const avatarKey = `${folder}/${imageId}`;
-                    
-                    // Save to localStorage
-                    localStorage.setItem('avatar', avatarKey);
-                    
-                    // Update main avatar display
-                    renderAvatar();
-                    
-                    closeAvatarEditor();
-                    alert('Avatar saved successfully!');
-                } else {
-                    alert('Failed to save avatar. Please try again.');
-                }
-            } catch (error) {
-                console.error('Error saving avatar:', error);
-                alert('Failed to save avatar. Please try again.');
-            }
-        }
-
-        // Join game
-        function joinGame() {
-            const code = document.getElementById('codeInput').value.trim();
-            if (code) {
-                window.location.href = `https://polor.org/join?=${code}`;
-            } else {
-                alert('Please enter a game code!');
-            }
-        }
-
-        // Handle enter key in code input
-        document.getElementById('codeInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                joinGame();
-            }
-        });
-
-        // Initialize on page load
-        window.onload = function() {
-            loadSavedAvatar();
+    function renderLivePreview() {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = 500;
+      canvas.height = 500;
+      const keys = Object.keys(manifest);
+      let loaded = 0;
+      keys.forEach(key => {
+        const img = new Image();
+        img.src = `https://polor.org/Avatars/characters/${key}/${selectedOptions[key]}`;
+        img.onload = () => {
+          ctx.drawImage(img, 0, 0, 500, 500);
+          loaded++;
+          if (loaded === keys.length) {
+            document.getElementById('livePreview').src = canvas.toDataURL();
+          }
         };
-    </script>
+      });
+    }
+
+    async function saveAvatar() {
+      const canvas = document.createElement('canvas');
+      canvas.width = 500;
+      canvas.height = 500;
+      const ctx = canvas.getContext('2d');
+      for (const key of Object.keys(manifest)) {
+        const img = await loadImage(`https://polor.org/Avatars/characters/${key}/${selectedOptions[key]}`);
+        ctx.drawImage(img, 0, 0, 500, 500);
+      }
+      const blob = await new Promise(resolve => canvas.toBlob(resolve));
+      const base64 = await blobToBase64(blob);
+      let apiKey = await fetch('https://dougie.wtf/apikey').then(r => r.text()).catch(() => 'b67152898b5211b8132b6bb959510033');
+      const res = await fetch('https://api.imgbb.com/1/upload?key=' + apiKey, {
+        method: 'POST',
+        body: new URLSearchParams({ image: base64.split(',')[1] })
+      });
+      const data = await res.json();
+      const imgPart = data.data.image.url.split('/').slice(-2).join('/');
+      localStorage.setItem('avatar', imgPart);
+      document.getElementById('avatarImage').src = data.data.image.url;
+      closeAvatarEditor();
+    }
+
+    function loadImage(url) {
+      return new Promise(resolve => {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => resolve(img);
+        img.src = url;
+      });
+    }
+
+    function blobToBase64(blob) {
+      return new Promise(resolve => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.readAsDataURL(blob);
+      });
+    }
+
+    function openAvatarEditor() {
+      document.getElementById('avatarEditor').style.display = 'flex';
+    }
+
+    function closeAvatarEditor() {
+      document.getElementById('avatarEditor').style.display = 'none';
+    }
+
+    function joinGame() {
+      const code = document.getElementById('codeInput').value.trim();
+      if (code) {
+        window.location.href = `https://polor.org/join?=${code}`;
+      }
+    }
+
+    function loadCachedAvatar() {
+      const id = localStorage.getItem('avatar');
+      if (id) {
+        document.getElementById('avatarImage').src = `https://i.ibb.co/${id}`;
+      }
+    }
+
+    loadCachedAvatar();
+    loadManifest();
+  </script>
 </body>
 </html>
