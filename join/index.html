@@ -570,6 +570,9 @@
         function updateCurrentItem() {
             const items = avatarData[currentCategory];
             if (items.length === 0) return;
+
+             const currentItem = items[currentIndex] || items[0]; // fallback to first if index is invalid
+    console.log("Current item:", currentItem);
             
             const currentItemElement = document.getElementById('currentItem');
             currentItemElement.innerHTML = '';
