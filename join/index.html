@@ -568,16 +568,11 @@
 
         // Update current item display
         function updateCurrentItem() {
-    const items = avatarData[currentCategory] || [null]; // default to array of 1 item
-    if (items.length === 0) return;
-
-    // safely use items[ currentIndex ] below
-    const currentItem = items[currentIndex] || items[0]; // fallback to first if index is invalid
-    console.log("Current item:", currentItem);
-
-    // Your actual update logic goes here
-}
-
+            const items = avatarData[currentCategory];
+            if (items.length === 0) return;
+            
+            const currentItemElement = document.getElementById('currentItem');
+            currentItemElement.innerHTML = '';
             
             if (items[currentIndex]) {
                 const img = document.createElement('img');
