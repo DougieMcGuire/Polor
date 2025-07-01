@@ -505,9 +505,7 @@
             
             if (prefilledQuestion) {
                 hasPrefilledQuestion = true;
-                document.getElementById('question-input').value = decodeURIComponent(prefilledQuestion);
-                
-                // Update the title to show the question instead of "Ask [name] anything..."
+                // DON'T put the question in the input box - just update the title
                 document.getElementById('ask-title').textContent = decodeURIComponent(prefilledQuestion);
             }
         }
@@ -664,11 +662,17 @@
             try {
                 // Create message object
                 const messageData = {
-                    toUser: targetUser.username,
                     fromUser: isAnonymous ? null : currentUser.uid,
+                    fromUserProfile: isAnonymous ? null : {
+                        username: currentUserProfile?.username,
+                        displayName: currentUserProfile?.displayName,
+                        avatarIMG: currentUserProfile?.avatarIMG
+                    },
                     message: message,
+                    questionPrompt: hasPrefilledQuestion ? document.getElementById('ask-title').textContent : null,
                     isAnonymous: isAnonymous,
                     timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    dateSent: new Date().toISOString(), // Add readable date
                     status: 'unread',
                     hasAnswer: false,
                     answer: '',
@@ -676,8 +680,9 @@
                     readAt: null
                 };
                 
-                // Save to Firestore
-                await firestore.collection('askMessages').add(messageData);
+                // Save to user's askMessages subcollection
+                await firestore.collection('users').doc(targetUser.uid)
+                    .collection('askMessages').add(messageData);
                 
                 // Show success
                 showSuccess();
@@ -755,9 +760,8 @@
             
             try {
                 const now = new Date();
-                const messages = await firestore.collection('askMessages')
-                    .where('toUser', '==', targetUser.username)
-                    .get();
+                const messages = await firestore.collection('users').doc(targetUser.uid)
+                    .collection('askMessages').get();
                 
                 const toDelete = [];
                 
