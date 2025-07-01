@@ -309,17 +309,68 @@
             });
         }
 
-        // Build the interface or show image-only mode
+        // Convert SVG to single image blob
+        async function convertSVGToImage() {
+            const svgElement = document.querySelector('#avatar-display svg') || 
+                              document.querySelector('svg');
+            
+            if (!svgElement) return null;
+            
+            // Create a canvas
+            const canvas = document.createElement('canvas');
+            canvas.width = 200;
+            canvas.height = 200;
+            const ctx = canvas.getContext('2d');
+            
+            // Convert SVG to blob URL
+            const svgData = new XMLSerializer().serializeToString(svgElement);
+            const svgBlob = new Blob([svgData], {type: 'image/svg+xml;charset=utf-8'});
+            const svgUrl = URL.createObjectURL(svgBlob);
+            
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.onload = () => {
+                    ctx.drawImage(img, 0, 0, 200, 200);
+                    URL.revokeObjectURL(svgUrl);
+                    
+                    // Convert canvas to image data
+                    const imageData = canvas.toDataURL('image/png');
+                    resolve(imageData);
+                };
+                img.src = svgUrl;
+            });
+        }
+
+        // Build the interface or show single image mode
         function buildInterface() {
             if (isImageMode()) {
-                // Image-only mode - just show the avatar
+                // Generate the avatar SVG first
+                const avatarSVG = renderAvatar();
+                
+                // Show just the SVG temporarily to convert it
                 document.getElementById('app-content').innerHTML = `
-                    <div style="display: flex; justify-content: center; align-items: center; min-height: 50vh; background: transparent;">
-                        <div style="background: transparent;">
-                            ${renderAvatar()}
-                        </div>
+                    <div style="position: absolute; top: -9999px;">
+                        ${avatarSVG}
                     </div>
                 `;
+                
+                // Convert to single image and display
+                setTimeout(async () => {
+                    const imageData = await convertSVGToImage();
+                    if (imageData) {
+                        document.getElementById('app-content').innerHTML = `
+                            <div style="display: flex; justify-content: center; align-items: center; min-height: 100vh; background: transparent; margin: 0; padding: 0;">
+                                <img src="${imageData}" style="width: 200px; height: 200px; display: block;" alt="Avatar">
+                            </div>
+                        `;
+                        // Hide everything except the image
+                        document.body.style.background = 'transparent';
+                        document.querySelector('.container').style.background = 'transparent';
+                        document.querySelector('.container').style.boxShadow = 'none';
+                        document.querySelector('.container').style.padding = '0';
+                        document.querySelector('.header').style.display = 'none';
+                    }
+                }, 100);
                 return;
             }
             
@@ -615,7 +666,7 @@
             }
         }
 
-        // Generate URL
+        // Generate URL - corrected path
         function generateURL() {
             const params = new URLSearchParams();
             
