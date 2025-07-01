@@ -354,7 +354,7 @@
         function generateAvatarSVG(config) {
             const { parts, colors } = config;
             
-            // Simple green replacement filter
+            // Simple green replacement filter for colorable parts
             const colorFilters = Object.entries(colors).map(([part, color]) => {
                 return `
                     <filter id="${part}GreenScreenFilter">
@@ -367,25 +367,35 @@
                 `;
             }).join('');
             
-            const colorableCategories = ['tops', 'eyes', 'hair', 'glasses', 'bases', 'neck', 'backgrounds', 'mouths', 'hats'];
+            // Categories that have overlays vs those that can be fully colored
+            const categoriesWithOverlays = ['backgrounds', 'bases', 'hair', 'eyes', 'glasses', 'hats', 'mouths', 'neck', 'tops'];
+            const categoriesWithoutOverlays = ['brows', 'noses']; // These can be fully colored
+            const allColorableCategories = [...categoriesWithOverlays, ...categoriesWithoutOverlays];
+            
             const layerOrder = ['backgrounds', 'bases', 'neck', 'hair', 'eyes', 'brows', 'noses', 'mouths', 'tops', 'glasses', 'hats'];
             
             const layers = [];
             
-            // Generate layers with outlines
+            // Generate layers
             layerOrder.forEach(category => {
                 const part = parts[category];
                 if (!part) return;
                 
-                const isColorable = colorableCategories.includes(category);
+                const isColorable = allColorableCategories.includes(category);
+                const hasOverlay = categoriesWithOverlays.includes(category);
                 const filter = isColorable && colors[category] ? `filter="url(#${category}GreenScreenFilter)"` : '';
                 
-                // Add the main part
+                // Add the main part (with color filter if colorable)
                 layers.push(`<image href="https://polor.org/Avatars/characters/${category}/${part}" x="0" y="0" width="200" height="200" ${filter}/>`);
                 
-                // Add the outline (same filename with "outline" added before .png)
-                const outlineFile = part.replace('.png', 'outline.png');
-                layers.push(`<image href="https://polor.org/Avatars/characters/${category}/${outlineFile}" x="0" y="0" width="200" height="200"/>`);
+                // Add overlay if this category has overlays (check if overlay file exists in manifest)
+                if (hasOverlay) {
+                    const overlayFile = part.replace('.png', 'overlay.png');
+                    // Check if the overlay file exists in the manifest for this category
+                    if (manifest[category] && manifest[category].includes(overlayFile)) {
+                        layers.push(`<image href="https://polor.org/Avatars/characters/${category}/${overlayFile}" x="0" y="0" width="200" height="200"/>`);
+                    }
+                }
             });
             
             return `
@@ -453,7 +463,7 @@
             });
             
             // Randomize colors for colorable items only
-            const colorableCategories = ['tops', 'eyes', 'hair', 'glasses', 'bases', 'neck', 'backgrounds', 'mouths', 'hats'];
+            const colorableCategories = ['tops', 'eyes', 'hair', 'glasses', 'bases', 'neck', 'backgrounds', 'mouths', 'hats', 'noses', 'brows'];
             const randomColors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9', '#F39C12', '#E74C3C'];
             colorableCategories.forEach(category => {
                 if (currentConfig.colors[category]) {
