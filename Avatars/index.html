@@ -296,13 +296,13 @@
         </div>
     </div>
 
-    <!-- Firebase SDK -->
+    <!-- Firebase SDK (Optional - only for saving) -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 
     <script>
-        // Firebase config
+        // Firebase config (optional - only for saving to account)
         const firebaseConfig = {
             apiKey: "AIzaSyA8HcTDiCQtJHRiMES2p1iUlA30AkZPx1Y",
             authDomain: "polor-62c29.firebaseapp.com",
@@ -314,10 +314,16 @@
             measurementId: "G-KRT42D5TQK"
         };
 
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const database = firebase.database();
+        // Initialize Firebase (optional)
+        let auth = null;
+        let firestore = null;
+        try {
+            firebase.initializeApp(firebaseConfig);
+            auth = firebase.auth();
+            firestore = firebase.firestore();
+        } catch (error) {
+            console.log('Firebase not available - running in standalone mode');
+        }
 
         let manifest = {};
         let currentUser = null;
@@ -350,14 +356,13 @@
             }
         };
 
-        // Auth state listener
-        auth.onAuthStateChanged((user) => {
-            currentUser = user;
-            if (user && !isImageMode()) {
-                loadUserAvatar();
-            }
-            updateAuthUI();
-        });
+        // Optional auth state listener
+        if (auth) {
+            auth.onAuthStateChanged((user) => {
+                currentUser = user;
+                updateAuthUI();
+            });
+        }
 
         // Sign in anonymously
         async function signInAnonymously() {
@@ -450,7 +455,7 @@
             // Load parts from URL
             Object.keys(avatarState.selectedParts).forEach(category => {
                 const urlValue = urlParams.get(category);
-                if (urlValue) {
+                if (urlValue !== null) {
                     avatarState.selectedParts[category] = urlValue;
                 }
             });
@@ -568,10 +573,10 @@
             });
         }
 
-        // Save avatar to Firebase
-        async function saveAvatarToFirebase() {
-            if (!currentUser) {
-                alert('Please sign in first!');
+        // Save avatar to account (optional - requires login)
+        async function saveAvatarToAccount() {
+            if (!currentUser || !firestore) {
+                alert('Please sign in first! Visit the auth page to create an account.');
                 return;
             }
             
@@ -588,26 +593,17 @@
                     throw new Error('Failed to generate image');
                 }
                 
-                // Generate config
-                const config = generateAvatarConfig();
+                // Current avatar URL
+                const avatarURL = generateURL();
                 
-                // Generate unique avatar ID
-                const avatarId = `${currentUser.uid}_${Date.now()}`;
+                // Save to Firestore
+                await firestore.collection('users').doc(currentUser.uid).update({
+                    avatarURL: avatarURL,
+                    avatarIMG: imageData,
+                    lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+                });
                 
-                // Save to Firebase
-                const updates = {};
-                updates[`users/${currentUser.uid}/avatarIMG`] = imageData;
-                updates[`users/${currentUser.uid}/avatarCONFIG`] = config;
-                updates[`avatars/${avatarId}/avatarIMG`] = imageData;
-                updates[`avatars/${avatarId}/avatarCONFIG`] = config;
-                updates[`avatars/${avatarId}/owner`] = currentUser.uid;
-                updates[`avatars/${avatarId}/created`] = Date.now();
-                
-                await database.ref().update(updates);
-                
-                // Update UI with embed URL
-                updateEmbedSection(avatarId);
-                alert('✅ Avatar saved successfully!');
+                alert('✅ Avatar saved to your account!');
                 
             } catch (error) {
                 console.error('Save failed:', error);
@@ -615,7 +611,7 @@
             } finally {
                 if (saveBtn) {
                     saveBtn.disabled = false;
-                    saveBtn.innerHTML = '💾 Save Avatar';
+                    saveBtn.innerHTML = '💾 Save to Account';
                 }
             }
         }
@@ -659,7 +655,7 @@
             }
         }
 
-        // Update auth UI
+        // Update auth UI (optional)
         function updateAuthUI() {
             const authSection = document.getElementById('auth-section');
             if (!authSection) return;
@@ -667,18 +663,27 @@
             if (currentUser) {
                 authSection.innerHTML = `
                     <div style="color: #155724; background: #d4edda; padding: 10px; border-radius: 4px; margin-bottom: 10px;">
-                        ✅ Signed in as: ${currentUser.uid.substring(0, 8)}...
+                        ✅ Signed in as: ${currentUser.displayName || currentUser.email}
+                        <button onclick="signOut()" style="float: right; background: none; border: none; color: #155724; cursor: pointer;">Sign Out</button>
                     </div>
                 `;
             } else {
                 authSection.innerHTML = `
                     <div style="color: #856404; margin-bottom: 10px;">
-                        🔐 Sign in to save your avatar and get embeddable links
+                        💡 <a href="auth.html" style="color: #856404;">Sign in</a> to save your avatar permanently
                     </div>
-                    <button class="btn btn-primary" onclick="signInAnonymously()" style="width: 100%;">
-                        🚀 Sign In Anonymously
-                    </button>
                 `;
+            }
+        }
+
+        // Sign out
+        async function signOut() {
+            if (auth && currentUser) {
+                try {
+                    await auth.signOut();
+                } catch (error) {
+                    console.error('Sign out error:', error);
+                }
             }
         }
 
@@ -738,7 +743,7 @@
                         <div class="control-buttons">
                             <button class="btn btn-primary" onclick="randomize()">🎲 Random</button>
                             <button class="btn btn-secondary" onclick="copyURL()">📋 Copy URL</button>
-                            <button class="btn btn-success" onclick="saveAvatarToFirebase()">💾 Save Avatar</button>
+                            <button class="btn btn-success" onclick="saveAvatarToAccount()" style="display: none;" id="save-btn">💾 Save to Account</button>
                         </div>
                         <div class="avatar-url" id="url-display">
                             ${generateURL()}
@@ -1009,22 +1014,34 @@
         function updateDisplay() {
             const avatarDisplay = document.getElementById('avatar-display');
             const urlDisplay = document.getElementById('url-display');
+            const avatarUrlDisplay = document.getElementById('avatar-url-display');
+            const imageUrlDisplay = document.getElementById('image-url-display');
             
             if (avatarDisplay) {
                 avatarDisplay.innerHTML = renderAvatar();
             }
             
+            const currentURL = generateURL();
+            
             if (urlDisplay) {
-                urlDisplay.textContent = generateURL();
+                urlDisplay.textContent = currentURL;
+            }
+            
+            if (avatarUrlDisplay) {
+                avatarUrlDisplay.textContent = currentURL;
+            }
+            
+            if (imageUrlDisplay) {
+                imageUrlDisplay.textContent = currentURL + '&image=true';
             }
         }
 
-        // Generate URL - corrected path
+        // Generate URL with current avatar settings
         function generateURL() {
             const params = new URLSearchParams();
             
             Object.entries(avatarState.selectedParts).forEach(([category, item]) => {
-                if (item) params.append(category, item);
+                params.append(category, item || '');
             });
             
             Object.entries(avatarState.colors).forEach(([category, color]) => {
