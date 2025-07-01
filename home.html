@@ -2,25 +2,50 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sign Up - Polor</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Polor Home</title>
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
   <style>
-    body { font-family: sans-serif; max-width: 400px; margin: 50px auto; text-align: center; }
-    input, button { padding: 10px; margin: 8px 0; width: 100%; }
+    body {
+      font-family: sans-serif;
+      max-width: 600px;
+      margin: 40px auto;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    #avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: #ccc;
+      object-fit: cover;
+    }
+    #info {
+      display: flex;
+      flex-direction: column;
+    }
+    #welcome {
+      font-size: 1.8rem;
+      font-weight: bold;
+      margin: 0;
+    }
+    #username {
+      font-size: 1.2rem;
+      color: #555;
+      margin: 0;
+    }
   </style>
 </head>
 <body>
-  <h2>Sign Up for Polor</h2>
 
-  <input type="text" id="username" placeholder="Username" />
-  <input type="email" id="email" placeholder="Email" />
-  <input type="password" id="password" placeholder="Password" />
-  <button onclick="signUpEmail()">Sign Up with Email</button>
-  <hr>
-  <button onclick="signUpWithGoogle()">Sign Up with Google</button>
+  <img id="avatar" src="" alt="Avatar" />
+  <div id="info">
+    <p id="welcome">Welcome, ...</p>
+    <p id="username">@...</p>
+  </div>
 
   <script>
     const firebaseConfig = {
@@ -29,61 +54,44 @@
       projectId: "polor-62c29",
       appId: "1:232986823513:web:a6ee6bef6b0609ace3da48"
     };
-
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
 
-    const defaultData = {
-      avatarCONFIG: "h:12|b:base|t:113|hc:8B4513|bc:F4C2A1|ec:000000",
-      avatarURL: "n/a"
-    };
+    const avatarEl = document.getElementById('avatar');
+    const welcomeEl = document.getElementById('welcome');
+    const usernameEl = document.getElementById('username');
 
-    async function signUpEmail() {
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-      const username = document.getElementById('username').value;
-
-      if (!email || !password || !username) {
-        alert('Please fill all fields');
+    auth.onAuthStateChanged(async user => {
+      if (!user) {
+        // Not logged in, redirect to login
+        window.location.href = 'auth.html';
         return;
       }
 
-      try {
-        const result = await auth.createUserWithEmailAndPassword(email, password);
-        await db.collection('users').doc(result.user.uid).set({
-          username: username,
-          email: email,
-          ...defaultData
-        });
-        alert('Signed up successfully!');
-        // Redirect or continue
-      } catch (err) {
-        alert(err.message);
-      }
-    }
+      welcomeEl.textContent = `Welcome, ${user.displayName || user.email}`;
 
-    async function signUpWithGoogle() {
-      const provider = new firebase.auth.GoogleAuthProvider();
       try {
-        const result = await auth.signInWithPopup(provider);
-        const userRef = db.collection('users').doc(result.user.uid);
-        const doc = await userRef.get();
-        if (!doc.exists) {
-          const username = prompt('Choose a username:');
-          if (!username) return alert('Username is required');
-          await userRef.set({
-            username: username,
-            email: result.user.email,
-            ...defaultData
-          });
+        const userDoc = await db.collection('users').doc(user.uid).get();
+        if (userDoc.exists) {
+          const data = userDoc.data();
+          usernameEl.textContent = '@' + (data.username || 'unknown');
+          if (data.avatarURL && data.avatarURL !== 'n/a') {
+            avatarEl.src = data.avatarURL;
+          } else {
+            avatarEl.src = 'https://via.placeholder.com/80?text=Avatar';
+          }
+        } else {
+          usernameEl.textContent = '@unknown';
+          avatarEl.src = 'https://via.placeholder.com/80?text=Avatar';
         }
-        alert('Signed in with Google!');
-        // Redirect or continue
-      } catch (err) {
-        alert(err.message);
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+        usernameEl.textContent = '@unknown';
+        avatarEl.src = 'https://via.placeholder.com/80?text=Avatar';
       }
-    }
+    });
   </script>
+
 </body>
 </html>
