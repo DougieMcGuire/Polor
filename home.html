@@ -13,7 +13,7 @@
         
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--bg-gradient, linear-gradient(135deg, #667eea 0%, #764ba2 100%));
             min-height: 100vh;
             padding: 20px;
         }
@@ -520,6 +520,41 @@
             
             // Update avatar
             updateAvatarDisplay();
+            
+            // Update background gradient based on avatar background color
+            updateBackgroundGradient();
+        }
+
+        // Update background gradient based on avatar background color
+        function updateBackgroundGradient() {
+            if (userProfile.avatarURL) {
+                const urlParams = new URLSearchParams(userProfile.avatarURL.split('?')[1]);
+                const bgColor = urlParams.get('backgroundsColor');
+                
+                if (bgColor) {
+                    // Convert hex to lighter version
+                    const hex = bgColor.replace('#', '');
+                    const r = parseInt(hex.substr(0, 2), 16);
+                    const g = parseInt(hex.substr(2, 2), 16);
+                    const b = parseInt(hex.substr(4, 2), 16);
+                    
+                    // Create lighter version by reducing saturation
+                    const lighterR = Math.min(255, r + 30);
+                    const lighterG = Math.min(255, g + 30);
+                    const lighterB = Math.min(255, b + 30);
+                    
+                    const darkerR = Math.max(0, r - 40);
+                    const darkerG = Math.max(0, g - 40);
+                    const darkerB = Math.max(0, b - 40);
+                    
+                    const baseColor = `rgb(${r}, ${g}, ${b})`;
+                    const lighterColor = `rgb(${lighterR}, ${lighterG}, ${lighterB})`;
+                    const darkerColor = `rgb(${darkerR}, ${darkerG}, ${darkerB})`;
+                    
+                    const gradient = `linear-gradient(135deg, ${lighterColor} 0%, ${baseColor} 50%, ${darkerColor} 100%)`;
+                    document.documentElement.style.setProperty('--bg-gradient', gradient);
+                }
+            }
         }
 
         // Update avatar display
@@ -652,15 +687,15 @@
             }
         });
 
-        // Edit avatar - goes to user's specific avatar URL
+        // Edit avatar - goes to user's specific avatar URL with compact mode
         function editAvatar() {
             if (userProfile && userProfile.avatarURL) {
-                // Add ref=home to know they came from homepage
+                // Add ref=home and compact=true to know they came from homepage
                 const separator = userProfile.avatarURL.includes('?') ? '&' : '?';
-                window.location.href = userProfile.avatarURL + separator + 'ref=home';
+                window.location.href = userProfile.avatarURL + separator + 'ref=home&compact=true';
             } else {
                 // Fallback to default editor if no saved avatar
-                window.location.href = 'https://polor.org/Avatars/?ref=home';
+                window.location.href = 'https://polor.org/Avatars/?ref=home&compact=true';
             }
         }
 
