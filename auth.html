@@ -335,8 +335,7 @@
         googleProvider.addScope('profile');
 
         // Default avatar config for new users
-        const DEFAULT_AVATAR_CONFIG = 'b:base|h:1|e:BasicMale|br:Basic|m:Basic|n:basic|t:113|bc:F4C2A1|hc:8B4513|ec:000000|brc:654321|mc:000000|nc:FFA07A|tc:FF0000';
-        const DEFAULT_AVATAR_URL = `https://polor.org/Avatars/?image=true&b=base.png&h=1.png&e=BasicMale.png&br=Basic.png&m=Basic.png&n=basic.png&t=113.png&bc=F4C2A1&hc=8B4513&ec=000000&brc=654321&mc=000000&nc=FFA07A&tc=FF0000`;
+        const DEFAULT_AVATAR_URL = `https://polor.org/Avatars/?backgrounds=&bases=base.png&hair=1.png&eyes=BasicMale.png&brows=Basic.png&mouths=Basic.png&noses=basic.png&neck=&tops=113.png&glasses=&hats=&backgroundsColor=FFFFFF&basesColor=F4C2A1&hairColor=8B4513&eyesColor=000000&browsColor=654321&mouthsColor=000000&nosesColor=FFA07A&neckColor=000000&topsColor=FF0000&glassesColor=000000&hatsColor=000000`;
 
         // Check if user is already logged in
         auth.onAuthStateChanged((user) => {
@@ -404,7 +403,6 @@
                     uid: user.uid,
                     email: user.email,
                     username: finalUsername,
-                    avatarCONFIG: DEFAULT_AVATAR_CONFIG,
                     avatarURL: DEFAULT_AVATAR_URL,
                     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                     lastLogin: firebase.firestore.FieldValue.serverTimestamp()
