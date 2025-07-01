@@ -778,6 +778,19 @@
             editAvatar();
         }
 
+        // Sign out
+        async function signOut() {
+            if (confirm('Are you sure you want to sign out?')) {
+                try {
+                    await auth.signOut();
+                    // Redirect handled by auth state change
+                } catch (error) {
+                    console.error('Sign out error:', error);
+                    alert('❌ Sign out failed');
+                }
+            }
+        }
+
         // Update avatar display
         function updateAvatarDisplay() {
             const headerAvatar = document.getElementById('header-avatar');
