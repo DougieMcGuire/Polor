@@ -1,97 +1,737 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Polor Home</title>
-  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
-  <style>
-    body {
-      font-family: sans-serif;
-      max-width: 600px;
-      margin: 40px auto;
-      display: flex;
-      align-items: center;
-      gap: 20px;
-    }
-    #avatar {
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      background: #ccc;
-      object-fit: cover;
-    }
-    #info {
-      display: flex;
-      flex-direction: column;
-    }
-    #welcome {
-      font-size: 1.8rem;
-      font-weight: bold;
-      margin: 0;
-    }
-    #username {
-      font-size: 1.2rem;
-      color: #555;
-      margin: 0;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Polor - Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .loading-content {
+            text-align: center;
+            color: white;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255,255,255,0.3);
+            border-top: 5px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .dashboard {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: none;
+        }
+        
+        .dashboard.show {
+            display: block;
+        }
+        
+        .header {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .avatar-container {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 4px solid #667eea;
+            position: relative;
+            background: #f8f9fa;
+        }
+        
+        .avatar-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .avatar-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            color: #667eea;
+        }
+        
+        .user-details h1 {
+            color: #333;
+            font-size: 2rem;
+            margin-bottom: 5px;
+        }
+        
+        .user-details p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+        
+        .btn-outline {
+            background: transparent;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+        
+        .btn-outline:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .card h2 {
+            color: #333;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .avatar-preview {
+            text-align: center;
+        }
+        
+        .avatar-large {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 20px;
+            border-radius: 20px;
+            border: 4px solid #e9ecef;
+            overflow: hidden;
+            background: #f8f9fa;
+            position: relative;
+        }
+        
+        .avatar-large img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .avatar-large-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            color: #667eea;
+        }
+        
+        .avatar-large-placeholder .icon {
+            font-size: 60px;
+            margin-bottom: 10px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .quick-actions {
+            display: grid;
+            gap: 15px;
+        }
+        
+        .action-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        .action-item:hover {
+            background: #e9ecef;
+            transform: translateY(-2px);
+        }
+        
+        .action-icon {
+            width: 40px;
+            height: 40px;
+            background: #667eea;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+        }
+        
+        .action-content h3 {
+            color: #333;
+            margin-bottom: 5px;
+            font-size: 16px;
+        }
+        
+        .action-content p {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .embed-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+        }
+        
+        .embed-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .embed-url {
+            background: white;
+            padding: 12px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 12px;
+            word-break: break-all;
+            color: #495057;
+            border: 1px solid #dee2e6;
+            margin-bottom: 10px;
+        }
+        
+        .copy-btn {
+            padding: 6px 12px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        
+        .copy-btn:hover {
+            background: #5a6fd8;
+        }
+        
+        @media (max-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .user-info {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .header-actions {
+                justify-content: center;
+            }
+        }
+    </style>
 </head>
 <body>
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="loading-screen">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <h2>Loading your dashboard...</h2>
+            <p>Fetching your avatar and profile</p>
+        </div>
+    </div>
+    
+    <!-- Dashboard -->
+    <div id="dashboard" class="dashboard">
+        <!-- Header with user info -->
+        <div class="header">
+            <div class="user-info">
+                <div class="avatar-container" id="header-avatar">
+                    <div class="avatar-placeholder">🎨</div>
+                </div>
+                <div class="user-details">
+                    <h1 id="welcome-message">Welcome back!</h1>
+                    <p id="user-email">Loading...</p>
+                </div>
+            </div>
+            <div class="header-actions">
+                <a href="editor.html" class="btn btn-primary">
+                    🎨 Edit Avatar
+                </a>
+                <button class="btn btn-outline" onclick="copyProfileURL()">
+                    📋 Share Profile
+                </button>
+                <button class="btn btn-secondary" onclick="signOut()">
+                    🚪 Sign Out
+                </button>
+            </div>
+        </div>
+        
+        <!-- Content Grid -->
+        <div class="content-grid">
+            <!-- Avatar Preview Card -->
+            <div class="card">
+                <h2>🎭 Your Avatar</h2>
+                <div class="avatar-preview">
+                    <div class="avatar-large" id="large-avatar">
+                        <div class="avatar-large-placeholder">
+                            <div class="icon">🎨</div>
+                            <p>Default Avatar</p>
+                        </div>
+                    </div>
+                    <a href="editor.html" class="btn btn-primary">Customize Avatar</a>
+                </div>
+                
+                <!-- Embed Section -->
+                <div class="embed-section" id="embed-section" style="display: none;">
+                    <div class="embed-title">🔗 Embed Your Avatar</div>
+                    <div style="margin-bottom: 15px;">
+                        <strong>Direct Image URL:</strong>
+                        <div class="embed-url" id="direct-url"></div>
+                        <button class="copy-btn" onclick="copyToClipboard('direct-url')">Copy</button>
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <strong>HTML Code:</strong>
+                        <div class="embed-url" id="html-code"></div>
+                        <button class="copy-btn" onclick="copyToClipboard('html-code')">Copy</button>
+                    </div>
+                    <div>
+                        <strong>Markdown:</strong>
+                        <div class="embed-url" id="markdown-code"></div>
+                        <button class="copy-btn" onclick="copyToClipboard('markdown-code')">Copy</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Stats & Actions Card -->
+            <div class="card">
+                <h2>📊 Account Stats</h2>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-number" id="days-since-join">0</div>
+                        <div class="stat-label">Days since joining</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="avatar-updates">1</div>
+                        <div class="stat-label">Avatar updates</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="profile-views">--</div>
+                        <div class="stat-label">Profile views</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="last-active">--</div>
+                        <div class="stat-label">Last active</div>
+                    </div>
+                </div>
+                
+                <h2 style="margin-top: 30px;">⚡ Quick Actions</h2>
+                <div class="quick-actions">
+                    <a href="editor.html" class="action-item">
+                        <div class="action-icon">🎨</div>
+                        <div class="action-content">
+                            <h3>Edit Avatar</h3>
+                            <p>Customize your avatar with colors and accessories</p>
+                        </div>
+                    </a>
+                    
+                    <div class="action-item" onclick="randomizeAvatar()">
+                        <div class="action-icon">🎲</div>
+                        <div class="action-content">
+                            <h3>Random Avatar</h3>
+                            <p>Generate a random avatar instantly</p>
+                        </div>
+                    </div>
+                    
+                    <div class="action-item" onclick="downloadAvatar()">
+                        <div class="action-icon">💾</div>
+                        <div class="action-content">
+                            <h3>Download Avatar</h3>
+                            <p>Save your avatar as an image file</p>
+                        </div>
+                    </div>
+                    
+                    <div class="action-item" onclick="shareAvatar()">
+                        <div class="action-icon">📤</div>
+                        <div class="action-content">
+                            <h3>Share Avatar</h3>
+                            <p>Get shareable links for your avatar</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-  <img id="avatar" src="" alt="Avatar" />
-  <div id="info">
-    <p id="welcome">Welcome, ...</p>
-    <p id="username">@...</p>
-  </div>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyA8HcTDiCQtJHRiMES2p1iUlA30AkZPx1Y",
-      authDomain: "polor-62c29.firebaseapp.com",
-      projectId: "polor-62c29",
-      appId: "1:232986823513:web:a6ee6bef6b0609ace3da48"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
+    <script>
+        // Firebase config
+        const firebaseConfig = {
+            apiKey: "AIzaSyA8HcTDiCQtJHRiMES2p1iUlA30AkZPx1Y",
+            authDomain: "polor-62c29.firebaseapp.com",
+            projectId: "polor-62c29",
+            appId: "1:232986823513:web:a6ee6bef6b0609ace3da48"
+        };
 
-    const avatarEl = document.getElementById('avatar');
-    const welcomeEl = document.getElementById('welcome');
-    const usernameEl = document.getElementById('username');
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const firestore = firebase.firestore();
 
-    auth.onAuthStateChanged(async user => {
-      if (!user) {
-        // Not logged in, redirect to login
-        window.location.href = 'auth.html';
-        return;
-      }
+        let currentUser = null;
+        let userProfile = null;
 
-      welcomeEl.textContent = `Welcome, ${user.displayName || user.email}`;
+        // Auth state listener
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                currentUser = user;
+                await loadUserProfile();
+                showDashboard();
+            } else {
+                // No user signed in, redirect to auth page
+                window.location.href = 'auth.html';
+            }
+        });
 
-      try {
-        const userDoc = await db.collection('users').doc(user.uid).get();
-        if (userDoc.exists) {
-          const data = userDoc.data();
-          usernameEl.textContent = '@' + (data.username || 'unknown');
-          if (data.avatarURL && data.avatarURL !== 'n/a') {
-            avatarEl.src = data.avatarURL;
-          } else {
-            avatarEl.src = 'https://via.placeholder.com/80?text=Avatar';
-          }
-        } else {
-          usernameEl.textContent = '@unknown';
-          avatarEl.src = 'https://via.placeholder.com/80?text=Avatar';
+        // Load user profile from Firestore
+        async function loadUserProfile() {
+            try {
+                const doc = await firestore.collection('users').doc(currentUser.uid).get();
+                
+                if (doc.exists) {
+                    userProfile = doc.data();
+                    updateUserInterface();
+                } else {
+                    console.error('User profile not found in Firestore');
+                    // Create a basic profile if it doesn't exist
+                    await createUserProfile();
+                }
+            } catch (error) {
+                console.error('Error loading user profile:', error);
+            }
         }
-      } catch (error) {
-        console.error('Error fetching user data:', error);
-        usernameEl.textContent = '@unknown';
-        avatarEl.src = 'https://via.placeholder.com/80?text=Avatar';
-      }
-    });
-  </script>
 
+        // Create user profile if missing
+        async function createUserProfile() {
+            const DEFAULT_AVATAR_CONFIG = 'b:base|h:1|e:BasicMale|br:Basic|m:Basic|n:basic|t:113|bc:F4C2A1|hc:8B4513|ec:000000|brc:654321|mc:000000|nc:FFA07A|tc:FF0000';
+            const DEFAULT_AVATAR_URL = `${window.location.origin}/editor.html?image=true&b=base.png&h=1.png&e=BasicMale.png&br=Basic.png&m=Basic.png&n=basic.png&t=113.png&bc=F4C2A1&hc=8B4513&ec:000000&brc=654321&mc:000000&nc:FFA07A&tc:FF0000`;
+            
+            const profile = {
+                uid: currentUser.uid,
+                email: currentUser.email,
+                username: currentUser.displayName || currentUser.email.split('@')[0],
+                avatarCONFIG: DEFAULT_AVATAR_CONFIG,
+                avatarURL: DEFAULT_AVATAR_URL,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            
+            await firestore.collection('users').doc(currentUser.uid).set(profile);
+            userProfile = profile;
+        }
+
+        // Update the user interface with profile data
+        function updateUserInterface() {
+            // Update welcome message
+            const welcomeMsg = document.getElementById('welcome-message');
+            welcomeMsg.textContent = `Welcome back, ${userProfile.username}!`;
+            
+            // Update email
+            const emailElement = document.getElementById('user-email');
+            emailElement.textContent = userProfile.email;
+            
+            // Update avatars
+            updateAvatarDisplays();
+            
+            // Update stats
+            updateStats();
+            
+            // Update embed section
+            updateEmbedSection();
+        }
+
+        // Update avatar displays
+        function updateAvatarDisplays() {
+            const headerAvatar = document.getElementById('header-avatar');
+            const largeAvatar = document.getElementById('large-avatar');
+            
+            if (userProfile.avatarURL) {
+                // Header avatar
+                headerAvatar.innerHTML = `<img src="${userProfile.avatarURL}" alt="Avatar">`;
+                
+                // Large avatar
+                largeAvatar.innerHTML = `<img src="${userProfile.avatarURL}" alt="Avatar">`;
+            }
+        }
+
+        // Update stats
+        function updateStats() {
+            // Days since joining
+            if (userProfile.createdAt) {
+                const createdDate = userProfile.createdAt.toDate ? userProfile.createdAt.toDate() : new Date();
+                const daysSince = Math.floor((Date.now() - createdDate.getTime()) / (1000 * 60 * 60 * 24));
+                document.getElementById('days-since-join').textContent = daysSince;
+            }
+            
+            // Last active
+            const lastActive = document.getElementById('last-active');
+            if (userProfile.lastLogin) {
+                const lastLoginDate = userProfile.lastLogin.toDate ? userProfile.lastLogin.toDate() : new Date();
+                const timeDiff = Date.now() - lastLoginDate.getTime();
+                const hours = Math.floor(timeDiff / (1000 * 60 * 60));
+                
+                if (hours < 1) {
+                    lastActive.textContent = 'Now';
+                } else if (hours < 24) {
+                    lastActive.textContent = `${hours}h`;
+                } else {
+                    lastActive.textContent = `${Math.floor(hours / 24)}d`;
+                }
+            }
+        }
+
+        // Update embed section
+        function updateEmbedSection() {
+            if (userProfile.avatarURL) {
+                const embedSection = document.getElementById('embed-section');
+                const directUrl = document.getElementById('direct-url');
+                const htmlCode = document.getElementById('html-code');
+                const markdownCode = document.getElementById('markdown-code');
+                
+                directUrl.textContent = userProfile.avatarURL;
+                htmlCode.textContent = `<img src="${userProfile.avatarURL}" alt="Avatar" width="200" height="200">`;
+                markdownCode.textContent = `![Avatar](${userProfile.avatarURL})`;
+                
+                embedSection.style.display = 'block';
+            }
+        }
+
+        // Show dashboard
+        function showDashboard() {
+            document.getElementById('loading-screen').style.display = 'none';
+            document.getElementById('dashboard').classList.add('show');
+        }
+
+        // Copy to clipboard
+        async function copyToClipboard(elementId) {
+            const element = document.getElementById(elementId);
+            const text = element.textContent;
+            
+            try {
+                await navigator.clipboard.writeText(text);
+                
+                // Show feedback
+                const originalText = element.textContent;
+                element.textContent = '✅ Copied!';
+                element.style.color = '#28a745';
+                
+                setTimeout(() => {
+                    element.textContent = originalText;
+                    element.style.color = '';
+                }, 2000);
+            } catch (err) {
+                console.error('Failed to copy:', err);
+                alert('❌ Copy failed');
+            }
+        }
+
+        // Copy profile URL
+        async function copyProfileURL() {
+            const profileUrl = `${window.location.origin}/profile.html?user=${currentUser.uid}`;
+            
+            try {
+                await navigator.clipboard.writeText(profileUrl);
+                alert('✅ Profile URL copied to clipboard!');
+            } catch (err) {
+                alert('❌ Copy failed');
+            }
+        }
+
+        // Randomize avatar
+        function randomizeAvatar() {
+            // Redirect to editor with random parameter
+            window.location.href = 'editor.html?random=true';
+        }
+
+        // Download avatar
+        async function downloadAvatar() {
+            if (userProfile.avatarURL) {
+                try {
+                    const response = await fetch(userProfile.avatarURL);
+                    const blob = await response.blob();
+                    
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(blob);
+                    link.download = `${userProfile.username}_avatar.png`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(link.href);
+                } catch (error) {
+                    console.error('Download failed:', error);
+                    alert('❌ Download failed');
+                }
+            }
+        }
+
+        // Share avatar
+        function shareAvatar() {
+            if (navigator.share && userProfile.avatarURL) {
+                navigator.share({
+                    title: `${userProfile.username}'s Avatar`,
+                    text: 'Check out my custom avatar!',
+                    url: userProfile.avatarURL
+                }).catch(console.error);
+            } else {
+                // Fallback to copying URL
+                copyToClipboard('direct-url');
+            }
+        }
+
+        // Sign out
+        async function signOut() {
+            if (confirm('Are you sure you want to sign out?')) {
+                try {
+                    await auth.signOut();
+                    // Redirect handled by auth state change
+                } catch (error) {
+                    console.error('Sign out error:', error);
+                    alert('❌ Sign out failed');
+                }
+            }
+        }
+    </script>
 </body>
 </html>
