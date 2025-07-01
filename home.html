@@ -728,9 +728,9 @@
                 iframeUrl = userProfile.avatarURL;
             }
             
-            // Add ref=home to know they came from homepage
+            // Add ref=home and cache busting parameter
             const separator = iframeUrl.includes('?') ? '&' : '?';
-            iframeUrl += separator + 'ref=home';
+            iframeUrl += separator + 'ref=home&v=' + Date.now();
             
             // Set iframe source
             iframe.src = iframeUrl;
