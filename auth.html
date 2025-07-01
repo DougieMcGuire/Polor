@@ -1,99 +1,585 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sign Up - Polor</title>
-  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
-  <style>
-    body { font-family: sans-serif; max-width: 400px; margin: 50px auto; text-align: center; }
-    input, button { padding: 10px; margin: 8px 0; width: 100%; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Polor - Sign Up</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .auth-container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 450px;
+        }
+        
+        .auth-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .auth-header h1 {
+            color: #333;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .auth-header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+        
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 30px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 4px;
+        }
+        
+        .auth-tab {
+            flex: 1;
+            text-align: center;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 500;
+            color: #666;
+        }
+        
+        .auth-tab.active {
+            background: white;
+            color: #667eea;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .auth-form {
+            display: none;
+        }
+        
+        .auth-form.active {
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 6px;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.2s ease;
+            background: #f8f9fa;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+        }
+        
+        .form-input.error {
+            border-color: #dc3545;
+            background: #fff5f5;
+        }
+        
+        .error-message {
+            color: #dc3545;
+            font-size: 14px;
+            margin-top: 6px;
+            display: none;
+        }
+        
+        .error-message.show {
+            display: block;
+        }
+        
+        .auth-button {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-bottom: 15px;
+            position: relative;
+        }
+        
+        .auth-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover:not(:disabled) {
+            background: #5a6fd8;
+            transform: translateY(-1px);
+        }
+        
+        .btn-google {
+            background: white;
+            color: #333;
+            border: 2px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .btn-google:hover:not(:disabled) {
+            border-color: #667eea;
+            transform: translateY(-1px);
+        }
+        
+        .google-icon {
+            width: 20px;
+            height: 20px;
+        }
+        
+        .divider {
+            text-align: center;
+            margin: 20px 0;
+            position: relative;
+            color: #666;
+        }
+        
+        .divider:before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #e9ecef;
+        }
+        
+        .divider span {
+            background: white;
+            padding: 0 15px;
+        }
+        
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top: 3px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .success-message.show {
+            display: block;
+        }
+    </style>
 </head>
 <body>
-  <h2>Sign Up for Polor</h2>
+    <div class="auth-container">
+        <div class="auth-header">
+            <h1>🎨 Polor</h1>
+            <p>Create your custom avatar</p>
+        </div>
+        
+        <div class="auth-tabs">
+            <div class="auth-tab active" onclick="switchTab('login')">Login</div>
+            <div class="auth-tab" onclick="switchTab('signup')">Sign Up</div>
+        </div>
+        
+        <div id="success-message" class="success-message">
+            <strong>✅ Account created!</strong> Redirecting to your dashboard...
+        </div>
+        
+        <!-- Login Form -->
+        <form id="login-form" class="auth-form active">
+            <div class="form-group">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-input" id="login-email" required>
+                <div class="error-message" id="login-email-error"></div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Password</label>
+                <input type="password" class="form-input" id="login-password" required>
+                <div class="error-message" id="login-password-error"></div>
+            </div>
+            
+            <button type="submit" class="auth-button btn-primary" id="login-btn">
+                Login
+            </button>
+            
+            <div class="divider"><span>or</span></div>
+            
+            <button type="button" class="auth-button btn-google" onclick="signInWithGoogle()">
+                <svg class="google-icon" viewBox="0 0 24 24">
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                </svg>
+                Continue with Google
+            </button>
+        </form>
+        
+        <!-- Signup Form -->
+        <form id="signup-form" class="auth-form">
+            <div class="form-group">
+                <label class="form-label">Username</label>
+                <input type="text" class="form-input" id="signup-username" required>
+                <div class="error-message" id="signup-username-error"></div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-input" id="signup-email" required>
+                <div class="error-message" id="signup-email-error"></div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Password</label>
+                <input type="password" class="form-input" id="signup-password" required>
+                <div class="error-message" id="signup-password-error"></div>
+            </div>
+            
+            <button type="submit" class="auth-button btn-primary" id="signup-btn">
+                Create Account
+            </button>
+            
+            <div class="divider"><span>or</span></div>
+            
+            <button type="button" class="auth-button btn-google" onclick="signInWithGoogle()">
+                <svg class="google-icon" viewBox="0 0 24 24">
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                </svg>
+                Sign up with Google
+            </button>
+        </form>
+    </div>
 
-  <input type="text" id="username" placeholder="Username" />
-  <input type="email" id="email" placeholder="Email" />
-  <input type="password" id="password" placeholder="Password" />
-  <button onclick="signUpEmail()">Sign Up with Email</button>
-  <hr>
-  <button onclick="signUpWithGoogle()">Sign Up with Google</button>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyA8HcTDiCQtJHRiMES2p1iUlA30AkZPx1Y",
-      authDomain: "polor-62c29.firebaseapp.com",
-      projectId: "polor-62c29",
-      appId: "1:232986823513:web:a6ee6bef6b0609ace3da48"
-    };
+    <script>
+        // Firebase config
+        const firebaseConfig = {
+            apiKey: "AIzaSyA8HcTDiCQtJHRiMES2p1iUlA30AkZPx1Y",
+            authDomain: "polor-62c29.firebaseapp.com",
+            projectId: "polor-62c29",
+            appId: "1:232986823513:web:a6ee6bef6b0609ace3da48"
+        };
 
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const firestore = firebase.firestore();
 
-    const defaultData = {
-      avatarCONFIG: "h:12|b:base|t:113|hc:8B4513|bc:F4C2A1|ec:000000",
-      avatarURL: "n/a"
-    };
+        // Configure Google Auth Provider
+        const googleProvider = new firebase.auth.GoogleAuthProvider();
 
-    async function signUpEmail() {
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-      const username = document.getElementById('username').value;
+        // Default avatar config for new users
+        const DEFAULT_AVATAR_CONFIG = 'b:base|h:1|e:BasicMale|br:Basic|m:Basic|n:basic|t:113|bc:F4C2A1|hc:8B4513|ec:000000|brc:654321|mc:000000|nc:FFA07A|tc:FF0000';
+        const DEFAULT_AVATAR_URL = `${window.location.origin}/editor.html?image=true&b=base.png&h=1.png&e=BasicMale.png&br=Basic.png&m=Basic.png&n=basic.png&t=113.png&bc=F4C2A1&hc=8B4513&ec=000000&brc=654321&mc=000000&nc=FFA07A&tc=FF0000`;
 
-      if (!email || !password || !username) {
-        alert('Please fill all fields');
-        return;
-      }
-
-      try {
-        const result = await auth.createUserWithEmailAndPassword(email, password);
-        await result.user.updateProfile({ displayName: username });
-
-        await db.collection('users').doc(result.user.uid).set({
-          uid: result.user.uid,
-          username: username,
-          email: email,
-          ...defaultData
+        // Check if user is already logged in
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                // User is signed in, redirect to home
+                window.location.href = 'home.html';
+            }
         });
 
-        alert('Signed up successfully!');
-        // Redirect or continue
-      } catch (err) {
-        alert(err.message);
-      }
-    }
-
-    async function signUpWithGoogle() {
-      const provider = new firebase.auth.GoogleAuthProvider();
-      try {
-        const result = await auth.signInWithPopup(provider);
-        const userRef = db.collection('users').doc(result.user.uid);
-        const doc = await userRef.get();
-
-        if (!doc.exists) {
-          const username = prompt('Choose a username:');
-          if (!username) return alert('Username is required');
-
-          await result.user.updateProfile({ displayName: username });
-
-          await userRef.set({
-            uid: result.user.uid,
-            username: username,
-            email: result.user.email,
-            ...defaultData
-          });
+        // Tab switching
+        function switchTab(tab) {
+            // Update tab buttons
+            document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+            document.querySelector(`.auth-tab:nth-child(${tab === 'login' ? '1' : '2'})`).classList.add('active');
+            
+            // Update forms
+            document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+            document.getElementById(`${tab}-form`).classList.add('active');
+            
+            // Clear any error messages
+            clearErrors();
         }
 
-        alert('Signed in with Google!');
-        // Redirect or continue
-      } catch (err) {
-        alert(err.message);
-      }
-    }
-  </script>
+        // Clear error messages
+        function clearErrors() {
+            document.querySelectorAll('.error-message').forEach(e => e.classList.remove('show'));
+            document.querySelectorAll('.form-input').forEach(i => i.classList.remove('error'));
+        }
+
+        // Show error message
+        function showError(inputId, message) {
+            const input = document.getElementById(inputId);
+            const errorDiv = document.getElementById(`${inputId}-error`);
+            
+            input.classList.add('error');
+            errorDiv.textContent = message;
+            errorDiv.classList.add('show');
+        }
+
+        // Show loading state
+        function setLoading(buttonId, loading) {
+            const button = document.getElementById(buttonId);
+            if (loading) {
+                button.disabled = true;
+                button.innerHTML = '<span class="spinner"></span> Loading...';
+            } else {
+                button.disabled = false;
+                if (buttonId === 'login-btn') {
+                    button.innerHTML = 'Login';
+                } else {
+                    button.innerHTML = 'Create Account';
+                }
+            }
+        }
+
+        // Create user profile in Firestore
+        async function createUserProfile(user, username = null) {
+            try {
+                // Use provided username or extract from email/displayName
+                const finalUsername = username || 
+                                    user.displayName || 
+                                    user.email.split('@')[0];
+                
+                const userProfile = {
+                    uid: user.uid,
+                    email: user.email,
+                    username: finalUsername,
+                    avatarCONFIG: DEFAULT_AVATAR_CONFIG,
+                    avatarURL: DEFAULT_AVATAR_URL,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+                };
+
+                // Save to Firestore
+                await firestore.collection('users').doc(user.uid).set(userProfile);
+
+                // Update Auth displayName
+                await user.updateProfile({
+                    displayName: finalUsername
+                });
+
+                console.log('User profile created successfully');
+                return userProfile;
+            } catch (error) {
+                console.error('Error creating user profile:', error);
+                throw error;
+            }
+        }
+
+        // Update last login
+        async function updateLastLogin(user) {
+            try {
+                await firestore.collection('users').doc(user.uid).update({
+                    lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            } catch (error) {
+                console.error('Error updating last login:', error);
+            }
+        }
+
+        // Handle login
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            clearErrors();
+            
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            
+            // Basic validation
+            if (!email || !password) {
+                if (!email) showError('login-email', 'Email is required');
+                if (!password) showError('login-password', 'Password is required');
+                return;
+            }
+            
+            setLoading('login-btn', true);
+            
+            try {
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                await updateLastLogin(userCredential.user);
+                // Redirect handled by auth state change
+            } catch (error) {
+                console.error('Login error:', error);
+                let message = 'Login failed. Please try again.';
+                
+                switch (error.code) {
+                    case 'auth/user-not-found':
+                        message = 'No account found with this email.';
+                        showError('login-email', message);
+                        break;
+                    case 'auth/wrong-password':
+                        message = 'Incorrect password.';
+                        showError('login-password', message);
+                        break;
+                    case 'auth/invalid-email':
+                        message = 'Invalid email address.';
+                        showError('login-email', message);
+                        break;
+                    case 'auth/too-many-requests':
+                        message = 'Too many failed attempts. Please try again later.';
+                        showError('login-email', message);
+                        break;
+                    default:
+                        showError('login-email', message);
+                }
+            } finally {
+                setLoading('login-btn', false);
+            }
+        });
+
+        // Handle signup
+        document.getElementById('signup-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            clearErrors();
+            
+            const username = document.getElementById('signup-username').value.trim();
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+            
+            // Validation
+            if (!username || !email || !password) {
+                if (!username) showError('signup-username', 'Username is required');
+                if (!email) showError('signup-email', 'Email is required');
+                if (!password) showError('signup-password', 'Password is required');
+                return;
+            }
+            
+            if (username.length < 3) {
+                showError('signup-username', 'Username must be at least 3 characters');
+                return;
+            }
+            
+            if (password.length < 6) {
+                showError('signup-password', 'Password must be at least 6 characters');
+                return;
+            }
+            
+            setLoading('signup-btn', true);
+            
+            try {
+                // Create user account
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                
+                // Create user profile in Firestore
+                await createUserProfile(userCredential.user, username);
+                
+                // Show success message
+                document.getElementById('success-message').classList.add('show');
+                
+                // Redirect after a short delay
+                setTimeout(() => {
+                    window.location.href = 'home.html';
+                }, 1500);
+                
+            } catch (error) {
+                console.error('Signup error:', error);
+                let message = 'Account creation failed. Please try again.';
+                
+                switch (error.code) {
+                    case 'auth/email-already-in-use':
+                        message = 'An account with this email already exists.';
+                        showError('signup-email', message);
+                        break;
+                    case 'auth/invalid-email':
+                        message = 'Invalid email address.';
+                        showError('signup-email', message);
+                        break;
+                    case 'auth/weak-password':
+                        message = 'Password is too weak. Use at least 6 characters.';
+                        showError('signup-password', message);
+                        break;
+                    default:
+                        showError('signup-email', message);
+                }
+            } finally {
+                setLoading('signup-btn', false);
+            }
+        });
+
+        // Handle Google Sign In
+        async function signInWithGoogle() {
+            try {
+                const result = await auth.signInWithPopup(googleProvider);
+                const user = result.user;
+                
+                // Check if this is a new user by looking for existing Firestore document
+                const userDoc = await firestore.collection('users').doc(user.uid).get();
+                
+                if (!userDoc.exists) {
+                    // New user - create profile
+                    await createUserProfile(user);
+                    document.getElementById('success-message').classList.add('show');
+                    setTimeout(() => {
+                        window.location.href = 'home.html';
+                    }, 1500);
+                } else {
+                    // Existing user - update last login
+                    await updateLastLogin(user);
+                    window.location.href = 'home.html';
+                }
+                
+            } catch (error) {
+                console.error('Google sign in error:', error);
+                
+                if (error.code !== 'auth/popup-closed-by-user') {
+                    showError('login-email', 'Google sign in failed. Please try again.');
+                }
+            }
+        }
+    </script>
 </body>
 </html>
