@@ -490,7 +490,7 @@
 
         // Create user profile if missing
         async function createUserProfile() {
-            const DEFAULT_AVATAR_URL = `https://polor.org/Avatars/iframe?backgrounds=bg4.png&bases=base.png&hair=1.png&eyes=BasicMale.png&brows=Basic.png&mouths=chad.png&noses=basic.png&tops=16.png&hats=chef.png&backgroundsColor=FFC0CB&basesColor=F4C2A1&hairColor=F1C0E8&eyesColor=000000&browsColor=654321&mouthsColor=000000&nosesColor=FFA07A&neckColor=FFB6C1&topsColor=FF0000&glassesColor=6B4423&hatsColor=F1C0E8`;
+            const DEFAULT_AVATAR_URL = `https://polor.org/Avatars/?backgrounds=bg4.png&bases=base.png&hair=1.png&eyes=BasicMale.png&brows=Basic.png&mouths=chad.png&noses=basic.png&tops=16.png&hats=chef.png&backgroundsColor=FFC0CB&basesColor=F4C2A1&hairColor=F1C0E8&eyesColor=000000&browsColor=654321&mouthsColor=000000&nosesColor=FFA07A&neckColor=FFB6C1&topsColor=FF0000&glassesColor=6B4423&hatsColor=F1C0E8`;
             
             const profile = {
                 uid: currentUser.uid,
@@ -695,7 +695,7 @@
                 window.location.href = userProfile.avatarURL + separator + 'ref=home&compact=true';
             } else {
                 // Fallback to default editor if no saved avatar
-                window.location.href = 'https://polor.org/Avatars/iframe?ref=home&compact=true';
+                window.location.href = 'https://polor.org/Avatars/?ref=home&compact=true';
             }
         }
 
@@ -706,7 +706,7 @@
 
         // Randomize avatar
         function randomizeAvatar() {
-            window.location.href = 'https://polor.org/Avatars/iframe?random=true&ref=home';
+            window.location.href = 'https://polor.org/Avatars/?random=true&ref=home';
         }
 
         // Download avatar
