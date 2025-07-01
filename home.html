@@ -402,28 +402,6 @@
                 <p>Browse amazing avatars created by the Polor community</p>
             </div>
         </div>
-        
-        <!-- Quick Actions -->
-        <div class="quick-actions">
-            <h2>⚡ Quick Actions</h2>
-            <div class="action-buttons">
-                <button class="btn btn-primary" onclick="editAvatar()">
-                    🎨 Edit Avatar
-                </button>
-                <button class="btn btn-secondary" onclick="randomizeAvatar()">
-                    🎲 Random Avatar
-                </button>
-                <button class="btn btn-secondary" onclick="downloadAvatar()">
-                    💾 Download Avatar
-                </button>
-                <button class="btn btn-secondary" onclick="shareProfile()">
-                    📤 Share Profile
-                </button>
-                <button class="btn btn-secondary" onclick="signOut()">
-                    🚪 Sign Out
-                </button>
-            </div>
-        </div>
     </div>
 
     <!-- Settings Modal -->
@@ -677,10 +655,12 @@
         // Edit avatar - goes to user's specific avatar URL
         function editAvatar() {
             if (userProfile && userProfile.avatarURL) {
-                window.location.href = userProfile.avatarURL;
+                // Add ref=home to know they came from homepage
+                const separator = userProfile.avatarURL.includes('?') ? '&' : '?';
+                window.location.href = userProfile.avatarURL + separator + 'ref=home';
             } else {
                 // Fallback to default editor if no saved avatar
-                window.location.href = 'https://polor.org/Avatars/';
+                window.location.href = 'https://polor.org/Avatars/?ref=home';
             }
         }
 
@@ -691,7 +671,7 @@
 
         // Randomize avatar
         function randomizeAvatar() {
-            window.location.href = 'https://polor.org/Avatars/?random=true';
+            window.location.href = 'https://polor.org/Avatars/?random=true&ref=home';
         }
 
         // Download avatar
