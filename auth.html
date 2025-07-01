@@ -510,19 +510,31 @@
                 };
                 
                 img.onerror = () => {
-                    console.log('❌ Failed to load avatar image, using placeholder');
-                    // Generate a simple placeholder if image fails to load
-                    ctx.fillStyle = '#808080';
-                    ctx.fillRect(0, 0, 200, 200);
+                    console.log('❌ Failed to load avatar image, using fallback');
+                    // Use fallback image
+                    const fallbackImg = new Image();
+                    fallbackImg.crossOrigin = 'anonymous';
                     
-                    // Add some basic shape
-                    ctx.fillStyle = '#FFF8F5';
-                    ctx.beginPath();
-                    ctx.arc(100, 100, 80, 0, 2 * Math.PI);
-                    ctx.fill();
+                    fallbackImg.onload = () => {
+                        ctx.drawImage(fallbackImg, 0, 0, 200, 200);
+                        const base64 = canvas.toDataURL('image/webp', 0.8);
+                        resolve(base64);
+                    };
                     
-                    const base64 = canvas.toDataURL('image/webp', 0.8);
-                    resolve(base64);
+                    fallbackImg.onerror = () => {
+                        console.log('❌ Fallback image also failed, using placeholder');
+                        // Final fallback - simple gray circle
+                        ctx.fillStyle = '#808080';
+                        ctx.fillRect(0, 0, 200, 200);
+                        ctx.fillStyle = '#FFF8F5';
+                        ctx.beginPath();
+                        ctx.arc(100, 100, 80, 0, 2 * Math.PI);
+                        ctx.fill();
+                        const base64 = canvas.toDataURL('image/webp', 0.8);
+                        resolve(base64);
+                    };
+                    
+                    fallbackImg.src = 'https://polor.org/Avatars/default.png';
                 };
                 
                 img.src = imageUrl;
