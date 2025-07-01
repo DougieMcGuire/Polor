@@ -367,11 +367,7 @@
                 `;
             }).join('');
             
-            // Categories that have overlays vs those that can be fully colored
-            const categoriesWithOverlays = ['backgrounds', 'bases', 'hair', 'eyes', 'glasses', 'hats', 'mouths', 'neck', 'tops'];
-            const categoriesWithoutOverlays = ['brows', 'noses']; // These can be fully colored
-            const allColorableCategories = [...categoriesWithOverlays, ...categoriesWithoutOverlays];
-            
+            const allColorableCategories = ['backgrounds', 'bases', 'hair', 'eyes', 'glasses', 'hats', 'mouths', 'neck', 'tops', 'brows', 'noses'];
             const layerOrder = ['backgrounds', 'bases', 'neck', 'hair', 'eyes', 'brows', 'noses', 'mouths', 'tops', 'glasses', 'hats'];
             
             const layers = [];
@@ -382,20 +378,14 @@
                 if (!part) return;
                 
                 const isColorable = allColorableCategories.includes(category);
-                const hasOverlay = categoriesWithOverlays.includes(category);
                 const filter = isColorable && colors[category] ? `filter="url(#${category}GreenScreenFilter)"` : '';
                 
-                // Add the main part (with color filter if colorable)
+                // STEP 1: Add the main part (colorable - like crazy.png)
                 layers.push(`<image href="https://polor.org/Avatars/characters/${category}/${part}" x="0" y="0" width="200" height="200" ${filter}/>`);
                 
-                // Add overlay if this category has overlays (check if overlay file exists in manifest)
-                if (hasOverlay) {
-                    const overlayFile = part.replace('.png', 'overlay.png');
-                    // Check if the overlay file exists in the manifest for this category
-                    if (manifest[category] && manifest[category].includes(overlayFile)) {
-                        layers.push(`<image href="https://polor.org/Avatars/characters/${category}/${overlayFile}" x="0" y="0" width="200" height="200"/>`);
-                    }
-                }
+                // STEP 2: Add the overlay on top (NOT colorable - like crazyoverlay.png)
+                const overlayFile = part.replace('.png', 'overlay.png');
+                layers.push(`<image href="https://polor.org/Avatars/characters/${category}/${overlayFile}" x="0" y="0" width="200" height="200"/>`);
             });
             
             return `
