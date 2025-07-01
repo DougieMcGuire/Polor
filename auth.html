@@ -316,8 +316,12 @@
         const firebaseConfig = {
             apiKey: "AIzaSyA8HcTDiCQtJHRiMES2p1iUlA30AkZPx1Y",
             authDomain: "polor-62c29.firebaseapp.com",
+            databaseURL: "https://polor-62c29-default-rtdb.firebaseio.com",
             projectId: "polor-62c29",
-            appId: "1:232986823513:web:a6ee6bef6b0609ace3da48"
+            storageBucket: "polor-62c29.firebasestorage.app",
+            messagingSenderId: "232986823513",
+            appId: "1:232986823513:web:a6ee6bef6b0609ace3da48",
+            measurementId: "G-KRT42D5TQK"
         };
 
         // Initialize Firebase
@@ -327,10 +331,12 @@
 
         // Configure Google Auth Provider
         const googleProvider = new firebase.auth.GoogleAuthProvider();
+        googleProvider.addScope('email');
+        googleProvider.addScope('profile');
 
         // Default avatar config for new users
         const DEFAULT_AVATAR_CONFIG = 'b:base|h:1|e:BasicMale|br:Basic|m:Basic|n:basic|t:113|bc:F4C2A1|hc:8B4513|ec:000000|brc:654321|mc:000000|nc:FFA07A|tc:FF0000';
-        const DEFAULT_AVATAR_URL = `${window.location.origin}/editor.html?image=true&b=base.png&h=1.png&e=BasicMale.png&br=Basic.png&m=Basic.png&n=basic.png&t=113.png&bc=F4C2A1&hc=8B4513&ec=000000&brc=654321&mc=000000&nc=FFA07A&tc=FF0000`;
+        const DEFAULT_AVATAR_URL = `https://polor.org/Avatars/?image=true&b=base.png&h=1.png&e=BasicMale.png&br=Basic.png&m=Basic.png&n=basic.png&t=113.png&bc=F4C2A1&hc=8B4513&ec=000000&brc=654321&mc=000000&nc=FFA07A&tc=FF0000`;
 
         // Check if user is already logged in
         auth.onAuthStateChanged((user) => {
@@ -404,13 +410,15 @@
                     lastLogin: firebase.firestore.FieldValue.serverTimestamp()
                 };
 
-                // Save to Firestore
-                await firestore.collection('users').doc(user.uid).set(userProfile);
+                // Save to Firestore with merge to avoid overwriting
+                await firestore.collection('users').doc(user.uid).set(userProfile, { merge: true });
 
-                // Update Auth displayName
-                await user.updateProfile({
-                    displayName: finalUsername
-                });
+                // Update Auth displayName if not already set
+                if (!user.displayName) {
+                    await user.updateProfile({
+                        displayName: finalUsername
+                    });
+                }
 
                 console.log('User profile created successfully');
                 return userProfile;
@@ -553,10 +561,41 @@
         // Handle Google Sign In
         async function signInWithGoogle() {
             try {
-                const result = await auth.signInWithPopup(googleProvider);
+                console.log('Starting Google sign in...');
+                
+                // Use redirect instead of popup for better compatibility
+                await auth.signInWithRedirect(googleProvider);
+                
+            } catch (error) {
+                console.error('Google sign in error:', error);
+                
+                if (error.code !== 'auth/popup-closed-by-user' && error.code !== 'auth/cancelled-popup-request') {
+                    let message = 'Google sign in failed. Please try again.';
+                    
+                    switch (error.code) {
+                        case 'auth/popup-blocked':
+                            message = 'Popup was blocked. Please allow popups and try again.';
+                            break;
+                        case 'auth/network-request-failed':
+                            message = 'Network error. Please check your connection.';
+                            break;
+                        case 'auth/too-many-requests':
+                            message = 'Too many requests. Please wait and try again.';
+                            break;
+                    }
+                    
+                    showError('login-email', message);
+                }
+            }
+        }
+
+        // Handle redirect result
+        auth.getRedirectResult().then(async (result) => {
+            if (result.user) {
+                console.log('Google sign in successful');
                 const user = result.user;
                 
-                // Check if this is a new user by looking for existing Firestore document
+                // Check if this is a new user
                 const userDoc = await firestore.collection('users').doc(user.uid).get();
                 
                 if (!userDoc.exists) {
@@ -571,15 +610,11 @@
                     await updateLastLogin(user);
                     window.location.href = 'home.html';
                 }
-                
-            } catch (error) {
-                console.error('Google sign in error:', error);
-                
-                if (error.code !== 'auth/popup-closed-by-user') {
-                    showError('login-email', 'Google sign in failed. Please try again.');
-                }
             }
-        }
+        }).catch((error) => {
+            console.error('Redirect result error:', error);
+            showError('login-email', 'Google sign in failed. Please try again.');
+        });
     </script>
 </body>
 </html>
