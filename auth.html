@@ -224,7 +224,7 @@
 <body>
     <div class="auth-container">
         <div class="auth-header">
-            <h1>🎨 Polor</h1>
+            <h1>Polor</h1>
             <p>Create your custom avatar</p>
         </div>
         
@@ -403,9 +403,11 @@
                     uid: user.uid,
                     email: user.email,
                     username: finalUsername,
+                    displayName: finalUsername,
                     avatarURL: DEFAULT_AVATAR_URL,
                     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+                    lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
+                    isActive: true
                 };
 
                 // Save to Firestore with merge to avoid overwriting
@@ -430,10 +432,58 @@
         async function updateLastLogin(user) {
             try {
                 await firestore.collection('users').doc(user.uid).update({
-                    lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+                    lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
+                    isActive: true
                 });
             } catch (error) {
                 console.error('Error updating last login:', error);
+            }
+        }
+
+        // Account cleanup function (to be called by a scheduled function)
+        async function cleanupInactiveAccounts() {
+            try {
+                const thirtyDaysAgo = new Date();
+                thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+                
+                const inactiveUsers = await firestore.collection('users')
+                    .where('lastLogin', '<', thirtyDaysAgo)
+                    .where('isActive', '==', true)
+                    .get();
+                
+                console.log(`Found ${inactiveUsers.size} inactive accounts to clean up`);
+                
+                const batch = firestore.batch();
+                
+                inactiveUsers.forEach(doc => {
+                    // Mark as inactive instead of deleting to preserve data integrity
+                    batch.update(doc.ref, { 
+                        isActive: false,
+                        deactivatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                });
+                
+                if (inactiveUsers.size > 0) {
+                    await batch.commit();
+                    console.log(`Marked ${inactiveUsers.size} accounts as inactive`);
+                }
+                
+            } catch (error) {
+                console.error('Error cleaning up inactive accounts:', error);
+            }
+        }
+
+        // Check for username availability
+        async function checkUsernameAvailability(username) {
+            try {
+                const snapshot = await firestore.collection('users')
+                    .where('username', '==', username)
+                    .get();
+                    
+                return snapshot.empty;
+            } catch (error) {
+                console.error('Error checking username:', error);
+                return false;
             }
         }
 
@@ -509,6 +559,11 @@
                 return;
             }
             
+            if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+                showError('signup-username', 'Username can only contain letters, numbers, and underscores');
+                return;
+            }
+            
             if (password.length < 6) {
                 showError('signup-password', 'Password must be at least 6 characters');
                 return;
@@ -517,6 +572,13 @@
             setLoading('signup-btn', true);
             
             try {
+                // Check username availability
+                const isUsernameAvailable = await checkUsernameAvailability(username);
+                if (!isUsernameAvailable) {
+                    showError('signup-username', 'Username is already taken');
+                    return;
+                }
+                
                 // Create user account
                 const userCredential = await auth.createUserWithEmailAndPassword(email, password);
                 
@@ -561,11 +623,48 @@
             try {
                 console.log('Starting Google sign in...');
                 
-                // Use redirect instead of popup for better compatibility
-                await auth.signInWithRedirect(googleProvider);
+                // Disable buttons during sign in
+                const googleButtons = document.querySelectorAll('.btn-google');
+                googleButtons.forEach(btn => {
+                    btn.disabled = true;
+                    btn.innerHTML = '<span class="spinner"></span> Signing in...';
+                });
+                
+                // Use popup for better user experience
+                const result = await auth.signInWithPopup(googleProvider);
+                const user = result.user;
+                
+                console.log('Google sign in successful:', user.email);
+                
+                // Check if this is a new user
+                const userDoc = await firestore.collection('users').doc(user.uid).get();
+                
+                if (!userDoc.exists) {
+                    // New user - create profile
+                    console.log('Creating new user profile...');
+                    await createUserProfile(user);
+                    document.getElementById('success-message').classList.add('show');
+                    setTimeout(() => {
+                        window.location.href = 'home.html';
+                    }, 1500);
+                } else {
+                    // Existing user - update last login
+                    console.log('Updating existing user login...');
+                    await updateLastLogin(user);
+                    window.location.href = 'home.html';
+                }
                 
             } catch (error) {
                 console.error('Google sign in error:', error);
+                
+                // Re-enable buttons
+                const googleButtons = document.querySelectorAll('.btn-google');
+                googleButtons.forEach((btn, index) => {
+                    btn.disabled = false;
+                    btn.innerHTML = index === 0 ? 
+                        'Continue with Google' : 
+                        'Sign up with Google';
+                });
                 
                 if (error.code !== 'auth/popup-closed-by-user' && error.code !== 'auth/cancelled-popup-request') {
                     let message = 'Google sign in failed. Please try again.';
@@ -580,6 +679,9 @@
                         case 'auth/too-many-requests':
                             message = 'Too many requests. Please wait and try again.';
                             break;
+                        case 'auth/account-exists-with-different-credential':
+                            message = 'An account already exists with this email using a different sign-in method.';
+                            break;
                     }
                     
                     showError('login-email', message);
@@ -587,32 +689,9 @@
             }
         }
 
-        // Handle redirect result
-        auth.getRedirectResult().then(async (result) => {
-            if (result.user) {
-                console.log('Google sign in successful');
-                const user = result.user;
-                
-                // Check if this is a new user
-                const userDoc = await firestore.collection('users').doc(user.uid).get();
-                
-                if (!userDoc.exists) {
-                    // New user - create profile
-                    await createUserProfile(user);
-                    document.getElementById('success-message').classList.add('show');
-                    setTimeout(() => {
-                        window.location.href = 'home.html';
-                    }, 1500);
-                } else {
-                    // Existing user - update last login
-                    await updateLastLogin(user);
-                    window.location.href = 'home.html';
-                }
-            }
-        }).catch((error) => {
-            console.error('Redirect result error:', error);
-            showError('login-email', 'Google sign in failed. Please try again.');
-        });
+        // Run cleanup on page load (in production, this should be a scheduled cloud function)
+        // Commented out for now - implement as a cloud function for production
+        // cleanupInactiveAccounts();
     </script>
 </body>
 </html>
