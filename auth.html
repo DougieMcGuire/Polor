@@ -421,16 +421,39 @@
         // Create user profile in Firestore
         async function createUserProfile(user, username = null) {
             try {
-                // Use provided username or extract from email/displayName
-                const finalUsername = username || 
-                                    user.displayName || 
-                                    user.email.split('@')[0];
+                // Clean username for Google users
+                let finalUsername = username;
+                
+                if (!finalUsername) {
+                    if (user.displayName) {
+                        // Clean Google display name: remove spaces, special chars, make lowercase
+                        finalUsername = user.displayName
+                            .toLowerCase()
+                            .replace(/[^a-zA-Z0-9]/g, '') // Remove all non-alphanumeric
+                            .substring(0, 20); // Limit length
+                        
+                        // If cleaning resulted in empty string, use email
+                        if (!finalUsername) {
+                            finalUsername = user.email.split('@')[0].replace(/[^a-zA-Z0-9]/g, '');
+                        }
+                    } else {
+                        // Use email username part and clean it
+                        finalUsername = user.email.split('@')[0].replace(/[^a-zA-Z0-9]/g, '');
+                    }
+                }
+                
+                // Ensure username is at least 3 characters
+                if (finalUsername.length < 3) {
+                    finalUsername += Math.random().toString(36).substring(2, 5);
+                }
+                
+                console.log('🏷️ Final username:', finalUsername);
                 
                 const userProfile = {
                     uid: user.uid,
                     email: user.email,
                     username: finalUsername,
-                    displayName: finalUsername,
+                    displayName: user.displayName || finalUsername,
                     avatarURL: DEFAULT_AVATAR_URL,
                     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                     lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
@@ -447,10 +470,10 @@
                     });
                 }
 
-                console.log('User profile created successfully');
+                console.log('✅ User profile created successfully with avatar URL');
                 return userProfile;
             } catch (error) {
-                console.error('Error creating user profile:', error);
+                console.error('❌ Error creating user profile:', error);
                 throw error;
             }
         }
