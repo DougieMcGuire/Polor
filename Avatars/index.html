@@ -296,37 +296,8 @@
         </div>
     </div>
 
-    <!-- Firebase SDK (Optional - only for saving) -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-
     <script>
-        // Firebase config (optional - only for saving to account)
-        const firebaseConfig = {
-            apiKey: "AIzaSyA8HcTDiCQtJHRiMES2p1iUlA30AkZPx1Y",
-            authDomain: "polor-62c29.firebaseapp.com",
-            databaseURL: "https://polor-62c29-default-rtdb.firebaseio.com",
-            projectId: "polor-62c29",
-            storageBucket: "polor-62c29.firebasestorage.app",
-            messagingSenderId: "232986823513",
-            appId: "1:232986823513:web:a6ee6bef6b0609ace3da48",
-            measurementId: "G-KRT42D5TQK"
-        };
-
-        // Initialize Firebase (optional)
-        let auth = null;
-        let firestore = null;
-        try {
-            firebase.initializeApp(firebaseConfig);
-            auth = firebase.auth();
-            firestore = firebase.firestore();
-        } catch (error) {
-            console.log('Firebase not available - running in standalone mode');
-        }
-
         let manifest = {};
-        let currentUser = null;
         let avatarState = {
             selectedParts: {
                 backgrounds: '',
@@ -355,14 +326,6 @@
                 hats: '#000000'
             }
         };
-
-        // Optional auth state listener
-        if (auth) {
-            auth.onAuthStateChanged((user) => {
-                currentUser = user;
-                updateAuthUI();
-            });
-        }
 
         // Sign in anonymously
         async function signInAnonymously() {
