@@ -51,11 +51,15 @@
 
       try {
         const result = await auth.createUserWithEmailAndPassword(email, password);
+        await result.user.updateProfile({ displayName: username });
+
         await db.collection('users').doc(result.user.uid).set({
+          uid: result.user.uid,
           username: username,
           email: email,
           ...defaultData
         });
+
         alert('Signed up successfully!');
         // Redirect or continue
       } catch (err) {
@@ -69,15 +73,21 @@
         const result = await auth.signInWithPopup(provider);
         const userRef = db.collection('users').doc(result.user.uid);
         const doc = await userRef.get();
+
         if (!doc.exists) {
           const username = prompt('Choose a username:');
           if (!username) return alert('Username is required');
+
+          await result.user.updateProfile({ displayName: username });
+
           await userRef.set({
+            uid: result.user.uid,
             username: username,
             email: result.user.email,
             ...defaultData
           });
         }
+
         alert('Signed in with Google!');
         // Redirect or continue
       } catch (err) {
