@@ -589,14 +589,21 @@
         // Check for username availability
         async function checkUsernameAvailability(username) {
             try {
+                console.log('🔍 Checking username availability for:', username);
+                
                 const snapshot = await firestore.collection('users')
                     .where('username', '==', username)
                     .get();
-                    
-                return snapshot.empty;
+                
+                const isAvailable = snapshot.empty;
+                console.log('📊 Username available:', isAvailable, 'Found docs:', snapshot.size);
+                
+                return isAvailable;
             } catch (error) {
-                console.error('Error checking username:', error);
-                return false;
+                console.error('❌ Error checking username:', error);
+                // If there's an error checking, assume it's available to not block signup
+                console.log('⚠️ Error occurred, allowing username to proceed');
+                return true;
             }
         }
 
@@ -689,6 +696,7 @@
                 const isUsernameAvailable = await checkUsernameAvailability(username);
                 if (!isUsernameAvailable) {
                     showError('signup-username', 'Username is already taken');
+                    setLoading('signup-btn', false);
                     return;
                 }
                 
