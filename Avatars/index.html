@@ -260,20 +260,70 @@
             try {
                 const response = await fetch('https://polor.org/Avatars/manifest.json');
                 manifest = await response.json();
+                loadFromURL(); // Load avatar from URL parameters
                 buildInterface();
             } catch (error) {
                 console.error('Load failed:', error);
-                document.getElementById('app-content').innerHTML = `
-                    <div class="loading">
-                        <h3>❌ Loading Failed</h3>
-                        <p>Could not fetch avatar assets</p>
-                    </div>
-                `;
+                if (isImageMode()) {
+                    // Even if manifest fails, show something in image mode
+                    document.getElementById('app-content').innerHTML = `
+                        <div style="display: flex; justify-content: center; align-items: center; min-height: 50vh;">
+                            <div style="color: #666;">Avatar loading failed</div>
+                        </div>
+                    `;
+                } else {
+                    document.getElementById('app-content').innerHTML = `
+                        <div class="loading">
+                            <h3>❌ Loading Failed</h3>
+                            <p>Could not fetch avatar assets</p>
+                        </div>
+                    `;
+                }
             }
         }
 
-        // Build the interface
+        // Check if we're in image-only mode
+        function isImageMode() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('image') === 'true';
+        }
+
+        // Load URL parameters into avatar state
+        function loadFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            
+            // Load parts from URL
+            Object.keys(avatarState.selectedParts).forEach(category => {
+                const urlValue = urlParams.get(category);
+                if (urlValue) {
+                    avatarState.selectedParts[category] = urlValue;
+                }
+            });
+            
+            // Load colors from URL
+            Object.keys(avatarState.colors).forEach(category => {
+                const urlValue = urlParams.get(`${category}Color`);
+                if (urlValue) {
+                    avatarState.colors[category] = `#${urlValue}`;
+                }
+            });
+        }
+
+        // Build the interface or show image-only mode
         function buildInterface() {
+            if (isImageMode()) {
+                // Image-only mode - just show the avatar
+                document.getElementById('app-content').innerHTML = `
+                    <div style="display: flex; justify-content: center; align-items: center; min-height: 50vh; background: transparent;">
+                        <div style="background: transparent;">
+                            ${renderAvatar()}
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Normal interface mode
             document.getElementById('app-content').innerHTML = `
                 <div class="main-layout">
                     <div class="customization-panel">
@@ -513,11 +563,12 @@
             updateCategorySelection(category); // Update just this category's selection
         }
 
-        // Update color - optimized
+        // Update color - optimized with live preview updates
         function updateColor(category, color) {
             avatarState.colors[category] = color;
             updateDisplay();
-            updateColorSelection(category); // Update just this category's color selection
+            updateColorSelection(category);
+            updatePreviews(category, color); // Update previews with new color
         }
 
         // Update only the selection state for a specific category
@@ -576,7 +627,7 @@
                 params.append(`${category}Color`, color.replace('#', ''));
             });
             
-            return `https://polor.org/Avatars/?${params.toString()}`;
+            return `https://polor.org/avatar/?${params.toString()}`;
         }
 
         // Get icon
@@ -635,7 +686,7 @@
             }
         }
 
-        // Start
+        // Start - load from URL if in image mode
         loadSaved();
         initialize();
     </script>
