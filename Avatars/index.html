@@ -223,13 +223,13 @@
                 hair: '1.png',
                 eyes: 'BasicMale.png',
                 brows: 'Basic.png',
-                mouth: 'Basic.png',
-                nose: 'basic.png',
+                mouths: 'Basic.png',
+                noses: 'basic.png',
                 tops: '1.png',
                 glasses: '',
                 hats: '',
                 neck: '',
-                background: ''
+                backgrounds: ''
             },
             colors: {
                 tops: '#FF0000',
@@ -238,8 +238,8 @@
                 glasses: '#000000',
                 bases: '#F4C2A1',
                 neck: '#000000',
-                background: '#FFFFFF',
-                mouth: '#000000'
+                backgrounds: '#FFFFFF',
+                mouths: '#000000'
             }
         };
 
@@ -286,7 +286,7 @@
         }
 
         function generateControls() {
-            const colorableCategories = ['tops', 'eyes', 'hair', 'glasses', 'bases', 'neck', 'background', 'mouth'];
+            const colorableCategories = ['tops', 'eyes', 'hair', 'glasses', 'bases', 'neck', 'backgrounds', 'mouths'];
             
             return Object.keys(manifest).map(category => {
                 if (manifest[category].length === 0) return '';
@@ -380,8 +380,8 @@
                 `;
             }).join('');
             
-            const colorableCategories = ['tops', 'eyes', 'hair', 'glasses', 'bases', 'neck', 'background', 'mouth'];
-            const layerOrder = ['background', 'bases', 'hair', 'eyes', 'brows', 'nose', 'mouth', 'neck', 'tops', 'glasses', 'hats'];
+            const colorableCategories = ['tops', 'eyes', 'hair', 'glasses', 'bases', 'neck', 'backgrounds', 'mouths'];
+            const layerOrder = ['backgrounds', 'bases', 'hair', 'eyes', 'brows', 'noses', 'mouths', 'neck', 'tops', 'glasses', 'hats'];
             
             const layers = layerOrder.map(category => {
                 const part = parts[category];
