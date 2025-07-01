@@ -354,9 +354,10 @@
             }).join('');
         }
 
-        // Generate colored preview for item thumbnails
+        // Generate colored preview for item thumbnails with overlays
         function generateColoredPreview(category, item, color) {
             const svgId = `preview_${category}_${item.replace('.png', '').replace(/[^a-zA-Z0-9]/g, '_')}`;
+            const overlayFile = item.replace('.png', 'overlay.png');
             
             return `
                 <svg width="50" height="50" viewBox="0 0 50 50">
@@ -378,11 +379,31 @@
                             <feComposite in="nonGreenAreas" in2="coloredGreens" operator="over"/>
                         </filter>
                     </defs>
+                    <!-- Main item with color filter -->
                     <image href="https://polor.org/Avatars/characters/${category}/${item}" 
                            x="0" y="0" width="50" height="50" 
                            filter="url(#filter_${svgId})"/>
+                    <!-- Overlay without filter -->
+                    <image href="https://polor.org/Avatars/characters/${category}/${overlayFile}" 
+                           x="0" y="0" width="50" height="50"/>
                 </svg>
             `;
+        }
+
+        // Update previews when color changes
+        function updatePreviews(category, newColor) {
+            const categorySection = document.querySelector(`[data-category="${category}"]`);
+            if (!categorySection) return;
+            
+            // Get all item options in this category
+            const itemOptions = categorySection.querySelectorAll('.item-option[data-item]:not(.none-option)');
+            
+            itemOptions.forEach(option => {
+                const item = option.getAttribute('data-item');
+                if (item) {
+                    option.innerHTML = generateColoredPreview(category, item, newColor);
+                }
+            });
         }
 
         // Render the avatar SVG with precise green color targeting
