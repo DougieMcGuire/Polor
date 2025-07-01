@@ -591,7 +591,7 @@
             const headerAvatar = document.getElementById('header-avatar');
             const largeAvatar = document.getElementById('large-avatar');
             
-            // Use avatarIMG (WebP base64) if available, otherwise fall back to avatarURL + &image=true
+            // Use avatarIMG (PNG base64) if available, otherwise fall back to avatarURL + &I=1
             if (userProfile.avatarIMG) {
                 // Header avatar
                 headerAvatar.innerHTML = `<img src="${userProfile.avatarIMG}" alt="Avatar">`;
@@ -600,7 +600,7 @@
                 largeAvatar.innerHTML = `<img src="${userProfile.avatarIMG}" alt="Avatar">`;
             } else if (userProfile.avatarURL) {
                 // Fallback to URL with image mode
-                const imageUrl = userProfile.avatarURL + '&image=true';
+                const imageUrl = userProfile.avatarURL + '&I=1';
                 headerAvatar.innerHTML = `<img src="${imageUrl}" alt="Avatar">`;
                 largeAvatar.innerHTML = `<img src="${imageUrl}" alt="Avatar">`;
             }
@@ -634,12 +634,12 @@
 
         // Update embed section
         function updateEmbedSection() {
-            // Use the WebP image if available, otherwise use avatarURL + &image=true
+            // Use the PNG image if available, otherwise use avatarURL + &I=1
             let embedImageUrl;
             if (userProfile.avatarIMG) {
                 embedImageUrl = userProfile.avatarIMG;
             } else if (userProfile.avatarURL) {
-                embedImageUrl = userProfile.avatarURL + '&image=true';
+                embedImageUrl = userProfile.avatarURL + '&I=1';
             }
             
             if (embedImageUrl) {
@@ -707,11 +707,11 @@
         async function downloadAvatar() {
             let imageUrl;
             
-            // Use WebP image if available, otherwise use avatarURL + &image=true
+            // Use PNG image if available, otherwise use avatarURL + &I=1
             if (userProfile.avatarIMG) {
                 imageUrl = userProfile.avatarIMG;
             } else if (userProfile.avatarURL) {
-                imageUrl = userProfile.avatarURL + '&image=true';
+                imageUrl = userProfile.avatarURL + '&I=1';
             }
             
             if (imageUrl) {
@@ -723,7 +723,7 @@
                         
                         const link = document.createElement('a');
                         link.href = URL.createObjectURL(blob);
-                        link.download = `${userProfile.username}_avatar.webp`;
+                        link.download = `${userProfile.username}_avatar.png`;
                         document.body.appendChild(link);
                         link.click();
                         document.body.removeChild(link);
@@ -752,11 +752,11 @@
         function shareAvatar() {
             let shareUrl;
             
-            // Use WebP image if available, otherwise use avatarURL + &image=true
+            // Use PNG image if available, otherwise use avatarURL + &I=1
             if (userProfile.avatarIMG) {
                 shareUrl = userProfile.avatarIMG;
             } else if (userProfile.avatarURL) {
-                shareUrl = userProfile.avatarURL + '&image=true';
+                shareUrl = userProfile.avatarURL + '&I=1';
             }
             
             if (navigator.share && shareUrl) {
