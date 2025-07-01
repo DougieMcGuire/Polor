@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Polor - Dashboard</title>
+    <title>Polor Avatar Editor</title>
     <style>
         * {
             margin: 0;
@@ -12,38 +12,272 @@
         }
         
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: var(--bg-gradient, linear-gradient(135deg, #667eea 0%, #764ba2 100%));
-            min-height: 100vh;
-            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8f9fa;
+            height: 100vh;
+            overflow: hidden;
         }
         
-        .loading-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        .editor-container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .top-section {
+            background: white;
+            padding: 20px;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            min-height: 180px;
+        }
+        
+
+        
+        .save-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            padding: 8px 16px;
+            border: none;
+            background: #28a745;
+            color: white;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+        
+        .save-btn:hover {
+            background: #218838;
+            transform: scale(1.05);
+        }
+        
+        .save-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .avatar-preview {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0 20px;
+        }
+        
+        .avatar-display {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background: white;
+            border: 3px solid #e9ecef;
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 1000;
+            overflow: hidden;
+            margin: 0 auto;
         }
         
-        .loading-content {
+        .avatar-display svg {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .color-picker-section {
+            width: 80px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .color-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            max-height: 140px;
+            overflow-y: auto;
+            padding: 5px;
+        }
+        
+        .color-stack::-webkit-scrollbar {
+            width: 4px;
+        }
+        
+        .color-stack::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 2px;
+        }
+        
+        .color-stack::-webkit-scrollbar-thumb {
+            background: #ccc;
+            border-radius: 2px;
+        }
+        
+        .color-circle {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+        
+        .color-circle:hover {
+            transform: scale(1.1);
+            border-color: #666;
+        }
+        
+        .color-circle.selected {
+            border-color: #007bff;
+            border-width: 4px;
+            transform: scale(1.15);
+        }
+        
+        .color-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #666;
             text-align: center;
-            color: white;
+            margin-bottom: 5px;
+        }
+        
+        .sections-area {
+            flex: 1;
+            background: #f8f9fa;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        
+        .section-grid {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+            scroll-snap-type: x mandatory;
+        }
+        
+        .section-grid::-webkit-scrollbar {
+            height: 6px;
+        }
+        
+        .section-grid::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+        }
+        
+        .section-grid::-webkit-scrollbar-thumb {
+            background: #ccc;
+            border-radius: 3px;
+        }
+        
+        .section-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px 15px;
+            text-align: center;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            min-width: 100px;
+            flex-shrink: 0;
+            scroll-snap-align: start;
+        }
+        
+        .section-card:hover {
+            border-color: #007bff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .section-card.active {
+            border-color: #007bff;
+            background: #f0f8ff;
+        }
+        
+        .section-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+            display: block;
+        }
+        
+        .section-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .items-section {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-top: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .items-header {
+            font-size: 18px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .items-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+            gap: 12px;
+        }
+        
+        .item-card {
+            width: 70px;
+            height: 70px;
+            border: 2px solid transparent;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            background: #f8f9fa;
+        }
+        
+        .item-card:hover {
+            border-color: #007bff;
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        
+        .item-card.selected {
+            border-color: #007bff;
+            background: #f0f8ff;
+            transform: scale(1.05);
+        }
+        
+        .item-none {
+            background: #e9ecef;
+            color: #6c757d;
+            font-size: 12px;
+            text-align: center;
+            font-weight: 600;
         }
         
         .spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid rgba(255,255,255,0.3);
-            border-top: 5px solid white;
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top: 2px solid white;
             border-radius: 50%;
             animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
         }
         
         @keyframes spin {
@@ -51,519 +285,23 @@
             100% { transform: rotate(360deg); }
         }
         
-        .dashboard {
-            max-width: 1000px;
-            margin: 0 auto;
-            display: none;
-        }
-        
-        .dashboard.show {
-            display: block;
-        }
-        
-        .header {
-            background: white;
-            border-radius: 20px;
-            padding: 40px;
-            margin-bottom: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            text-align: center;
-        }
-        
-        .avatar-container {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            overflow: hidden;
-            border: 4px solid #667eea;
-            position: relative;
-            background: #f8f9fa;
-            margin: 0 auto 20px;
-        }
-        
-        .avatar-container img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        
-        .avatar-placeholder {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 40px;
-            color: #667eea;
-        }
-        
-        .welcome-text h1 {
-            color: #333;
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-        }
-        
-        .username {
-            color: #667eea;
-            font-size: 1.4rem;
-            font-weight: 500;
-            margin-bottom: 30px;
-        }
-        
-        .nav-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-        
-        .nav-card {
-            background: white;
-            border-radius: 16px;
-            padding: 30px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-            transition: all 0.3s ease;
-            cursor: pointer;
-            text-decoration: none;
-            color: inherit;
-            border: 2px solid transparent;
-        }
-        
-        .nav-card:hover {
-            transform: translateY(-5px);
-            border-color: #667eea;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
-        }
-        
-        .nav-card-icon {
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 24px;
-            margin-bottom: 20px;
-        }
-        
-        .nav-card h3 {
-            color: #333;
-            font-size: 1.3rem;
-            margin-bottom: 10px;
-        }
-        
-        .nav-card p {
-            color: #666;
-            line-height: 1.6;
-        }
-        
-        .quick-actions {
-            background: white;
-            border-radius: 16px;
-            padding: 30px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-        }
-        
-        .quick-actions h2 {
-            color: #333;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .action-buttons {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-        }
-        
-        .btn {
-            padding: 15px 20px;
-            border: none;
-            border-radius: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            font-size: 14px;
-        }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
-        }
-        
-        .btn-secondary {
-            background: #f8f9fa;
-            color: #666;
-            border: 2px solid #e9ecef;
-        }
-        
-        .btn-secondary:hover {
-            background: #e9ecef;
-            transform: translateY(-2px);
-        }
-        
-        /* Avatar Editor Popup Styles */
-        .avatar-editor-popup {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(5px);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 2000;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-        
-        .avatar-editor-popup.show {
-            display: flex;
-            opacity: 1;
-        }
-        
-        .avatar-editor-container {
-            width: 90%;
-            max-width: 500px;
-            height: 85vh;
-            max-height: 700px;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
-            overflow: hidden;
-            transform: scale(0.9);
-            transition: transform 0.3s ease;
-            position: relative;
-        }
-        
-        .avatar-editor-popup.show .avatar-editor-container {
-            transform: scale(1);
-        }
-        
-        .avatar-editor-header {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            padding: 20px;
-            text-align: center;
-            position: relative;
-        }
-        
-        .avatar-editor-header h2 {
-            margin: 0;
-            font-size: 1.5rem;
-        }
-        
-        .popup-close-btn {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: rgba(255, 255, 255, 0.2);
-            border: none;
-            color: white;
-            width: 35px;
-            height: 35px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s ease;
-        }
-        
-        .popup-close-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: scale(1.1);
-        }
-        
-        .avatar-iframe {
-            width: 100%;
-            height: calc(100% - 80px);
-            border: none;
-            background: #f8f9fa;
-        }
-        
-        .loading-iframe {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: #666;
+        .loading {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 15px;
-        }
-        
-        .iframe-spinner {
-            width: 30px;
-            height: 30px;
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #667eea;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        
-        /* Settings Modal Styles */
-        .settings-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            display: none;
-            align-items: center;
             justify-content: center;
-            z-index: 1000;
-        }
-        
-        .settings-modal.show {
-            display: flex;
-        }
-        
-        .settings-content {
-            background: white;
-            border-radius: 16px;
-            padding: 40px;
-            width: 90%;
-            max-width: 500px;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-        
-        .settings-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-        }
-        
-        .settings-header h2 {
-            color: #333;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .close-btn {
-            background: none;
-            border: none;
-            font-size: 24px;
+            height: 100vh;
+            font-size: 18px;
             color: #666;
-            cursor: pointer;
-            padding: 5px;
-        }
-        
-        .form-group {
-            margin-bottom: 25px;
-        }
-        
-        .form-label {
-            display: block;
-            margin-bottom: 8px;
-            color: #333;
-            font-weight: 600;
-        }
-        
-        .form-input {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid #e9ecef;
-            border-radius: 12px;
-            font-size: 16px;
-            transition: border-color 0.2s ease;
-            background: #f8f9fa;
-        }
-        
-        .form-input:focus {
-            outline: none;
-            border-color: #667eea;
-            background: white;
-        }
-        
-        .form-input.error {
-            border-color: #dc3545;
-            background: #fff5f5;
-        }
-        
-        .error-message {
-            color: #dc3545;
-            font-size: 14px;
-            margin-top: 6px;
-            display: none;
-        }
-        
-        .error-message.show {
-            display: block;
-        }
-        
-        .save-btn {
-            width: 100%;
-            padding: 15px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        
-        .save-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
-        }
-        
-        .save-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-        
-        @media (max-width: 768px) {
-            .nav-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .action-buttons {
-                grid-template-columns: 1fr;
-            }
-            
-            .welcome-text h1 {
-                font-size: 2rem;
-            }
-            
-            .username {
-                font-size: 1.2rem;
-            }
-            
-            .avatar-editor-container {
-                width: 95%;
-                height: 90vh;
-                max-height: none;
-            }
-            
-            .avatar-editor-header {
-                padding: 15px;
-            }
-            
-            .avatar-editor-header h2 {
-                font-size: 1.3rem;
-            }
         }
     </style>
 </head>
 <body>
-    <!-- Loading Screen -->
-    <div id="loading-screen" class="loading-screen">
-        <div class="loading-content">
-            <div class="spinner"></div>
-            <h2>Loading your dashboard...</h2>
-            <p>Setting up your Polor experience</p>
-        </div>
-    </div>
-    
-    <!-- Dashboard -->
-    <div id="dashboard" class="dashboard">
-        <!-- Header with user info -->
-        <div class="header">
-            <div class="avatar-container" id="header-avatar">
-                <div class="avatar-placeholder">🎨</div>
-            </div>
-            <div class="welcome-text">
-                <h1 id="welcome-message">Welcome to Polor!</h1>
-                <div class="username" id="user-handle">@username</div>
-            </div>
-        </div>
-        
-        <!-- Navigation Grid -->
-        <div class="nav-grid">
-            <div class="nav-card" onclick="editAvatar()">
-                <div class="nav-card-icon">🎨</div>
-                <h3>Avatar Creator</h3>
-                <p>Design and customize your unique avatar with thousands of combinations</p>
-            </div>
-            
-            <div class="nav-card" onclick="openSettings()">
-                <div class="nav-card-icon">⚙️</div>
-                <h3>Settings</h3>
-                <p>Manage your account, update your profile, and customize preferences</p>
-            </div>
-            
-            <div class="nav-card" onclick="comingSoon('Profile')">
-                <div class="nav-card-icon">👤</div>
-                <h3>My Profile</h3>
-                <p>View and share your public profile with your avatar and creations</p>
-            </div>
-            
-            <div class="nav-card" onclick="comingSoon('Gallery')">
-                <div class="nav-card-icon">🖼️</div>
-                <h3>Gallery</h3>
-                <p>Browse amazing avatars created by the Polor community</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Avatar Editor Popup -->
-    <div id="avatar-editor-popup" class="avatar-editor-popup">
-        <div class="avatar-editor-container">
-            <div class="avatar-editor-header">
-                <h2>🎨 Avatar Creator</h2>
-                <button class="popup-close-btn" onclick="closeAvatarEditor()">&times;</button>
-            </div>
-            <div class="loading-iframe" id="iframe-loading">
-                <div class="iframe-spinner"></div>
-                <p>Loading Avatar Editor...</p>
-            </div>
-            <iframe id="avatar-iframe" class="avatar-iframe" style="display: none;"></iframe>
-        </div>
-    </div>
-
-    <!-- Settings Modal -->
-    <div id="settings-modal" class="settings-modal">
-        <div class="settings-content">
-            <div class="settings-header">
-                <h2>⚙️ Settings</h2>
-                <button class="close-btn" onclick="closeSettings()">&times;</button>
-            </div>
-            
-            <form id="settings-form">
-                <div class="form-group">
-                    <label class="form-label">Display Name</label>
-                    <input type="text" class="form-input" id="display-name" placeholder="Your display name">
-                    <div class="error-message" id="name-error"></div>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label">Username</label>
-                    <input type="text" class="form-input" id="username-input" placeholder="username" maxlength="20">
-                    <div class="error-message" id="username-error"></div>
-                    <small style="color: #666; font-size: 12px;">This will be your @username</small>
-                </div>
-                
-                <button type="submit" class="save-btn" id="save-settings-btn">
-                    💾 Save Changes
-                </button>
-            </form>
+    <div id="app-content">
+        <div class="loading">
+            <div class="spinner" style="width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid #007bff; margin-bottom: 20px;"></div>
+            <h3>Loading Avatar Editor...</h3>
+            <p>Please wait while we load your customization options</p>
         </div>
     </div>
 
@@ -586,334 +324,527 @@
         };
 
         // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const firestore = firebase.firestore();
-
-        let currentUser = null;
-        let userProfile = null;
-
-        // Auth state listener
-        auth.onAuthStateChanged(async (user) => {
-            if (user) {
+        let auth = null, firestore = null, currentUser = null;
+        try {
+            firebase.initializeApp(firebaseConfig);
+            auth = firebase.auth();
+            firestore = firebase.firestore();
+            auth.onAuthStateChanged(user => {
                 currentUser = user;
-                await loadUserProfile();
-                showDashboard();
-            } else {
-                // No user signed in, redirect to auth page
-                window.location.href = 'auth.html';
-            }
-        });
+            });
+        } catch (e) {
+            console.log('Firebase not available');
+        }
 
-        // Load user profile from Firestore
-        async function loadUserProfile() {
+        let manifest = {};
+        let currentSection = 'hair';
+        let avatarState = {
+            selectedParts: {
+                backgrounds: 'bg1.png', bases: 'base.png', hair: '1.png', eyes: 'BasicMale.png', 
+                brows: 'Basic.png', mouths: 'Basic.png', noses: 'basic.png', neck: '',
+                tops: '113.png', glasses: '', hats: ''
+            },
+            colors: {
+                backgrounds: '#667eea', bases: '#F4C2A1', hair: '#8B4513', eyes: '#000000',
+                brows: '#654321', mouths: '#000000', noses: '#FFA07A', neck: '#000000',
+                tops: '#FF0000', glasses: '#000000', hats: '#000000'
+            }
+        };
+
+        const colorPalette = [
+            '#F4C2A1', '#E8B982', '#D1A374', '#C19A6B', '#A67C5A', '#8D5524', '#6B4423', '#FDBCB4',
+            '#FF9A9E', '#FFB3BA', '#FFDFBA', '#FFFFBA', '#BAFFC9', '#BAE1FF', '#C9BAFF', '#FFBAF3',
+            '#FF7F7F', '#FFA07A', '#FFDAB9', '#F5DEB3', '#90EE90', '#87CEEB', '#DDA0DD', '#FFB6C1',
+            '#8B4513', '#A0522D', '#CD853F', '#D2691E', '#FF4500', '#FF6347', '#FF7F50', '#FFA500',
+            '#000000', '#2F4F4F', '#556B2F', '#800000', '#008000', '#000080', '#4B0082', '#800080'
+        ];
+
+        const sections = [
+            { id: 'hair', name: 'Hair', icon: 'HAIR_ICON_URL' },
+            { id: 'skintone', name: 'Skin', icon: 'SKIN_ICON_URL' },
+            { id: 'eyes', name: 'Eyes', icon: 'EYES_ICON_URL' },
+            { id: 'brows', name: 'Brows', icon: 'BROWS_ICON_URL' },
+            { id: 'mouths', name: 'Mouth', icon: 'MOUTH_ICON_URL' },
+            { id: 'noses', name: 'Nose', icon: 'NOSE_ICON_URL' },
+            { id: 'tops', name: 'Clothes', icon: 'CLOTHES_ICON_URL' },
+            { id: 'glasses', name: 'Glasses', icon: 'GLASSES_ICON_URL' },
+            { id: 'hats', name: 'Hats', icon: 'HATS_ICON_URL' },
+            { id: 'background', name: 'Background', icon: 'BACKGROUND_ICON_URL' }
+        ];
+
+        async function initialize() {
             try {
-                const doc = await firestore.collection('users').doc(currentUser.uid).get();
-                
-                if (doc.exists) {
-                    userProfile = doc.data();
-                    updateUserInterface();
-                } else {
-                    console.error('User profile not found in Firestore');
-                    await createUserProfile();
-                }
+                const response = await fetch('https://polor.org/Avatars/manifest.json');
+                manifest = await response.json();
+                loadFromURL();
+                buildInterface();
             } catch (error) {
-                console.error('Error loading user profile:', error);
+                console.error('Load failed:', error);
+                showError();
             }
         }
 
-        // Create user profile if missing
-        async function createUserProfile() {
-            const DEFAULT_AVATAR_URL = `https://polor.org/Avatars/?backgrounds=bg4.png&bases=base.png&hair=1.png&eyes=BasicMale.png&brows=Basic.png&mouths=chad.png&noses=basic.png&tops=16.png&hats=chef.png&backgroundsColor=FFC0CB&basesColor=F4C2A1&hairColor=F1C0E8&eyesColor=000000&browsColor=654321&mouthsColor=000000&nosesColor=FFA07A&neckColor=FFB6C1&topsColor=FF0000&glassesColor=6B4423&hatsColor=F1C0E8`;
-            
-            const profile = {
-                uid: currentUser.uid,
-                email: currentUser.email,
-                username: currentUser.displayName || currentUser.email.split('@')[0],
-                displayName: currentUser.displayName || currentUser.email.split('@')[0],
-                avatarURL: DEFAULT_AVATAR_URL,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                lastLogin: firebase.firestore.FieldValue.serverTimestamp()
-            };
-            
-            await firestore.collection('users').doc(currentUser.uid).set(profile, { merge: true });
-            userProfile = profile;
+        function loadFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            Object.keys(avatarState.selectedParts).forEach(category => {
+                const value = urlParams.get(category);
+                if (value !== null) avatarState.selectedParts[category] = value;
+            });
+            Object.keys(avatarState.colors).forEach(category => {
+                const value = urlParams.get(`${category}Color`);
+                if (value) avatarState.colors[category] = `#${value}`;
+            });
         }
 
-        // Update the user interface with profile data
-        function updateUserInterface() {
-            // Update welcome message
-            const welcomeMsg = document.getElementById('welcome-message');
-            const displayName = userProfile.displayName || userProfile.username || 'User';
-            welcomeMsg.textContent = `Welcome back, ${displayName}!`;
-            
-            // Update username handle
-            const userHandle = document.getElementById('user-handle');
-            const username = userProfile.username || currentUser.email.split('@')[0];
-            userHandle.textContent = `@${username}`;
-            
-            // Update avatar
-            updateAvatarDisplay();
-            
-            // Update background gradient based on avatar background color
-            updateBackgroundGradient();
+        function showError() {
+            document.getElementById('app-content').innerHTML = `
+                <div class="loading">
+                    <h3>❌ Loading Failed</h3>
+                    <p>Could not fetch avatar assets</p>
+                </div>`;
         }
 
-        // Update background gradient based on avatar background color
-        function updateBackgroundGradient() {
-            if (userProfile.avatarURL) {
-                const urlParams = new URLSearchParams(userProfile.avatarURL.split('?')[1]);
-                const bgColor = urlParams.get('backgroundsColor');
+        function buildInterface() {
+            document.getElementById('app-content').innerHTML = `
+                <div class="editor-container">
+                    <div class="top-section">
+                        <button class="save-btn" onclick="saveAvatar()" id="save-btn">💾 Save</button>
+                        
+                        <div class="color-picker-section" id="color-picker-section">
+                            <div class="color-label" id="color-label">Hair Color</div>
+                            <div class="color-stack" id="color-stack">
+                                ${buildColorStack()}
+                            </div>
+                        </div>
+                        
+                        <div class="avatar-preview">
+                            <div class="avatar-display" id="avatar-display">
+                                ${renderAvatar()}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="sections-area">
+                        <div class="section-grid">
+                            ${buildSectionCards()}
+                        </div>
+                        
+                        <div class="items-section">
+                            <div class="items-header" id="items-header">Hair Styles</div>
+                            <div class="items-grid" id="items-grid">
+                                ${buildItemsGrid('hair')}
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+            
+            updateColorLabel();
+        }
+
+        function buildSectionCards() {
+            return sections.map(section => `
+                <div class="section-card ${section.id === currentSection ? 'active' : ''}" 
+                     onclick="switchSection('${section.id}')">
+                    <img src="${section.icon}" alt="${section.name}" class="section-icon" style="width: 32px; height: 32px; object-fit: contain;">
+                    <div class="section-name">${section.name}</div>
+                </div>
+            `).join('');
+        }
+
+        function buildColorStack() {
+            const currentColor = getCurrentSectionColor();
+            return colorPalette.map(color => `
+                <div class="color-circle ${currentColor === color ? 'selected' : ''}" 
+                     style="background-color: ${color}"
+                     onclick="updateCurrentColor('${color}')"></div>
+            `).join('');
+        }
+
+        function buildItemsGrid(section) {
+            if (section === 'skintone') {
+                const skinTones = [
+                    '#FDBCB4', '#F4C2A1', '#E8B982', '#D1A374', '#C19A6B', '#A67C5A', '#8D5524', '#6B4423',
+                    '#FFE0D6', '#F2D2BD', '#E6C7A3', '#D4B894', '#C2A882', '#A89970', '#8F7A5E', '#76654C',
+                    '#FFF8F5', '#F7E6D3', '#EDD4B1', '#E1C28F', '#D5B06D', '#C99E4B', '#BD8C29', '#B17A07',
+                    '#FFEEE6', '#F5D5C4', '#EBCCA2', '#E1B380', '#D79A5E', '#CD813C', '#C3681A', '#B94F00'
+                ];
+                const currentSelection = avatarState.colors.bases;
                 
-                if (bgColor) {
-                    // Convert hex to lighter version
-                    const hex = bgColor.replace('#', '');
-                    const r = parseInt(hex.substr(0, 2), 16);
-                    const g = parseInt(hex.substr(2, 2), 16);
-                    const b = parseInt(hex.substr(4, 2), 16);
-                    
-                    // Create lighter version by reducing saturation
-                    const lighterR = Math.min(255, r + 30);
-                    const lighterG = Math.min(255, g + 30);
-                    const lighterB = Math.min(255, b + 30);
-                    
-                    const darkerR = Math.max(0, r - 40);
-                    const darkerG = Math.max(0, g - 40);
-                    const darkerB = Math.max(0, b - 40);
-                    
-                    const baseColor = `rgb(${r}, ${g}, ${b})`;
-                    const lighterColor = `rgb(${lighterR}, ${lighterG}, ${lighterB})`;
-                    const darkerColor = `rgb(${darkerR}, ${darkerG}, ${darkerB})`;
-                    
-                    const gradient = `linear-gradient(135deg, ${lighterColor} 0%, ${baseColor} 50%, ${darkerColor} 100%)`;
-                    document.documentElement.style.setProperty('--bg-gradient', gradient);
-                }
-            }
-        }
-
-        // Update avatar display
-        function updateAvatarDisplay() {
-            const headerAvatar = document.getElementById('header-avatar');
-            
-            if (userProfile.avatarIMG) {
-                headerAvatar.innerHTML = `<img src="${userProfile.avatarIMG}" alt="Avatar">`;
-            } else if (userProfile.avatarURL) {
-                const imageUrl = userProfile.avatarURL + '&I=1';
-                headerAvatar.innerHTML = `<img src="${imageUrl}" alt="Avatar">`;
-            }
-        }
-
-        // Show dashboard
-        function showDashboard() {
-            document.getElementById('loading-screen').style.display = 'none';
-            document.getElementById('dashboard').classList.add('show');
-        }
-
-        // Edit avatar - now opens in popup iframe
-        function editAvatar() {
-            const popup = document.getElementById('avatar-editor-popup');
-            const iframe = document.getElementById('avatar-iframe');
-            const loading = document.getElementById('iframe-loading');
-            
-            // Show popup
-            popup.classList.add('show');
-            
-            // Reset iframe state
-            iframe.style.display = 'none';
-            loading.style.display = 'flex';
-            
-            // Build iframe URL with user's current avatar or default
-            let iframeUrl = 'https://polor.org/Avatars/';
-            if (userProfile && userProfile.avatarURL) {
-                // Use existing avatar settings
-                iframeUrl = userProfile.avatarURL;
+                return skinTones.map(color => `
+                    <div class="item-card ${currentSelection === color ? 'selected' : ''}" 
+                         onclick="updateCurrentColor('${color}')">
+                        <div style="width: 50px; height: 50px; background-color: ${color}; border-radius: 8px; border: 2px solid #ddd;"></div>
+                    </div>
+                `).join('');
             }
             
-            // Add ref=home to know they came from homepage
-            const separator = iframeUrl.includes('?') ? '&' : '?';
-            iframeUrl += separator + 'ref=home';
-            
-            // Set iframe source
-            iframe.src = iframeUrl;
-            
-            // Handle iframe load
-            iframe.onload = function() {
-                loading.style.display = 'none';
-                iframe.style.display = 'block';
-            };
-        }
-
-        // Close avatar editor popup
-        function closeAvatarEditor() {
-            const popup = document.getElementById('avatar-editor-popup');
-            const iframe = document.getElementById('avatar-iframe');
-            
-            popup.classList.remove('show');
-            
-            // Reset iframe after animation
-            setTimeout(() => {
-                iframe.src = '';
-                iframe.style.display = 'none';
-                document.getElementById('iframe-loading').style.display = 'flex';
-            }, 300);
-            
-            // Refresh user data in case avatar was saved
-            loadUserProfile();
-        }
-
-        // Listen for messages from the iframe
-        window.addEventListener('message', function(event) {
-            // Check if message is from our avatar editor
-            if (event.origin === 'https://polor.org') {
-                if (event.data === 'avatarSaved' || event.data === 'closeEditor') {
-                    closeAvatarEditor();
-                }
+            if (section === 'background') {
+                const bgColors = [
+                    '#667eea', '#764ba2', '#FF9A9E', '#FECFEF', '#FECDA3', '#96E6A1', '#89CDF1', '#A8DADC',
+                    '#F1C0E8', '#CFBAF0', '#FFB3BA', '#FFDFBA', '#FFFFBA', '#BAFFC9', '#BAE1FF', '#C9BAFF',
+                    '#FFBAF3', '#FFC9BA', '#FF7F7F', '#FFA07A', '#FFDAB9', '#F5DEB3', '#90EE90', '#87CEEB',
+                    '#DDA0DD', '#FFB6C1', '#FF69B4', '#FF1493', '#DC143C', '#B22222', '#8B0000', '#654321',
+                    '#2F4F4F', '#556B2F', '#800000', '#008000', '#000080', '#4B0082', '#800080', '#008080'
+                ];
+                const currentSelection = avatarState.colors.backgrounds;
+                
+                return bgColors.map(color => `
+                    <div class="item-card ${currentSelection === color ? 'selected' : ''}" 
+                         onclick="updateCurrentColor('${color}')">
+                        <div style="width: 50px; height: 50px; background-color: ${color}; border-radius: 8px; border: 2px solid #ddd;"></div>
+                    </div>
+                `).join('');
             }
-        });
 
-        // Open settings modal
-        function openSettings() {
-            const modal = document.getElementById('settings-modal');
-            const displayNameInput = document.getElementById('display-name');
-            const usernameInput = document.getElementById('username-input');
+            const items = manifest[section] ? manifest[section].filter(item => !item.includes('overlay')) : [];
+            const currentSelection = avatarState.selectedParts[section];
             
-            // Pre-fill current values
-            displayNameInput.value = userProfile.displayName || '';
-            usernameInput.value = userProfile.username || '';
+            let html = `
+                <div class="item-card item-none ${currentSelection === '' ? 'selected' : ''}" 
+                     onclick="selectItem('${section}', '')">
+                    None
+                </div>`;
             
-            modal.classList.add('show');
+            html += items.map(item => `
+                <div class="item-card ${currentSelection === item ? 'selected' : ''}" 
+                     onclick="selectItem('${section}', '${item}')">
+                    ${generatePreview(section, item)}
+                </div>
+            `).join('');
+            
+            return html;
         }
 
-        // Close settings modal
-        function closeSettings() {
-            const modal = document.getElementById('settings-modal');
-            modal.classList.remove('show');
-            clearErrors();
+        function generatePreview(category, item) {
+            const currentColor = avatarState.colors[category];
+            const svgId = `preview_${category}_${item.replace(/[^a-zA-Z0-9]/g, '_')}`;
+            const overlayFile = item.replace('.png', 'overlay.png');
+            
+            return `
+                <svg width="60" height="60" viewBox="0 0 60 60">
+                    <defs>
+                        <filter id="filter_${svgId}">
+                            <feComponentTransfer in="SourceGraphic" result="greenMask">
+                                <feFuncG type="discrete" tableValues="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1"/>
+                            </feComponentTransfer>
+                            <feFlood flood-color="${currentColor}" result="replacementColor"/>
+                            <feComposite in="replacementColor" in2="greenMask" operator="in" result="coloredGreens"/>
+                            <feComposite in="SourceGraphic" in2="greenMask" operator="out" result="nonGreenAreas"/>
+                            <feComposite in="nonGreenAreas" in2="coloredGreens" operator="over"/>
+                        </filter>
+                    </defs>
+                    <image href="https://polor.org/Avatars/characters/${category}/${item}" 
+                           x="0" y="0" width="60" height="60" filter="url(#filter_${svgId})"/>
+                    <image href="https://polor.org/Avatars/characters/${category}/${overlayFile}" 
+                           x="0" y="0" width="60" height="60"/>
+                </svg>`;
         }
 
-        // Clear error messages
-        function clearErrors() {
-            document.querySelectorAll('.error-message').forEach(e => e.classList.remove('show'));
-            document.querySelectorAll('.form-input').forEach(i => i.classList.remove('error'));
-        }
+        function renderAvatar() {
+            const { selectedParts, colors } = avatarState;
+            const colorFilters = Object.entries(colors).map(([category, hexColor]) => `
+                <filter id="greenFilter_${category}">
+                    <feComponentTransfer in="SourceGraphic" result="greenMask">
+                        <feFuncG type="discrete" tableValues="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1"/>
+                    </feComponentTransfer>
+                    <feFlood flood-color="${hexColor}" result="replacementColor"/>
+                    <feComposite in="replacementColor" in2="greenMask" operator="in" result="coloredGreens"/>
+                    <feComposite in="SourceGraphic" in2="greenMask" operator="out" result="nonGreenAreas"/>
+                    <feComposite in="nonGreenAreas" in2="coloredGreens" operator="over"/>
+                </filter>`).join('');
 
-        // Show error message
-        function showError(inputId, message) {
-            const input = document.getElementById(inputId);
-            const errorDiv = document.getElementById(`${inputId.replace('-input', '')}-error`);
+            const layerOrder = ['backgrounds', 'backgroundsoverlay', 'bases', 'basesoverlay', 'neck', 'neckoverlay', 
+                               'hair', 'hairoverlay', 'eyes', 'eyesoverlay', 'brows', 'browsoverlay', 'noses', 'nosesoverlay',
+                               'mouths', 'mouthsoverlay', 'tops', 'topsoverlay', 'glasses', 'glassesoverlay', 'hats', 'hatsoverlay'];
             
-            input.classList.add('error');
-            errorDiv.textContent = message;
-            errorDiv.classList.add('show');
-        }
-
-        // Handle settings form submission
-        document.getElementById('settings-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            clearErrors();
-            
-            const displayName = document.getElementById('display-name').value.trim();
-            const username = document.getElementById('username-input').value.trim();
-            const saveBtn = document.getElementById('save-settings-btn');
-            
-            // Validation
-            if (!displayName) {
-                showError('display-name', 'Display name is required');
-                return;
-            }
-            
-            if (!username) {
-                showError('username-input', 'Username is required');
-                return;
-            }
-            
-            if (username.length < 3) {
-                showError('username-input', 'Username must be at least 3 characters');
-                return;
-            }
-            
-            if (!/^[a-zA-Z0-9_]+$/.test(username)) {
-                showError('username-input', 'Username can only contain letters, numbers, and underscores');
-                return;
-            }
-            
-            saveBtn.disabled = true;
-            saveBtn.textContent = '💾 Saving...';
-            
-            try {
-                // Check if username is taken (if changed)
-                if (username !== userProfile.username) {
-                    const usernameQuery = await firestore.collection('users')
-                        .where('username', '==', username)
-                        .get();
-                    
-                    if (!usernameQuery.empty && usernameQuery.docs[0].id !== currentUser.uid) {
-                        showError('username-input', 'Username is already taken');
-                        return;
+            const layers = [];
+            layerOrder.forEach(layerName => {
+                if (layerName.includes('overlay')) {
+                    const baseCategory = layerName.replace('overlay', '');
+                    const selectedItem = selectedParts[baseCategory];
+                    if (selectedItem) {
+                        const overlayFile = selectedItem.replace('.png', 'overlay.png');
+                        layers.push(`<image href="https://polor.org/Avatars/characters/${baseCategory}/${overlayFile}" x="0" y="0" width="140" height="140"/>`);
+                    }
+                } else {
+                    const selectedItem = selectedParts[layerName];
+                    if (selectedItem) {
+                        layers.push(`<image href="https://polor.org/Avatars/characters/${layerName}/${selectedItem}" x="0" y="0" width="140" height="140" filter="url(#greenFilter_${layerName})"/>`);
                     }
                 }
+            });
+
+            return `
+                <svg width="140" height="140" viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
+                    <defs>${colorFilters}</defs>
+                    ${layers.join('')}
+                </svg>`;
+        }
+
+        function switchSection(sectionId) {
+            currentSection = sectionId;
+            
+            // Update section cards
+            document.querySelectorAll('.section-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            document.querySelector(`[onclick="switchSection('${sectionId}')"]`).classList.add('active');
+            
+            // Update items grid
+            const itemsGrid = document.getElementById('items-grid');
+            const itemsHeader = document.getElementById('items-header');
+            
+            const sectionName = sections.find(s => s.id === sectionId)?.name || sectionId;
+            itemsHeader.textContent = `${sectionName} Options`;
+            itemsGrid.innerHTML = buildItemsGrid(sectionId);
+            
+            // Show/hide color picker based on section
+            const colorPickerSection = document.getElementById('color-picker-section');
+            const hiddenSections = ['noses', 'brows', 'background', 'skintone'];
+            
+            if (hiddenSections.includes(sectionId)) {
+                colorPickerSection.style.display = 'none';
+            } else {
+                colorPickerSection.style.display = 'flex';
+                updateColorLabel();
+                updateColorStack();
+            }
+        }
+
+        function getCurrentSectionColor() {
+            if (currentSection === 'skintone') return avatarState.colors.bases;
+            if (currentSection === 'background') return avatarState.colors.backgrounds;
+            return avatarState.colors[currentSection];
+        }
+
+        function updateColorLabel() {
+            const colorLabel = document.getElementById('color-label');
+            const sectionName = sections.find(s => s.id === currentSection)?.name || currentSection;
+            colorLabel.textContent = `${sectionName} Color`;
+        }
+
+        function updateColorStack() {
+            const colorStack = document.getElementById('color-stack');
+            colorStack.innerHTML = buildColorStack();
+        }
+
+        function updateCurrentColor(color) {
+            if (currentSection === 'skintone') {
+                avatarState.colors.bases = color;
+            } else if (currentSection === 'background') {
+                avatarState.colors.backgrounds = color;
+            } else {
+                avatarState.colors[currentSection] = color;
+            }
+            
+            updateDisplay();
+            updateColorStack();
+            
+            // Update items grid for all sections
+            const itemsGrid = document.getElementById('items-grid');
+            itemsGrid.innerHTML = buildItemsGrid(currentSection);
+        }
+
+        function selectItem(category, item) {
+            avatarState.selectedParts[category] = item;
+            updateDisplay();
+            
+            // Update selection in items grid
+            const itemsGrid = document.getElementById('items-grid');
+            itemsGrid.querySelectorAll('.item-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            const targetCard = itemsGrid.querySelector(`[onclick="selectItem('${category}', '${item}')"]`);
+            if (targetCard) {
+                targetCard.classList.add('selected');
+            }
+        }
+
+        function updateDisplay() {
+            const avatarDisplay = document.getElementById('avatar-display');
+            if (avatarDisplay) {
+                avatarDisplay.innerHTML = renderAvatar();
+            }
+        }
+
+        function closeEditor() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const ref = urlParams.get('ref');
+            
+            if (ref === 'home') {
+                window.location.href = 'https://polor.org/home';
+            } else {
+                window.close();
+            }
+        }
+
+        async function convertToWebP() {
+            const { selectedParts, colors } = avatarState;
+            
+            return new Promise(async (resolve) => {
+                const canvas = document.createElement('canvas');
+                canvas.width = 200;
+                canvas.height = 200;
+                const ctx = canvas.getContext('2d');
                 
-                // Update Firestore
+                // Create white background
+                ctx.fillStyle = 'white';
+                ctx.fillRect(0, 0, 200, 200);
+                
+                const layerOrder = [
+                    'backgrounds', 'bases', 'neck', 'hair', 'eyes', 'brows', 
+                    'noses', 'mouths', 'tops', 'glasses', 'hats'
+                ];
+                
+                try {
+                    for (const layerName of layerOrder) {
+                        const selectedItem = selectedParts[layerName];
+                        if (!selectedItem) continue;
+                        
+                        await drawLayerWithColor(ctx, layerName, selectedItem, colors[layerName]);
+                        await drawOverlay(ctx, layerName, selectedItem);
+                    }
+                    
+                    const webpData = canvas.toDataURL('image/webp', 0.9);
+                    resolve(webpData);
+                    
+                } catch (error) {
+                    console.error('Failed to bake avatar:', error);
+                    resolve(null);
+                }
+            });
+        }
+        
+        async function drawLayerWithColor(ctx, category, item, color) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.crossOrigin = 'anonymous';
+                
+                img.onload = () => {
+                    const tempCanvas = document.createElement('canvas');
+                    tempCanvas.width = 200;
+                    tempCanvas.height = 200;
+                    const tempCtx = tempCanvas.getContext('2d');
+                    
+                    tempCtx.drawImage(img, 0, 0, 200, 200);
+                    
+                    const imageData = tempCtx.getImageData(0, 0, 200, 200);
+                    const data = imageData.data;
+                    
+                    // Convert hex color to RGB
+                    const r = parseInt(color.slice(1,3), 16);
+                    const g = parseInt(color.slice(3,5), 16);
+                    const b = parseInt(color.slice(5,7), 16);
+                    
+                    // Replace bright green pixels with the chosen color
+                    for (let i = 0; i < data.length; i += 4) {
+                        const red = data[i];
+                        const green = data[i + 1];
+                        const blue = data[i + 2];
+                        const alpha = data[i + 3];
+                        
+                        if (alpha < 200) continue;
+                        
+                        if (green > 200 && green > (red + 50) && green > (blue + 50)) {
+                            const greenDominance = green - Math.max(red, blue);
+                            if (greenDominance > 80) {
+                                data[i] = r;
+                                data[i + 1] = g;
+                                data[i + 2] = b;
+                            }
+                        }
+                    }
+                    
+                    tempCtx.putImageData(imageData, 0, 0);
+                    ctx.drawImage(tempCanvas, 0, 0);
+                    resolve();
+                };
+                
+                img.onerror = () => {
+                    console.log(`Failed to load ${category}/${item}, skipping...`);
+                    resolve();
+                };
+                
+                img.src = `https://polor.org/Avatars/characters/${category}/${item}`;
+            });
+        }
+        
+        async function drawOverlay(ctx, category, item) {
+            return new Promise((resolve) => {
+                const overlayFile = item.replace('.png', 'overlay.png');
+                const img = new Image();
+                img.crossOrigin = 'anonymous';
+                
+                img.onload = () => {
+                    ctx.drawImage(img, 0, 0, 200, 200);
+                    resolve();
+                };
+                
+                img.onerror = () => {
+                    resolve();
+                };
+                
+                img.src = `https://polor.org/Avatars/characters/${category}/${overlayFile}`;
+            });
+        }
+
+        async function saveAvatar() {
+            if (!currentUser || !firestore) {
+                alert('Please sign in first!');
+                return;
+            }
+
+            const saveBtn = document.getElementById('save-btn');
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = '<span class="spinner"></span> Saving...';
+
+            try {
+                const avatarIMG = await convertToWebP();
+                if (!avatarIMG) throw new Error('Failed to generate image');
+
+                const avatarURL = generateSaveURL();
+                
                 await firestore.collection('users').doc(currentUser.uid).update({
-                    displayName: displayName,
-                    username: username,
+                    avatarURL: avatarURL,
+                    avatarIMG: avatarIMG,
                     lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
                 });
+
+                alert('✅ Avatar saved successfully!');
                 
-                // Update Auth displayName
-                await currentUser.updateProfile({
-                    displayName: displayName
-                });
+                // Send message to parent window to close iframe
+                if (window.parent !== window) {
+                    window.parent.postMessage('avatarSaved', '*');
+                }
                 
-                // Update local profile
-                userProfile.displayName = displayName;
-                userProfile.username = username;
-                
-                // Update UI
-                updateUserInterface();
-                closeSettings();
-                alert('✅ Settings saved successfully!');
+                const urlParams = new URLSearchParams(window.location.search);
+                if (urlParams.get('ref') === 'home') {
+                    window.location.href = 'https://polor.org/home';
+                }
                 
             } catch (error) {
                 console.error('Save failed:', error);
-                alert('❌ Failed to save settings: ' + error.message);
+                alert('❌ Save failed: ' + error.message);
             } finally {
                 saveBtn.disabled = false;
-                saveBtn.textContent = '💾 Save Changes';
+                saveBtn.innerHTML = '💾 Save';
             }
-        });
-
-        // Coming soon function
-        function comingSoon(feature) {
-            alert(`🚀 ${feature} is coming soon! Stay tuned for updates.`);
         }
 
-        // Close modals when clicking outside
-        document.getElementById('settings-modal').addEventListener('click', (e) => {
-            if (e.target.id === 'settings-modal') {
-                closeSettings();
-            }
-        });
+        function generateSaveURL() {
+            const params = new URLSearchParams();
+            Object.entries(avatarState.selectedParts).forEach(([category, item]) => {
+                params.append(category, item || '');
+            });
+            Object.entries(avatarState.colors).forEach(([category, color]) => {
+                params.append(`${category}Color`, color.replace('#', ''));
+            });
+            return `https://polor.org/Avatars/?${params.toString()}`;
+        }
 
-        document.getElementById('avatar-editor-popup').addEventListener('click', (e) => {
-            if (e.target.id === 'avatar-editor-popup') {
-                closeAvatarEditor();
-            }
-        });
-
-        // Handle escape key
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                const avatarPopup = document.getElementById('avatar-editor-popup');
-                const settingsModal = document.getElementById('settings-modal');
-                
-                if (avatarPopup.classList.contains('show')) {
-                    closeAvatarEditor();
-                } else if (settingsModal.classList.contains('show')) {
-                    closeSettings();
-                }
-            }
-        });
+        // Initialize the editor
+        initialize();
     </script>
 </body>
 </html>
