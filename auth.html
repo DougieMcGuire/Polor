@@ -225,7 +225,7 @@
     <div class="auth-container">
         <div class="auth-header">
             <h1>Polor</h1>
-            <p>Currently in beta.</p>
+            <p>Create your custom avatar</p>
         </div>
         
         <div class="auth-tabs">
@@ -449,12 +449,17 @@
                 
                 console.log('🏷️ Final username:', finalUsername);
                 
+                // Generate base64 avatar image
+                console.log('🎨 Generating default avatar as base64...');
+                const avatarBase64 = await generateDefaultAvatarBase64();
+                
                 const userProfile = {
                     uid: user.uid,
                     email: user.email,
                     username: finalUsername,
                     displayName: user.displayName || finalUsername,
                     avatarURL: DEFAULT_AVATAR_URL,
+                    avatarIMG: avatarBase64, // Save as base64 instead of URL
                     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                     lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
                     isActive: true
@@ -470,12 +475,58 @@
                     });
                 }
 
-                console.log('✅ User profile created successfully with avatar URL');
+                console.log('✅ User profile created successfully with base64 avatar');
                 return userProfile;
             } catch (error) {
                 console.error('❌ Error creating user profile:', error);
                 throw error;
             }
+        }
+
+        // Generate default avatar as base64
+        async function generateDefaultAvatarBase64() {
+            return new Promise((resolve) => {
+                // Create a canvas to render the default avatar
+                const canvas = document.createElement('canvas');
+                canvas.width = 200;
+                canvas.height = 200;
+                const ctx = canvas.getContext('2d');
+                
+                // Create the avatar URL with image parameter
+                const imageUrl = DEFAULT_AVATAR_URL + '&I=1';
+                
+                // Load the avatar image
+                const img = new Image();
+                img.crossOrigin = 'anonymous';
+                
+                img.onload = () => {
+                    // Draw the image on canvas
+                    ctx.drawImage(img, 0, 0, 200, 200);
+                    
+                    // Convert to base64 WebP format
+                    const base64 = canvas.toDataURL('image/webp', 0.8);
+                    console.log('✅ Generated base64 avatar');
+                    resolve(base64);
+                };
+                
+                img.onerror = () => {
+                    console.log('❌ Failed to load avatar image, using placeholder');
+                    // Generate a simple placeholder if image fails to load
+                    ctx.fillStyle = '#808080';
+                    ctx.fillRect(0, 0, 200, 200);
+                    
+                    // Add some basic shape
+                    ctx.fillStyle = '#FFF8F5';
+                    ctx.beginPath();
+                    ctx.arc(100, 100, 80, 0, 2 * Math.PI);
+                    ctx.fill();
+                    
+                    const base64 = canvas.toDataURL('image/webp', 0.8);
+                    resolve(base64);
+                };
+                
+                img.src = imageUrl;
+            });
         }
 
         // Update last login
