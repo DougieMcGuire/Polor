@@ -1,17 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Polor Home</title>
-<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign Up - Polor</title>
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
+  <style>
+    body { font-family: sans-serif; max-width: 400px; margin: 50px auto; text-align: center; }
+    input, button { padding: 10px; margin: 8px 0; width: 100%; }
+  </style>
 </head>
 <body>
-  <h1>Polor Home</h1>
-  <p id="welcome"></p>
-  <button id="createGameBtn">Create Game</button>
-  <button id="logoutBtn">Log Out</button>
+  <h2>Sign Up for Polor</h2>
+
+  <input type="text" id="username" placeholder="Username" />
+  <input type="email" id="email" placeholder="Email" />
+  <input type="password" id="password" placeholder="Password" />
+  <button onclick="signUpEmail()">Sign Up with Email</button>
+  <hr>
+  <button onclick="signUpWithGoogle()">Sign Up with Google</button>
 
   <script>
     const firebaseConfig = {
@@ -20,29 +29,61 @@
       projectId: "polor-62c29",
       appId: "1:232986823513:web:a6ee6bef6b0609ace3da48"
     };
+
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
+    const db = firebase.firestore();
 
-    const welcome = document.getElementById('welcome');
-    const createGameBtn = document.getElementById('createGameBtn');
-    const logoutBtn = document.getElementById('logoutBtn');
+    const defaultData = {
+      avatarCONFIG: "h:12|b:base|t:113|hc:8B4513|bc:F4C2A1|ec:000000",
+      avatarURL: "n/a"
+    };
 
-    auth.onAuthStateChanged(user => {
-      if (!user) {
-        // Not logged in, redirect to auth page
-        window.location.href = 'auth.html';
+    async function signUpEmail() {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const username = document.getElementById('username').value;
+
+      if (!email || !password || !username) {
+        alert('Please fill all fields');
         return;
       }
-      welcome.textContent = `Welcome, ${user.email}`;
-    });
 
-    createGameBtn.addEventListener('click', () => {
-      window.location.href = 'create.html';
-    });
+      try {
+        const result = await auth.createUserWithEmailAndPassword(email, password);
+        await db.collection('users').doc(result.user.uid).set({
+          username: username,
+          email: email,
+          ...defaultData
+        });
+        alert('Signed up successfully!');
+        // Redirect or continue
+      } catch (err) {
+        alert(err.message);
+      }
+    }
 
-    logoutBtn.addEventListener('click', () => {
-      auth.signOut();
-    });
+    async function signUpWithGoogle() {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      try {
+        const result = await auth.signInWithPopup(provider);
+        const userRef = db.collection('users').doc(result.user.uid);
+        const doc = await userRef.get();
+        if (!doc.exists) {
+          const username = prompt('Choose a username:');
+          if (!username) return alert('Username is required');
+          await userRef.set({
+            username: username,
+            email: result.user.email,
+            ...defaultData
+          });
+        }
+        alert('Signed in with Google!');
+        // Redirect or continue
+      } catch (err) {
+        alert(err.message);
+      }
+    }
   </script>
 </body>
 </html>
