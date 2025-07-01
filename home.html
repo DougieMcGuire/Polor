@@ -216,6 +216,111 @@
             transform: translateY(-2px);
         }
         
+        /* Avatar Editor Popup Styles */
+        .avatar-editor-popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .avatar-editor-popup.show {
+            display: flex;
+            opacity: 1;
+        }
+        
+        .avatar-editor-container {
+            width: 90%;
+            max-width: 500px;
+            height: 85vh;
+            max-height: 700px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+            position: relative;
+        }
+        
+        .avatar-editor-popup.show .avatar-editor-container {
+            transform: scale(1);
+        }
+        
+        .avatar-editor-header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .avatar-editor-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+        
+        .popup-close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+        
+        .popup-close-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+        
+        .avatar-iframe {
+            width: 100%;
+            height: calc(100% - 80px);
+            border: none;
+            background: #f8f9fa;
+        }
+        
+        .loading-iframe {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #666;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .iframe-spinner {
+            width: 30px;
+            height: 30px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        /* Settings Modal Styles */
         .settings-modal {
             position: fixed;
             top: 0;
@@ -350,6 +455,20 @@
             .username {
                 font-size: 1.2rem;
             }
+            
+            .avatar-editor-container {
+                width: 95%;
+                height: 90vh;
+                max-height: none;
+            }
+            
+            .avatar-editor-header {
+                padding: 15px;
+            }
+            
+            .avatar-editor-header h2 {
+                font-size: 1.3rem;
+            }
         }
     </style>
 </head>
@@ -401,6 +520,21 @@
                 <h3>Gallery</h3>
                 <p>Browse amazing avatars created by the Polor community</p>
             </div>
+        </div>
+    </div>
+
+    <!-- Avatar Editor Popup -->
+    <div id="avatar-editor-popup" class="avatar-editor-popup">
+        <div class="avatar-editor-container">
+            <div class="avatar-editor-header">
+                <h2>🎨 Avatar Creator</h2>
+                <button class="popup-close-btn" onclick="closeAvatarEditor()">&times;</button>
+            </div>
+            <div class="loading-iframe" id="iframe-loading">
+                <div class="iframe-spinner"></div>
+                <p>Loading Avatar Editor...</p>
+            </div>
+            <iframe id="avatar-iframe" class="avatar-iframe" style="display: none;"></iframe>
         </div>
     </div>
 
@@ -575,6 +709,68 @@
             document.getElementById('dashboard').classList.add('show');
         }
 
+        // Edit avatar - now opens in popup iframe
+        function editAvatar() {
+            const popup = document.getElementById('avatar-editor-popup');
+            const iframe = document.getElementById('avatar-iframe');
+            const loading = document.getElementById('iframe-loading');
+            
+            // Show popup
+            popup.classList.add('show');
+            
+            // Reset iframe state
+            iframe.style.display = 'none';
+            loading.style.display = 'flex';
+            
+            // Build iframe URL with user's current avatar or default
+            let iframeUrl = 'https://polor.org/Avatars/';
+            if (userProfile && userProfile.avatarURL) {
+                // Use existing avatar settings
+                iframeUrl = userProfile.avatarURL;
+            }
+            
+            // Add ref=home to know they came from homepage
+            const separator = iframeUrl.includes('?') ? '&' : '?';
+            iframeUrl += separator + 'ref=home';
+            
+            // Set iframe source
+            iframe.src = iframeUrl;
+            
+            // Handle iframe load
+            iframe.onload = function() {
+                loading.style.display = 'none';
+                iframe.style.display = 'block';
+            };
+        }
+
+        // Close avatar editor popup
+        function closeAvatarEditor() {
+            const popup = document.getElementById('avatar-editor-popup');
+            const iframe = document.getElementById('avatar-iframe');
+            
+            popup.classList.remove('show');
+            
+            // Reset iframe after animation
+            setTimeout(() => {
+                iframe.src = '';
+                iframe.style.display = 'none';
+                document.getElementById('iframe-loading').style.display = 'flex';
+            }, 300);
+            
+            // Refresh user data in case avatar was saved
+            loadUserProfile();
+        }
+
+        // Listen for messages from the iframe
+        window.addEventListener('message', function(event) {
+            // Check if message is from our avatar editor
+            if (event.origin === 'https://polor.org') {
+                if (event.data === 'avatarSaved' || event.data === 'closeEditor') {
+                    closeAvatarEditor();
+                }
+            }
+        });
+
         // Open settings modal
         function openSettings() {
             const modal = document.getElementById('settings-modal');
@@ -687,87 +883,35 @@
             }
         });
 
-        // Edit avatar - goes to user's specific avatar URL with compact mode
-        function editAvatar() {
-            if (userProfile && userProfile.avatarURL) {
-                // Add ref=home and compact=true to know they came from homepage
-                const separator = userProfile.avatarURL.includes('?') ? '&' : '?';
-                window.location.href = userProfile.avatarURL + separator + 'ref=home&compact=true';
-            } else {
-                // Fallback to default editor if no saved avatar
-                window.location.href = 'https://polor.org/Avatars/?ref=home&compact=true';
-            }
-        }
-
         // Coming soon function
         function comingSoon(feature) {
             alert(`🚀 ${feature} is coming soon! Stay tuned for updates.`);
         }
 
-        // Randomize avatar
-        function randomizeAvatar() {
-            window.location.href = 'https://polor.org/Avatars/?random=true&ref=home';
-        }
-
-        // Download avatar
-        async function downloadAvatar() {
-            if (userProfile.avatarIMG) {
-                try {
-                    const response = await fetch(userProfile.avatarIMG);
-                    const blob = await response.blob();
-                    
-                    const link = document.createElement('a');
-                    link.href = URL.createObjectURL(blob);
-                    link.download = `${userProfile.username}_avatar.webp`;
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    URL.revokeObjectURL(link.href);
-                } catch (error) {
-                    console.error('Download failed:', error);
-                    alert('❌ Download failed');
-                }
-            } else {
-                alert('No avatar to download. Create one first!');
-            }
-        }
-
-        // Share profile
-        function shareProfile() {
-            const profileUrl = `${window.location.origin}/profile.html?user=${currentUser.uid}`;
-            
-            if (navigator.share) {
-                navigator.share({
-                    title: `${userProfile.displayName}'s Polor Profile`,
-                    text: 'Check out my Polor profile!',
-                    url: profileUrl
-                }).catch(console.error);
-            } else {
-                navigator.clipboard.writeText(profileUrl).then(() => {
-                    alert('✅ Profile URL copied to clipboard!');
-                }).catch(() => {
-                    alert('❌ Copy failed');
-                });
-            }
-        }
-
-        // Sign out
-        async function signOut() {
-            if (confirm('Are you sure you want to sign out?')) {
-                try {
-                    await auth.signOut();
-                    // Redirect handled by auth state change
-                } catch (error) {
-                    console.error('Sign out error:', error);
-                    alert('❌ Sign out failed');
-                }
-            }
-        }
-
-        // Close modal when clicking outside
+        // Close modals when clicking outside
         document.getElementById('settings-modal').addEventListener('click', (e) => {
             if (e.target.id === 'settings-modal') {
                 closeSettings();
+            }
+        });
+
+        document.getElementById('avatar-editor-popup').addEventListener('click', (e) => {
+            if (e.target.id === 'avatar-editor-popup') {
+                closeAvatarEditor();
+            }
+        });
+
+        // Handle escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const avatarPopup = document.getElementById('avatar-editor-popup');
+                const settingsModal = document.getElementById('settings-modal');
+                
+                if (avatarPopup.classList.contains('show')) {
+                    closeAvatarEditor();
+                } else if (settingsModal.classList.contains('show')) {
+                    closeSettings();
+                }
             }
         });
     </script>
