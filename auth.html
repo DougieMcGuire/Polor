@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Polor - Sign Up</title>
+    <title>Polor - Dashboard</title>
     <style>
         * {
             margin: 0;
@@ -13,88 +13,399 @@
         
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--bg-gradient, linear-gradient(135deg, #667eea 0%, #764ba2 100%));
             min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             padding: 20px;
         }
         
-        .auth-container {
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .loading-content {
+            text-align: center;
+            color: white;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255,255,255,0.3);
+            border-top: 5px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .dashboard {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: none;
+        }
+        
+        .dashboard.show {
+            display: block;
+        }
+        
+        .header {
             background: white;
             border-radius: 20px;
             padding: 40px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            width: 100%;
-            max-width: 450px;
-        }
-        
-        .auth-header {
-            text-align: center;
             margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+            position: relative;
         }
         
-        .auth-header h1 {
+        .settings-icon-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            border: 2px solid #e9ecef;
+            background: #f8f9fa;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            font-size: 18px;
+            color: #666;
+        }
+        
+        .settings-icon-btn:hover {
+            background: #e9ecef;
+            border-color: #667eea;
+            transform: scale(1.1);
+        }
+        
+        .avatar-container {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 4px solid var(--avatar-border-color, #667eea);
+            position: relative;
+            background: #f8f9fa;
+            margin: 0 auto 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .avatar-container:hover {
+            transform: scale(1.05);
+        }
+        
+        .avatar-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .avatar-edit-overlay {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 35px;
+            height: 35px;
+            background: #667eea;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 16px;
+            border: 3px solid white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        
+        .avatar-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            color: #667eea;
+        }
+        
+        .welcome-text h1 {
             color: #333;
             font-size: 2.5rem;
             margin-bottom: 10px;
         }
         
-        .auth-header p {
+        .username {
+            color: #667eea;
+            font-size: 1.4rem;
+            font-weight: 500;
+            margin-bottom: 30px;
+        }
+        
+        .inbox-section {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            min-height: 400px;
+        }
+        
+        .inbox-header {
+            color: #333;
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .inbox-content {
             color: #666;
+            text-align: center;
+            padding: 50px 20px;
+            font-style: italic;
+        }
+        
+        /* Avatar Editor Popup Styles */
+        .avatar-editor-popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .avatar-editor-popup.show {
+            display: flex;
+            opacity: 1;
+        }
+        
+        .avatar-editor-container {
+            width: 90%;
+            max-width: 500px;
+            height: 85vh;
+            max-height: 700px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+            position: relative;
+        }
+        
+        .avatar-editor-popup.show .avatar-editor-container {
+            transform: scale(1);
+        }
+        
+        .avatar-editor-header {
+            background: var(--bg-gradient, linear-gradient(135deg, #667eea, #764ba2));
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .avatar-editor-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+        
+        .popup-close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+        
+        .popup-close-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+        
+        .avatar-iframe {
+            width: 100%;
+            height: calc(100% - 80px);
+            border: none;
+            background: #f8f9fa;
+        }
+        
+        .loading-iframe {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #666;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .iframe-spinner {
+            width: 30px;
+            height: 30px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        /* Settings Modal Styles */
+        .settings-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .settings-modal.show {
+            display: flex;
+        }
+        
+        .settings-content {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .avatar-edit-section {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .avatar-edit-section h3 {
+            color: #333;
+            margin-bottom: 15px;
             font-size: 1.1rem;
         }
         
-        .auth-tabs {
-            display: flex;
-            margin-bottom: 30px;
-            background: #f8f9fa;
+        .edit-avatar-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
             border-radius: 12px;
-            padding: 4px;
-        }
-        
-        .auth-tab {
-            flex: 1;
-            text-align: center;
-            padding: 12px;
-            border-radius: 8px;
+            padding: 12px 24px;
+            font-weight: 600;
             cursor: pointer;
             transition: all 0.2s ease;
-            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 0 auto;
+        }
+        
+        .signout-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e9ecef;
+            text-align: center;
+        }
+        
+        .signout-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 12px 24px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            width: 100%;
+        }
+        
+        .signout-btn:hover {
+            background: #c82333;
+            transform: translateY(-2px);
+        }
+        
+        .settings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .settings-header h2 {
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
             color: #666;
-        }
-        
-        .auth-tab.active {
-            background: white;
-            color: #667eea;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-        
-        .auth-form {
-            display: none;
-        }
-        
-        .auth-form.active {
-            display: block;
+            cursor: pointer;
+            padding: 5px;
         }
         
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
         
         .form-label {
             display: block;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
             color: #333;
-            font-weight: 500;
+            font-weight: 600;
         }
         
         .form-input {
             width: 100%;
-            padding: 14px 16px;
+            padding: 15px;
             border: 2px solid #e9ecef;
-            border-radius: 10px;
+            border-radius: 12px;
             font-size: 16px;
             transition: border-color 0.2s ease;
             background: #f8f9fa;
@@ -122,188 +433,214 @@
             display: block;
         }
         
-        .auth-button {
+        .save-btn {
             width: 100%;
-            padding: 14px;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
             border: none;
-            border-radius: 10px;
+            border-radius: 12px;
             font-size: 16px;
-            font-weight: bold;
+            font-weight: 600;
             cursor: pointer;
             transition: all 0.2s ease;
-            margin-bottom: 15px;
-            position: relative;
         }
         
-        .auth-button:disabled {
+        .save-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .save-btn:disabled {
             opacity: 0.6;
             cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
         }
         
-        .btn-primary {
-            background: #667eea;
-            color: white;
+        @media (max-width: 768px) {
+            .header {
+                padding: 30px 20px;
+            }
+            
+            .welcome-text h1 {
+                font-size: 2rem;
+            }
+            
+            .username {
+                font-size: 1.2rem;
+            }
+            
+            .avatar-container {
+                width: 100px;
+                height: 100px;
+            }
+            
+            .avatar-editor-container {
+                width: 95%;
+                height: 90vh;
+                max-height: none;
+            }
+            
+            .avatar-editor-header {
+                padding: 15px;
+            }
+            
+            .avatar-editor-header h2 {
+                font-size: 1.3rem;
+            }
+            
+            .settings-icon-btn {
+                top: 15px;
+                right: 15px;
+                width: 35px;
+                height: 35px;
+                font-size: 16px;
+            }
+            
+            .inbox-section {
+                padding: 20px;
+            }
+            
+            .inbox-header {
+                font-size: 1.5rem;
+            }
         }
         
-        .btn-primary:hover:not(:disabled) {
-            background: #5a6fd8;
-            transform: translateY(-1px);
-        }
-        
-        .btn-google {
-            background: white;
-            color: #333;
-            border: 2px solid #e9ecef;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-        
-        .btn-google:hover:not(:disabled) {
-            border-color: #667eea;
-            transform: translateY(-1px);
-        }
-        
-        .google-icon {
-            width: 20px;
-            height: 20px;
-        }
-        
-        .divider {
-            text-align: center;
-            margin: 20px 0;
-            position: relative;
-            color: #666;
-        }
-        
-        .divider:before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: #e9ecef;
-        }
-        
-        .divider span {
-            background: white;
-            padding: 0 15px;
-        }
-        
-        .spinner {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255,255,255,0.3);
-            border-top: 3px solid white;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        .success-message {
-            background: #d4edda;
-            color: #155724;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            display: none;
-        }
-        
-        .success-message.show {
-            display: block;
+        @media (max-width: 480px) {
+            .dashboard {
+                padding: 10px;
+            }
+            
+            .header {
+                padding: 25px 15px;
+            }
+            
+            .welcome-text h1 {
+                font-size: 1.7rem;
+            }
+            
+            .username {
+                font-size: 1.1rem;
+            }
+            
+            .avatar-container {
+                width: 90px;
+                height: 90px;
+                border-width: 3px;
+            }
+            
+            .settings-icon-btn {
+                width: 32px;
+                height: 32px;
+                font-size: 14px;
+            }
+            
+            .inbox-section {
+                padding: 15px;
+            }
+            
+            .settings-content {
+                padding: 25px;
+                width: 95%;
+            }
+            
+            .avatar-edit-section {
+                padding: 15px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="auth-container">
-        <div class="auth-header">
-            <h1>Polor</h1>
-            <p>Create your custom avatar</p>
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="loading-screen">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <h2>Loading your dashboard...</h2>
+            <p>Setting up your Polor experience</p>
+        </div>
+    </div>
+    
+    <!-- Dashboard -->
+    <div id="dashboard" class="dashboard">
+        <!-- Header with user info -->
+        <div class="header">
+            <button class="settings-icon-btn" onclick="openSettings()" title="Settings">⚙️</button>
+            <div class="avatar-container" id="header-avatar" onclick="editAvatar()">
+                <div class="avatar-placeholder">🎨</div>
+            </div>
+            <div class="welcome-text">
+                <h1 id="welcome-message">Welcome to Polor!</h1>
+                <div class="username" id="user-handle">@username</div>
+            </div>
         </div>
         
-        <div class="auth-tabs">
-            <div class="auth-tab active" onclick="switchTab('signup')">Sign Up</div>
-            <div class="auth-tab" onclick="switchTab('login')">Login</div>
+        <!-- Inbox Section -->
+        <div class="inbox-section">
+            <h2 class="inbox-header">📥 Inbox</h2>
+            <div class="inbox-content">
+                Your inbox is ready for messages and notifications
+            </div>
         </div>
-        
-        <div id="success-message" class="success-message">
-            <strong>✅ Account created!</strong> Redirecting to your dashboard...
+    </div>
+
+    <!-- Avatar Editor Popup -->
+    <div id="avatar-editor-popup" class="avatar-editor-popup">
+        <div class="avatar-editor-container">
+            <div class="avatar-editor-header">
+                <h2>Edit Avatar</h2>
+            </div>
+            <div class="loading-iframe" id="iframe-loading">
+                <div class="iframe-spinner"></div>
+                <p>Loading Avatar Editor...</p>
+            </div>
+            <iframe id="avatar-iframe" class="avatar-iframe" style="display: none;"></iframe>
         </div>
-        
-        <!-- Signup Form -->
-        <form id="signup-form" class="auth-form active">
-            <div class="form-group">
-                <label class="form-label">Username</label>
-                <input type="text" class="form-input" id="signup-username" required>
-                <div class="error-message" id="signup-username-error"></div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="settings-modal">
+        <div class="settings-content">
+            <div class="settings-header">
+                <h2>⚙️ Settings</h2>
+                <button class="close-btn" onclick="closeSettings()">&times;</button>
             </div>
             
-            <div class="form-group">
-                <label class="form-label">Email</label>
-                <input type="email" class="form-input" id="signup-email" required>
-                <div class="error-message" id="signup-email-error"></div>
+            <div class="avatar-edit-section">
+                <h3>Your Avatar</h3>
+                <div class="avatar-container" id="settings-avatar" style="width: 80px; height: 80px; margin: 0 auto 15px;">
+                    <div class="avatar-placeholder">🎨</div>
+                </div>
+                <button class="edit-avatar-btn" onclick="editAvatarFromSettings()">
+                    ✏️ Edit Avatar
+                </button>
             </div>
             
-            <div class="form-group">
-                <label class="form-label">Password</label>
-                <input type="password" class="form-input" id="signup-password" required>
-                <div class="error-message" id="signup-password-error"></div>
+            <form id="settings-form">
+                <div class="form-group">
+                    <label class="form-label">Display Name</label>
+                    <input type="text" class="form-input" id="display-name" placeholder="Your display name">
+                    <div class="error-message" id="name-error"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Username</label>
+                    <input type="text" class="form-input" id="username-input" placeholder="username" maxlength="20">
+                    <div class="error-message" id="username-error"></div>
+                    <small style="color: #666; font-size: 12px;">This will be your @username</small>
+                </div>
+                
+                <button type="submit" class="save-btn" id="save-settings-btn">
+                    💾 Save Changes
+                </button>
+            </form>
+            
+            <div class="signout-section">
+                <button class="signout-btn" onclick="signOut()">
+                    🚪 Sign Out
+                </button>
             </div>
-            
-            <button type="submit" class="auth-button btn-primary" id="signup-btn">
-                Create Account
-            </button>
-            
-            <div class="divider"><span>or</span></div>
-            
-            <button type="button" class="auth-button btn-google" onclick="signInWithGoogle()">
-                <svg class="google-icon" viewBox="0 0 24 24">
-                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-                </svg>
-                Sign up with Google
-            </button>
-        </form>
-        
-        <!-- Login Form -->
-        <form id="login-form" class="auth-form">
-            <div class="form-group">
-                <label class="form-label">Email</label>
-                <input type="email" class="form-input" id="login-email" required>
-                <div class="error-message" id="login-email-error"></div>
-            </div>
-            
-            <div class="form-group">
-                <label class="form-label">Password</label>
-                <input type="password" class="form-input" id="login-password" required>
-                <div class="error-message" id="login-password-error"></div>
-            </div>
-            
-            <button type="submit" class="auth-button btn-primary" id="login-btn">
-                Login
-            </button>
-            
-            <div class="divider"><span>or</span></div>
-            
-            <button type="button" class="auth-button btn-google" onclick="signInWithGoogle()">
-                <svg class="google-icon" viewBox="0 0 24 24">
-                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-                </svg>
-                Continue with Google
-            </button>
-        </form>
+        </div>
     </div>
 
     <!-- Firebase SDK -->
@@ -329,60 +666,240 @@
         const auth = firebase.auth();
         const firestore = firebase.firestore();
 
-        // Configure Google Auth Provider
-        const googleProvider = new firebase.auth.GoogleAuthProvider();
-        googleProvider.addScope('email');
-        googleProvider.addScope('profile');
+        let currentUser = null;
+        let userProfile = null;
 
-        // Default avatar config for new users
-        const DEFAULT_AVATAR_URL = `https://polor.org/Avatars/?backgrounds=bg4.png&bases=base.png&hair=1.png&eyes=BasicMale.png&brows=Basic.png&mouths=chad.png&noses=basic.png&tops=16.png&hats=chef.png&backgroundsColor=FFC0CB&basesColor=F4C2A1&hairColor=F1C0E8&eyesColor=000000&browsColor=654321&mouthsColor=000000&nosesColor=FFA07A&neckColor=FFB6C1&topsColor=FF0000&glassesColor=6B4423&hatsColor=F1C0E8`;
-
-        // Check if user is already logged in - Simplified
+        // Auth state listener
         auth.onAuthStateChanged(async (user) => {
-            console.log('🔄 Auth state changed:', user ? `User: ${user.email}` : 'No user');
-            
             if (user) {
-                console.log('👤 User is authenticated, checking profile...');
-                
-                try {
-                    // Small delay to ensure Firestore is ready
-                    await new Promise(resolve => setTimeout(resolve, 100));
-                    
-                    const userDoc = await firestore.collection('users').doc(user.uid).get();
-                    console.log('📄 User doc exists:', userDoc.exists);
-                    
-                    if (!userDoc.exists) {
-                        console.log('📝 No profile found, creating one...');
-                        document.getElementById('success-message').innerHTML = '<strong>✅ Setting up your account...</strong>';
-                        document.getElementById('success-message').classList.add('show');
-                        
-                        await createUserProfile(user);
-                        console.log('✅ Profile created successfully');
-                    }
-                    
-                    console.log('🏠 Redirecting to home page...');
-                    window.location.href = 'home.html';
-                    
-                } catch (error) {
-                    console.error('❌ Error in auth state handler:', error);
-                    alert('Error setting up account: ' + error.message);
-                }
+                currentUser = user;
+                await loadUserProfile();
+                showDashboard();
             } else {
-                console.log('ℹ️ No authenticated user');
+                // No user signed in, redirect to auth page
+                window.location.href = 'auth.html';
             }
         });
 
-        // Tab switching
-        function switchTab(tab) {
-            // Update tab buttons
-            document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
-            document.querySelector(`.auth-tab:nth-child(${tab === 'signup' ? '1' : '2'})`).classList.add('active');
+        // Load user profile from Firestore
+        async function loadUserProfile() {
+            try {
+                const doc = await firestore.collection('users').doc(currentUser.uid).get();
+                
+                if (doc.exists) {
+                    userProfile = doc.data();
+                    updateUserInterface();
+                } else {
+                    console.error('User profile not found in Firestore');
+                    await createUserProfile();
+                }
+            } catch (error) {
+                console.error('Error loading user profile:', error);
+            }
+        }
+
+        // Create user profile if missing
+        async function createUserProfile() {
+            const DEFAULT_AVATAR_URL = `https://polor.org/Avatars/?backgrounds=bg1.png&bases=base.png&hair=&eyes=BasicMale.png&brows=Basic.png&mouths=Basic.png&noses=basic.png&neck=&tops=16.png&glasses=&hats=editme.png&backgroundsColor=808080&basesColor=FFF8F5&hairColor=F4C2A1&eyesColor=F4C2A1&browsColor=654321&mouthsColor=000000&nosesColor=FFA07A&neckColor=FFB6C1&topsColor=676767&glassesColor=6B4423&hatsColor=FF4500`;
             
-            // Update forms
-            document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
-            document.getElementById(`${tab}-form`).classList.add('active');
+            const profile = {
+                uid: currentUser.uid,
+                email: currentUser.email,
+                username: currentUser.displayName || currentUser.email.split('@')[0],
+                displayName: currentUser.displayName || currentUser.email.split('@')[0],
+                avatarURL: DEFAULT_AVATAR_URL,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+            };
             
-            // Clear any error messages
+            await firestore.collection('users').doc(currentUser.uid).set(profile, { merge: true });
+            userProfile = profile;
+        }
+
+        // Update the user interface with profile data
+        function updateUserInterface() {
+            // Update welcome message
+            const welcomeMsg = document.getElementById('welcome-message');
+            const displayName = userProfile.displayName || userProfile.username || 'User';
+            welcomeMsg.textContent = `Welcome back, ${displayName}!`;
+            
+            // Update username handle
+            const userHandle = document.getElementById('user-handle');
+            const username = userProfile.username || currentUser.email.split('@')[0];
+            userHandle.textContent = `@${username}`;
+            
+            // Update avatar
+            updateAvatarDisplay();
+            
+            // Update background gradient and avatar border based on avatar background color
+            updateBackgroundGradient();
+        }
+
+        // Update background gradient and avatar border based on avatar background color
+        function updateBackgroundGradient() {
+            if (userProfile.avatarURL) {
+                const urlParams = new URLSearchParams(userProfile.avatarURL.split('?')[1]);
+                const bgColor = urlParams.get('backgroundsColor');
+                
+                if (bgColor) {
+                    // Convert hex to RGB
+                    const hex = bgColor.replace('#', '');
+                    const r = parseInt(hex.substr(0, 2), 16);
+                    const g = parseInt(hex.substr(2, 2), 16);
+                    const b = parseInt(hex.substr(4, 2), 16);
+                    
+                    // Create lighter version for background
+                    const lighterR = Math.min(255, r + 30);
+                    const lighterG = Math.min(255, g + 30);
+                    const lighterB = Math.min(255, b + 30);
+                    
+                    // Create darker version for avatar border and background gradient
+                    const darkerR = Math.max(0, r - 40);
+                    const darkerG = Math.max(0, g - 40);
+                    const darkerB = Math.max(0, b - 40);
+                    
+                    const baseColor = `rgb(${r}, ${g}, ${b})`;
+                    const lighterColor = `rgb(${lighterR}, ${lighterG}, ${lighterB})`;
+                    const darkerColor = `rgb(${darkerR}, ${darkerG}, ${darkerB})`;
+                    
+                    // Set background gradient
+                    const gradient = `linear-gradient(135deg, ${lighterColor} 0%, ${baseColor} 50%, ${darkerColor} 100%)`;
+                    document.documentElement.style.setProperty('--bg-gradient', gradient);
+                    
+                    // Set avatar border color to darker version
+                    document.documentElement.style.setProperty('--avatar-border-color', darkerColor);
+                }
+            }
+        }
+
+        // Edit avatar from settings modal
+        function editAvatarFromSettings() {
+            closeSettings();
+            editAvatar();
+        }
+
+        // Sign out
+        async function signOut() {
+            if (confirm('Are you sure you want to sign out?')) {
+                try {
+                    await auth.signOut();
+                    // Redirect handled by auth state change
+                } catch (error) {
+                    console.error('Sign out error:', error);
+                    alert('❌ Sign out failed');
+                }
+            }
+        }
+
+        // Update avatar display
+        function updateAvatarDisplay() {
+            const headerAvatar = document.getElementById('header-avatar');
+            const settingsAvatar = document.getElementById('settings-avatar');
+            
+            if (userProfile.avatarIMG) {
+                headerAvatar.innerHTML = `<img src="${userProfile.avatarIMG}" alt="Avatar">`;
+                if (settingsAvatar) {
+                    settingsAvatar.innerHTML = `<img src="${userProfile.avatarIMG}" alt="Avatar">`;
+                }
+            } else if (userProfile.avatarURL) {
+                const imageUrl = userProfile.avatarURL + '&I=1';
+                headerAvatar.innerHTML = `<img src="${imageUrl}" alt="Avatar">`;
+                if (settingsAvatar) {
+                    settingsAvatar.innerHTML = `<img src="${imageUrl}" alt="Avatar">`;
+                }
+            }
+        }
+
+        // Show dashboard
+        function showDashboard() {
+            document.getElementById('loading-screen').style.display = 'none';
+            document.getElementById('dashboard').classList.add('show');
+        }
+
+        // Edit avatar - now opens in popup iframe
+        function editAvatar() {
+            const popup = document.getElementById('avatar-editor-popup');
+            const iframe = document.getElementById('avatar-iframe');
+            const loading = document.getElementById('iframe-loading');
+            
+            // Show popup
+            popup.classList.add('show');
+            
+            // Reset iframe state
+            iframe.style.display = 'none';
+            loading.style.display = 'flex';
+            
+            // Build iframe URL with user's current avatar or default
+            let iframeUrl = 'https://polor.org/Avatars/';
+            if (userProfile && userProfile.avatarURL) {
+                // Use existing avatar settings
+                iframeUrl = userProfile.avatarURL;
+            }
+            
+            // Add ref=home and cache busting parameter
+            const separator = iframeUrl.includes('?') ? '&' : '?';
+            iframeUrl += separator + 'ref=home&v=' + Date.now();
+            
+            // Set iframe source
+            iframe.src = iframeUrl;
+            
+            // Handle iframe load
+            iframe.onload = function() {
+                loading.style.display = 'none';
+                iframe.style.display = 'block';
+            };
+        }
+
+        // Close avatar editor popup
+        function closeAvatarEditor() {
+            const popup = document.getElementById('avatar-editor-popup');
+            const iframe = document.getElementById('avatar-iframe');
+            
+            popup.classList.remove('show');
+            
+            // Reset iframe after animation
+            setTimeout(() => {
+                iframe.src = '';
+                iframe.style.display = 'none';
+                document.getElementById('iframe-loading').style.display = 'flex';
+            }, 300);
+            
+            // Refresh user data in case avatar was saved
+            setTimeout(() => {
+                loadUserProfile();
+            }, 500);
+        }
+
+        // Listen for messages from the iframe
+        window.addEventListener('message', function(event) {
+            // Check if message is from our avatar editor
+            if (event.origin === 'https://polor.org') {
+                if (event.data === 'avatarSaved' || event.data === 'closeEditor') {
+                    closeAvatarEditor();
+                }
+            }
+        });
+
+        // Open settings modal
+        function openSettings() {
+            const modal = document.getElementById('settings-modal');
+            const displayNameInput = document.getElementById('display-name');
+            const usernameInput = document.getElementById('username-input');
+            
+            // Pre-fill current values
+            displayNameInput.value = userProfile.displayName || '';
+            usernameInput.value = userProfile.username || '';
+            
+            // Update settings avatar
+            updateAvatarDisplay();
+            
+            modal.classList.add('show');
+        }
+
+        // Close settings modal
+        function closeSettings() {
+            const modal = document.getElementById('settings-modal');
+            modal.classList.remove('show');
             clearErrors();
         }
 
@@ -395,392 +912,120 @@
         // Show error message
         function showError(inputId, message) {
             const input = document.getElementById(inputId);
-            const errorDiv = document.getElementById(`${inputId}-error`);
+            const errorDiv = document.getElementById(`${inputId.replace('-input', '')}-error`);
             
             input.classList.add('error');
             errorDiv.textContent = message;
             errorDiv.classList.add('show');
         }
 
-        // Show loading state
-        function setLoading(buttonId, loading) {
-            const button = document.getElementById(buttonId);
-            if (loading) {
-                button.disabled = true;
-                button.innerHTML = '<span class="spinner"></span> Loading...';
-            } else {
-                button.disabled = false;
-                if (buttonId === 'login-btn') {
-                    button.innerHTML = 'Login';
-                } else {
-                    button.innerHTML = 'Create Account';
-                }
-            }
-        }
-
-        // Create user profile in Firestore
-        async function createUserProfile(user, username = null) {
-            try {
-                // Use provided username or extract from email/displayName
-                const finalUsername = username || 
-                                    user.displayName || 
-                                    user.email.split('@')[0];
-                
-                const userProfile = {
-                    uid: user.uid,
-                    email: user.email,
-                    username: finalUsername,
-                    displayName: finalUsername,
-                    avatarURL: DEFAULT_AVATAR_URL,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
-                    isActive: true
-                };
-
-                // Save to Firestore with merge to avoid overwriting
-                await firestore.collection('users').doc(user.uid).set(userProfile, { merge: true });
-
-                // Update Auth displayName if not already set
-                if (!user.displayName) {
-                    await user.updateProfile({
-                        displayName: finalUsername
-                    });
-                }
-
-                console.log('User profile created successfully');
-                return userProfile;
-            } catch (error) {
-                console.error('Error creating user profile:', error);
-                throw error;
-            }
-        }
-
-        // Update last login
-        async function updateLastLogin(user) {
-            try {
-                await firestore.collection('users').doc(user.uid).update({
-                    lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
-                    isActive: true
-                });
-            } catch (error) {
-                console.error('Error updating last login:', error);
-            }
-        }
-
-        // Account cleanup function (to be called by a scheduled function)
-        async function cleanupInactiveAccounts() {
-            try {
-                const thirtyDaysAgo = new Date();
-                thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-                
-                const inactiveUsers = await firestore.collection('users')
-                    .where('lastLogin', '<', thirtyDaysAgo)
-                    .where('isActive', '==', true)
-                    .get();
-                
-                console.log(`Found ${inactiveUsers.size} inactive accounts to clean up`);
-                
-                const batch = firestore.batch();
-                
-                inactiveUsers.forEach(doc => {
-                    // Mark as inactive instead of deleting to preserve data integrity
-                    batch.update(doc.ref, { 
-                        isActive: false,
-                        deactivatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                });
-                
-                if (inactiveUsers.size > 0) {
-                    await batch.commit();
-                    console.log(`Marked ${inactiveUsers.size} accounts as inactive`);
-                }
-                
-            } catch (error) {
-                console.error('Error cleaning up inactive accounts:', error);
-            }
-        }
-
-        // Check for username availability
-        async function checkUsernameAvailability(username) {
-            try {
-                const snapshot = await firestore.collection('users')
-                    .where('username', '==', username)
-                    .get();
-                    
-                return snapshot.empty;
-            } catch (error) {
-                console.error('Error checking username:', error);
-                return false;
-            }
-        }
-
-        // Handle login
-        document.getElementById('login-form').addEventListener('submit', async (e) => {
+        // Handle settings form submission
+        document.getElementById('settings-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             clearErrors();
             
-            const email = document.getElementById('login-email').value;
-            const password = document.getElementById('login-password').value;
+            const displayName = document.getElementById('display-name').value.trim();
+            const username = document.getElementById('username-input').value.trim();
+            const saveBtn = document.getElementById('save-settings-btn');
             
-            // Basic validation
-            if (!email || !password) {
-                if (!email) showError('login-email', 'Email is required');
-                if (!password) showError('login-password', 'Password is required');
+            // Validation
+            if (!displayName) {
+                showError('display-name', 'Display name is required');
                 return;
             }
             
-            setLoading('login-btn', true);
-            
-            try {
-                const userCredential = await auth.signInWithEmailAndPassword(email, password);
-                await updateLastLogin(userCredential.user);
-                // Redirect handled by auth state change
-            } catch (error) {
-                console.error('Login error:', error);
-                let message = 'Login failed. Please try again.';
-                
-                switch (error.code) {
-                    case 'auth/user-not-found':
-                        message = 'No account found with this email.';
-                        showError('login-email', message);
-                        break;
-                    case 'auth/wrong-password':
-                        message = 'Incorrect password.';
-                        showError('login-password', message);
-                        break;
-                    case 'auth/invalid-email':
-                        message = 'Invalid email address.';
-                        showError('login-email', message);
-                        break;
-                    case 'auth/too-many-requests':
-                        message = 'Too many failed attempts. Please try again later.';
-                        showError('login-email', message);
-                        break;
-                    default:
-                        showError('login-email', message);
-                }
-            } finally {
-                setLoading('login-btn', false);
-            }
-        });
-
-        // Handle signup
-        document.getElementById('signup-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            clearErrors();
-            
-            const username = document.getElementById('signup-username').value.trim();
-            const email = document.getElementById('signup-email').value;
-            const password = document.getElementById('signup-password').value;
-            
-            // Validation
-            if (!username || !email || !password) {
-                if (!username) showError('signup-username', 'Username is required');
-                if (!email) showError('signup-email', 'Email is required');
-                if (!password) showError('signup-password', 'Password is required');
+            if (!username) {
+                showError('username-input', 'Username is required');
                 return;
             }
             
             if (username.length < 3) {
-                showError('signup-username', 'Username must be at least 3 characters');
+                showError('username-input', 'Username must be at least 3 characters');
                 return;
             }
             
             if (!/^[a-zA-Z0-9_]+$/.test(username)) {
-                showError('signup-username', 'Username can only contain letters, numbers, and underscores');
+                showError('username-input', 'Username can only contain letters, numbers, and underscores');
                 return;
             }
             
-            if (password.length < 6) {
-                showError('signup-password', 'Password must be at least 6 characters');
-                return;
-            }
-            
-            setLoading('signup-btn', true);
+            saveBtn.disabled = true;
+            saveBtn.textContent = '💾 Saving...';
             
             try {
-                // Check username availability
-                const isUsernameAvailable = await checkUsernameAvailability(username);
-                if (!isUsernameAvailable) {
-                    showError('signup-username', 'Username is already taken');
-                    return;
-                }
-                
-                // Create user account
-                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-                
-                // Create user profile in Firestore
-                await createUserProfile(userCredential.user, username);
-                
-                // Show success message
-                document.getElementById('success-message').classList.add('show');
-                
-                // Redirect after a short delay
-                setTimeout(() => {
-                    window.location.href = 'home.html';
-                }, 1500);
-                
-            } catch (error) {
-                console.error('Signup error:', error);
-                let message = 'Account creation failed. Please try again.';
-                
-                switch (error.code) {
-                    case 'auth/email-already-in-use':
-                        message = 'An account with this email already exists.';
-                        showError('signup-email', message);
-                        break;
-                    case 'auth/invalid-email':
-                        message = 'Invalid email address.';
-                        showError('signup-email', message);
-                        break;
-                    case 'auth/weak-password':
-                        message = 'Password is too weak. Use at least 6 characters.';
-                        showError('signup-password', message);
-                        break;
-                    default:
-                        showError('signup-email', message);
-                }
-            } finally {
-                setLoading('signup-btn', false);
-            }
-        });
-
-        // Handle Google Sign In - Simplified and debugged
-        async function signInWithGoogle() {
-            try {
-                console.log('🚀 Starting Google sign in...');
-                
-                // Disable buttons during sign in
-                const googleButtons = document.querySelectorAll('.btn-google');
-                googleButtons.forEach(btn => {
-                    btn.disabled = true;
-                    btn.innerHTML = '<span class="spinner"></span> Signing in...';
-                });
-                
-                // Try popup first, fallback to redirect
-                try {
-                    console.log('🔄 Attempting popup method...');
-                    const result = await auth.signInWithPopup(googleProvider);
-                    console.log('✅ Popup successful:', result.user.email);
+                // Check if username is taken (if changed)
+                if (username !== userProfile.username) {
+                    const usernameQuery = await firestore.collection('users')
+                        .where('username', '==', username)
+                        .get();
                     
-                    // Handle the result immediately
-                    await handleGoogleSignInResult(result);
-                    
-                } catch (popupError) {
-                    console.log('❌ Popup failed, trying redirect...', popupError.code);
-                    
-                    if (popupError.code === 'auth/popup-blocked' || 
-                        popupError.code === 'auth/popup-closed-by-user') {
-                        // Fall back to redirect
-                        console.log('🔄 Using redirect method...');
-                        await auth.signInWithRedirect(googleProvider);
-                        return; // Don't re-enable buttons, redirect will handle
-                    } else {
-                        throw popupError; // Re-throw other errors
+                    if (!usernameQuery.empty && usernameQuery.docs[0].id !== currentUser.uid) {
+                        showError('username-input', 'Username is already taken');
+                        return;
                     }
                 }
                 
-            } catch (error) {
-                console.error('❌ Google sign in error:', error);
-                
-                // Re-enable buttons
-                const googleButtons = document.querySelectorAll('.btn-google');
-                googleButtons.forEach((btn, index) => {
-                    btn.disabled = false;
-                    btn.innerHTML = index === 0 ? 
-                        'Sign up with Google' : 
-                        'Continue with Google';
+                // Update Firestore
+                await firestore.collection('users').doc(currentUser.uid).update({
+                    displayName: displayName,
+                    username: username,
+                    lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 
-                let message = 'Google sign in failed. Please try again.';
-                
-                switch (error.code) {
-                    case 'auth/network-request-failed':
-                        message = 'Network error. Please check your connection.';
-                        break;
-                    case 'auth/too-many-requests':
-                        message = 'Too many requests. Please wait and try again.';
-                        break;
-                    case 'auth/operation-not-allowed':
-                        message = 'Google sign-in is not enabled. Please contact support.';
-                        break;
-                    case 'auth/unauthorized-domain':
-                        message = 'This domain is not authorized for Google sign-in.';
-                        break;
-                }
-                
-                alert('Google Sign-In Error: ' + message);
-                console.error('Full error details:', error);
-            }
-        }
-
-        // Handle Google sign in result
-        async function handleGoogleSignInResult(result) {
-            try {
-                console.log('🔄 Processing Google sign in result...');
-                const user = result.user;
-                
-                // Show success message immediately
-                document.getElementById('success-message').innerHTML = '<strong>✅ Google sign in successful!</strong> Setting up your account...';
-                document.getElementById('success-message').classList.add('show');
-                
-                console.log('👤 User info:', {
-                    uid: user.uid,
-                    email: user.email,
-                    displayName: user.displayName
+                // Update Auth displayName
+                await currentUser.updateProfile({
+                    displayName: displayName
                 });
                 
-                // Check if user profile exists
-                console.log('🔍 Checking if user profile exists...');
-                const userDoc = await firestore.collection('users').doc(user.uid).get();
+                // Update local profile
+                userProfile.displayName = displayName;
+                userProfile.username = username;
                 
-                if (!userDoc.exists) {
-                    console.log('📝 Creating new user profile...');
-                    document.getElementById('success-message').innerHTML = '<strong>✅ Creating your account...</strong> Almost done!';
-                    
-                    const profile = await createUserProfile(user);
-                    console.log('✅ Profile created:', profile);
-                    
-                    document.getElementById('success-message').innerHTML = '<strong>✅ Account created!</strong> Redirecting...';
-                } else {
-                    console.log('👋 Existing user, updating login...');
-                    document.getElementById('success-message').innerHTML = '<strong>✅ Welcome back!</strong> Redirecting...';
-                    await updateLastLogin(user);
-                }
-                
-                // Redirect after success
-                setTimeout(() => {
-                    console.log('🏠 Redirecting to home...');
-                    window.location.href = 'home.html';
-                }, 1500);
+                // Update UI
+                updateUserInterface();
+                closeSettings();
+                alert('✅ Settings saved successfully!');
                 
             } catch (error) {
-                console.error('❌ Error processing Google result:', error);
-                document.getElementById('success-message').classList.remove('show');
-                alert('Failed to complete sign in: ' + error.message);
-            }
-        }
-
-        // Handle redirect result from Google Sign In
-        auth.getRedirectResult().then(async (result) => {
-            console.log('🔄 Checking redirect result...', result);
-            
-            if (result && result.user) {
-                console.log('✅ Redirect result found!');
-                await handleGoogleSignInResult(result);
-            } else {
-                console.log('ℹ️ No redirect result found');
-            }
-        }).catch((error) => {
-            console.error('❌ Redirect result error:', error);
-            if (error.code !== 'auth/redirect-cancelled-by-user') {
-                alert('Google sign in failed: ' + error.message);
+                console.error('Save failed:', error);
+                alert('❌ Failed to save settings: ' + error.message);
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.textContent = '💾 Save Changes';
             }
         });
 
-        // Run cleanup on page load (in production, this should be a scheduled cloud function)
-        // Commented out for now - implement as a cloud function for production
-        // cleanupInactiveAccounts();
+        // Coming soon function
+        function comingSoon(feature) {
+            alert(`🚀 ${feature} is coming soon! Stay tuned for updates.`);
+        }
+
+        // Close modals when clicking outside
+        document.getElementById('settings-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'settings-modal') {
+                closeSettings();
+            }
+        });
+
+        document.getElementById('avatar-editor-popup').addEventListener('click', (e) => {
+            if (e.target.id === 'avatar-editor-popup') {
+                closeAvatarEditor();
+            }
+        });
+
+        // Handle escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const avatarPopup = document.getElementById('avatar-editor-popup');
+                const settingsModal = document.getElementById('settings-modal');
+                
+                if (avatarPopup.classList.contains('show')) {
+                    closeAvatarEditor();
+                } else if (settingsModal.classList.contains('show')) {
+                    closeSettings();
+                }
+            }
+        });
     </script>
 </body>
 </html>
