@@ -63,14 +63,30 @@
             font-weight: bold;
         }
         
-        .color-picker {
-            width: 40px;
-            height: 40px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            margin-right: 10px;
+        .color-grid {
+            display: grid;
+            grid-template-columns: repeat(8, 30px);
+            gap: 5px;
             margin-bottom: 15px;
+        }
+        
+        .color-option {
+            width: 30px;
+            height: 30px;
+            border-radius: 6px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s ease;
+        }
+        
+        .color-option:hover {
+            transform: scale(1.1);
+            border-color: #666;
+        }
+        
+        .color-option.selected {
+            border-color: #333;
+            border-width: 3px;
         }
         
         .items-grid {
@@ -281,48 +297,92 @@
             updateDisplay();
         }
 
-        // Build category sections
+        // Color palette - nice pastel colors and skin tones
+        const colorPalette = [
+            // Skin tones
+            '#FDBCB4', '#F4C2A1', '#E8B982', '#D1A374', '#C19A6B', '#A67C5A', '#8D5524', '#6B4423',
+            // Pastel colors
+            '#FFB3BA', '#FFDFBA', '#FFFFBA', '#BAFFC9', '#BAE1FF', '#C9BAFF', '#FFBAF3', '#FFC9BA',
+            '#FF9A9E', '#FECFEF', '#FECDA3', '#96E6A1', '#89CDF1', '#A8DADC', '#F1C0E8', '#CFBAF0',
+            '#FF7F7F', '#FFD1A9', '#FFFACD', '#98FB98', '#87CEEB', '#DDA0DD', '#FFB6C1', '#F0E68C',
+            '#FFA07A', '#FFDAB9', '#F5DEB3', '#90EE90', '#B0E0E6', '#D8BFD8', '#FFC0CB', '#F5F5DC'
+        ];
+
+        // Build category sections with optimized updates and colored previews
         function buildCategories() {
-            const allCategories = ['backgrounds', 'bases', 'hair', 'eyes', 'brows', 'mouths', 'noses', 'neck', 'tops', 'glasses', 'hats'];
-            
             return Object.keys(manifest).map(categoryName => {
                 const items = manifest[categoryName];
                 if (!items || items.length === 0) return '';
                 
                 const displayName = categoryName.charAt(0).toUpperCase() + categoryName.slice(1);
-                
-                // Filter out overlay files
                 const selectableItems = items.filter(item => !item.includes('overlay'));
+                const currentColor = avatarState.colors[categoryName];
                 
                 return `
-                    <div class="category-section">
+                    <div class="category-section" data-category="${categoryName}">
                         <div class="category-title">
                             ${getIcon(categoryName)} ${displayName}
                         </div>
                         
                         <div>
-                            <input type="color" 
-                                   class="color-picker" 
-                                   value="${avatarState.colors[categoryName]}"
-                                   onchange="updateColor('${categoryName}', this.value)">
-                            <span>Color</span>
+                            <div class="color-grid">
+                                ${colorPalette.map(color => `
+                                    <div class="color-option ${currentColor === color ? 'selected' : ''}" 
+                                         style="background-color: ${color}"
+                                         data-color="${color}"
+                                         onclick="updateColor('${categoryName}', '${color}')"></div>
+                                `).join('')}
+                            </div>
                         </div>
                         
                         <div class="items-grid">
                             <div class="item-option none-option ${avatarState.selectedParts[categoryName] === '' ? 'selected' : ''}" 
+                                 data-item=""
                                  onclick="selectItem('${categoryName}', '')">
                                 None
                             </div>
                             ${selectableItems.map(item => `
                                 <div class="item-option ${avatarState.selectedParts[categoryName] === item ? 'selected' : ''}" 
+                                     data-item="${item}"
                                      onclick="selectItem('${categoryName}', '${item}')">
-                                    <img src="https://polor.org/Avatars/characters/${categoryName}/${item}" alt="${item}">
+                                    ${generateColoredPreview(categoryName, item, currentColor)}
                                 </div>
                             `).join('')}
                         </div>
                     </div>
                 `;
             }).join('');
+        }
+
+        // Generate colored preview for item thumbnails
+        function generateColoredPreview(category, item, color) {
+            const svgId = `preview_${category}_${item.replace('.png', '').replace(/[^a-zA-Z0-9]/g, '_')}`;
+            
+            return `
+                <svg width="50" height="50" viewBox="0 0 50 50">
+                    <defs>
+                        <filter id="filter_${svgId}">
+                            <feComponentTransfer result="greenChannel">
+                                <feFuncR type="discrete" tableValues="0"/>
+                                <feFuncG type="identity"/>
+                                <feFuncB type="discrete" tableValues="0"/>
+                            </feComponentTransfer>
+                            
+                            <feComponentTransfer in="greenChannel" result="greenMask">
+                                <feFuncG type="discrete" tableValues="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1"/>
+                            </feComponentTransfer>
+                            
+                            <feFlood flood-color="${color}" result="replacementColor"/>
+                            <feComposite in="replacementColor" in2="greenMask" operator="in" result="coloredGreens"/>
+                            <feComposite in="SourceGraphic" in2="greenMask" operator="out" result="nonGreenAreas"/>
+                            <feComposite in="nonGreenAreas" in2="coloredGreens" operator="over"/>
+                        </filter>
+                    </defs>
+                    <image href="https://polor.org/Avatars/characters/${category}/${item}" 
+                           x="0" y="0" width="50" height="50" 
+                           filter="url(#filter_${svgId})"/>
+                </svg>
+            `;
         }
 
         // Render the avatar SVG with precise green color targeting
@@ -380,13 +440,13 @@
             const layerOrder = [
                 'backgrounds', 'backgroundsoverlay',
                 'bases', 'basesoverlay',
+                'neck', 'neckoverlay', 
                 'hair', 'hairoverlay',
                 'eyes', 'eyesoverlay',
                 'brows', 'browsoverlay',
                 'noses', 'nosesoverlay',
                 'mouths', 'mouthsoverlay',
                 'tops', 'topsoverlay',
-                'neck', 'neckoverlay', 
                 'glasses', 'glassesoverlay',
                 'hats', 'hatsoverlay'
             ];
@@ -425,16 +485,48 @@
             `;
         }
 
-        // Select item
+        // Select item - optimized to only update avatar, not rebuild interface
         function selectItem(category, item) {
             avatarState.selectedParts[category] = item;
-            buildInterface();
+            updateDisplay(); // Only update display, don't rebuild entire interface
+            updateCategorySelection(category); // Update just this category's selection
         }
 
-        // Update color
+        // Update color - optimized
         function updateColor(category, color) {
             avatarState.colors[category] = color;
             updateDisplay();
+            updateColorSelection(category); // Update just this category's color selection
+        }
+
+        // Update only the selection state for a specific category
+        function updateCategorySelection(category) {
+            const categorySection = document.querySelector(`[data-category="${category}"]`);
+            if (!categorySection) return;
+            
+            // Update item selections
+            const itemOptions = categorySection.querySelectorAll('.item-option');
+            itemOptions.forEach(option => {
+                option.classList.remove('selected');
+                if (option.getAttribute('data-item') === avatarState.selectedParts[category]) {
+                    option.classList.add('selected');
+                }
+            });
+        }
+
+        // Update only the color selection for a specific category
+        function updateColorSelection(category) {
+            const categorySection = document.querySelector(`[data-category="${category}"]`);
+            if (!categorySection) return;
+            
+            // Update color selections
+            const colorOptions = categorySection.querySelectorAll('.color-option');
+            colorOptions.forEach(option => {
+                option.classList.remove('selected');
+                if (option.getAttribute('data-color') === avatarState.colors[category]) {
+                    option.classList.add('selected');
+                }
+            });
         }
 
         // Update display
@@ -476,7 +568,7 @@
             return icons[category] || '🎨';
         }
 
-        // Randomize
+        // Randomize - optimized
         function randomize() {
             Object.keys(avatarState.selectedParts).forEach(category => {
                 if (manifest[category]) {
@@ -487,12 +579,11 @@
                 }
             });
             
-            const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9'];
             Object.keys(avatarState.colors).forEach(category => {
-                avatarState.colors[category] = colors[Math.floor(Math.random() * colors.length)];
+                avatarState.colors[category] = colorPalette[Math.floor(Math.random() * colorPalette.length)];
             });
             
-            buildInterface();
+            buildInterface(); // Full rebuild for randomize is ok since it's occasional
         }
 
         // Copy URL
