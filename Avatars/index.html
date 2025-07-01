@@ -172,6 +172,12 @@
             font-weight: bold;
             cursor: pointer;
             transition: all 0.2s ease;
+            position: relative;
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
         }
         
         .btn-primary {
@@ -179,7 +185,7 @@
             color: white;
         }
         
-        .btn-primary:hover {
+        .btn-primary:hover:not(:disabled) {
             background: #5a6fd8;
         }
         
@@ -188,8 +194,17 @@
             color: white;
         }
         
-        .btn-secondary:hover {
+        .btn-secondary:hover:not(:disabled) {
             background: #5a6268;
+        }
+        
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-success:hover:not(:disabled) {
+            background: #218838;
         }
         
         .avatar-url {
@@ -200,12 +215,69 @@
             font-size: 11px;
             word-break: break-all;
             color: #495057;
+            margin-bottom: 15px;
+        }
+        
+        .embed-section {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            margin-top: 15px;
+        }
+        
+        .embed-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .embed-url {
+            background: #e9ecef;
+            padding: 8px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 10px;
+            word-break: break-all;
+            color: #495057;
+            margin-bottom: 8px;
+        }
+        
+        .auth-section {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #ffeaa7;
+            margin-bottom: 15px;
+        }
+        
+        .auth-input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 10px;
         }
         
         .loading {
             text-align: center;
             padding: 50px;
             color: #666;
+        }
+        
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #333;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
@@ -224,8 +296,31 @@
         </div>
     </div>
 
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
     <script>
+        // Firebase config
+        const firebaseConfig = {
+            apiKey: "AIzaSyA8HcTDiCQtJHRiMES2p1iUlA30AkZPx1Y",
+            authDomain: "polor-62c29.firebaseapp.com",
+            databaseURL: "https://polor-62c29-default-rtdb.firebaseio.com",
+            projectId: "polor-62c29",
+            storageBucket: "polor-62c29.firebasestorage.app",
+            messagingSenderId: "232986823513",
+            appId: "1:232986823513:web:a6ee6bef6b0609ace3da48",
+            measurementId: "G-KRT42D5TQK"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const database = firebase.database();
+
         let manifest = {};
+        let currentUser = null;
         let avatarState = {
             selectedParts: {
                 backgrounds: '',
@@ -255,6 +350,25 @@
             }
         };
 
+        // Auth state listener
+        auth.onAuthStateChanged((user) => {
+            currentUser = user;
+            if (user && !isImageMode()) {
+                loadUserAvatar();
+            }
+            updateAuthUI();
+        });
+
+        // Sign in anonymously
+        async function signInAnonymously() {
+            try {
+                await auth.signInAnonymously();
+            } catch (error) {
+                console.error('Auth failed:', error);
+                alert('❌ Authentication failed');
+            }
+        }
+
         // Load manifest and start
         async function initialize() {
             try {
@@ -265,12 +379,18 @@
             } catch (error) {
                 console.error('Load failed:', error);
                 if (isImageMode()) {
-                    // Even if manifest fails, show something in image mode
-                    document.getElementById('app-content').innerHTML = `
-                        <div style="display: flex; justify-content: center; align-items: center; min-height: 50vh;">
-                            <div style="color: #666;">Avatar loading failed</div>
-                        </div>
-                    `;
+                    // Check if we have a saved avatar ID in URL
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const avatarId = urlParams.get('id');
+                    if (avatarId) {
+                        loadSavedAvatarImage(avatarId);
+                    } else {
+                        document.getElementById('app-content').innerHTML = `
+                            <div style="display: flex; justify-content: center; align-items: center; min-height: 50vh;">
+                                <div style="color: #666;">Avatar loading failed</div>
+                            </div>
+                        `;
+                    }
                 } else {
                     document.getElementById('app-content').innerHTML = `
                         <div class="loading">
@@ -286,6 +406,41 @@
         function isImageMode() {
             const urlParams = new URLSearchParams(window.location.search);
             return urlParams.get('image') === 'true';
+        }
+
+        // Load saved avatar image for embed mode
+        async function loadSavedAvatarImage(avatarId) {
+            try {
+                const snapshot = await database.ref(`avatars/${avatarId}/avatarIMG`).once('value');
+                const imageData = snapshot.val();
+                
+                if (imageData) {
+                    document.getElementById('app-content').innerHTML = `
+                        <div style="display: flex; justify-content: center; align-items: center; min-height: 100vh; background: transparent; margin: 0; padding: 0;">
+                            <img src="${imageData}" style="width: 200px; height: 200px; display: block;" alt="Avatar">
+                        </div>
+                    `;
+                    // Hide everything except the image
+                    document.body.style.background = 'transparent';
+                    document.querySelector('.container').style.background = 'transparent';
+                    document.querySelector('.container').style.boxShadow = 'none';
+                    document.querySelector('.container').style.padding = '0';
+                    document.querySelector('.header').style.display = 'none';
+                } else {
+                    document.getElementById('app-content').innerHTML = `
+                        <div style="display: flex; justify-content: center; align-items: center; min-height: 50vh;">
+                            <div style="color: #666;">Avatar not found</div>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Failed to load saved avatar:', error);
+                document.getElementById('app-content').innerHTML = `
+                    <div style="display: flex; justify-content: center; align-items: center; min-height: 50vh;">
+                        <div style="color: #666;">Avatar loading failed</div>
+                    </div>
+                `;
+            }
         }
 
         // Load URL parameters into avatar state
@@ -309,41 +464,236 @@
             });
         }
 
-        // Convert SVG to single image blob
-        async function convertSVGToImage() {
-            const svgElement = document.querySelector('#avatar-display svg') || 
-                              document.querySelector('svg');
+        // Load user's saved avatar
+        async function loadUserAvatar() {
+            if (!currentUser) return;
             
+            try {
+                const snapshot = await database.ref(`users/${currentUser.uid}/avatarCONFIG`).once('value');
+                const config = snapshot.val();
+                
+                if (config) {
+                    parseAvatarConfig(config);
+                    updateDisplay();
+                }
+            } catch (error) {
+                console.error('Failed to load user avatar:', error);
+            }
+        }
+
+        // Parse avatar config string (h:12|b:base|t:113|hc:8B4513|bc:F4C2A1)
+        function parseAvatarConfig(configString) {
+            const parts = configString.split('|');
+            const mapping = {
+                'bg': 'backgrounds', 'b': 'bases', 'h': 'hair', 'e': 'eyes',
+                'br': 'brows', 'm': 'mouths', 'n': 'noses', 'ne': 'neck',
+                't': 'tops', 'g': 'glasses', 'ha': 'hats'
+            };
+            
+            parts.forEach(part => {
+                const [key, value] = part.split(':');
+                if (mapping[key]) {
+                    if (key.endsWith('c')) {
+                        // Color
+                        const category = mapping[key.replace('c', '')];
+                        if (category) {
+                            avatarState.colors[category] = `#${value}`;
+                        }
+                    } else {
+                        // Part
+                        const category = mapping[key];
+                        if (category) {
+                            avatarState.selectedParts[category] = value === 'none' ? '' : `${value}.png`;
+                        }
+                    }
+                }
+            });
+        }
+
+        // Generate avatar config string
+        function generateAvatarConfig() {
+            const parts = [];
+            const reverseMapping = {
+                'backgrounds': 'bg', 'bases': 'b', 'hair': 'h', 'eyes': 'e',
+                'brows': 'br', 'mouths': 'm', 'noses': 'n', 'neck': 'ne',
+                'tops': 't', 'glasses': 'g', 'hats': 'ha'
+            };
+            
+            // Add parts
+            Object.entries(avatarState.selectedParts).forEach(([category, item]) => {
+                const key = reverseMapping[category];
+                if (key && item) {
+                    const value = item.replace('.png', '');
+                    parts.push(`${key}:${value}`);
+                }
+            });
+            
+            // Add colors
+            Object.entries(avatarState.colors).forEach(([category, color]) => {
+                const key = reverseMapping[category];
+                if (key && color !== '#000000') { // Skip default black
+                    parts.push(`${key}c:${color.replace('#', '')}`);
+                }
+            });
+            
+            return parts.join('|');
+        }
+
+        // Convert SVG to WebP base64
+        async function convertSVGToWebP() {
+            const svgElement = document.querySelector('#avatar-display svg');
             if (!svgElement) return null;
             
-            // Create a canvas
-            const canvas = document.createElement('canvas');
-            canvas.width = 200;
-            canvas.height = 200;
-            const ctx = canvas.getContext('2d');
-            
-            // Convert SVG to blob URL
-            const svgData = new XMLSerializer().serializeToString(svgElement);
-            const svgBlob = new Blob([svgData], {type: 'image/svg+xml;charset=utf-8'});
-            const svgUrl = URL.createObjectURL(svgBlob);
-            
             return new Promise((resolve) => {
+                const canvas = document.createElement('canvas');
+                canvas.width = 200;
+                canvas.height = 200;
+                const ctx = canvas.getContext('2d');
+                
+                // Convert SVG to blob URL
+                const svgData = new XMLSerializer().serializeToString(svgElement);
+                const svgBlob = new Blob([svgData], {type: 'image/svg+xml;charset=utf-8'});
+                const svgUrl = URL.createObjectURL(svgBlob);
+                
                 const img = new Image();
                 img.onload = () => {
                     ctx.drawImage(img, 0, 0, 200, 200);
                     URL.revokeObjectURL(svgUrl);
                     
-                    // Convert canvas to image data
-                    const imageData = canvas.toDataURL('image/png');
-                    resolve(imageData);
+                    // Convert to WebP with high quality
+                    const webpData = canvas.toDataURL('image/webp', 0.8);
+                    resolve(webpData);
                 };
                 img.src = svgUrl;
             });
         }
 
+        // Save avatar to Firebase
+        async function saveAvatarToFirebase() {
+            if (!currentUser) {
+                alert('Please sign in first!');
+                return;
+            }
+            
+            const saveBtn = document.querySelector('.btn-success');
+            if (saveBtn) {
+                saveBtn.disabled = true;
+                saveBtn.innerHTML = '<span class="spinner"></span> Saving...';
+            }
+            
+            try {
+                // Generate WebP image
+                const imageData = await convertSVGToWebP();
+                if (!imageData) {
+                    throw new Error('Failed to generate image');
+                }
+                
+                // Generate config
+                const config = generateAvatarConfig();
+                
+                // Generate unique avatar ID
+                const avatarId = `${currentUser.uid}_${Date.now()}`;
+                
+                // Save to Firebase
+                const updates = {};
+                updates[`users/${currentUser.uid}/avatarIMG`] = imageData;
+                updates[`users/${currentUser.uid}/avatarCONFIG`] = config;
+                updates[`avatars/${avatarId}/avatarIMG`] = imageData;
+                updates[`avatars/${avatarId}/avatarCONFIG`] = config;
+                updates[`avatars/${avatarId}/owner`] = currentUser.uid;
+                updates[`avatars/${avatarId}/created`] = Date.now();
+                
+                await database.ref().update(updates);
+                
+                // Update UI with embed URL
+                updateEmbedSection(avatarId);
+                alert('✅ Avatar saved successfully!');
+                
+            } catch (error) {
+                console.error('Save failed:', error);
+                alert('❌ Save failed: ' + error.message);
+            } finally {
+                if (saveBtn) {
+                    saveBtn.disabled = false;
+                    saveBtn.innerHTML = '💾 Save Avatar';
+                }
+            }
+        }
+
+        // Update embed section with URLs
+        function updateEmbedSection(avatarId) {
+            const embedSection = document.getElementById('embed-section');
+            if (!embedSection) return;
+            
+            const baseUrl = window.location.origin + window.location.pathname;
+            const embedUrl = `${baseUrl}?image=true&id=${avatarId}`;
+            
+            embedSection.innerHTML = `
+                <div class="embed-title">🔗 Your Avatar is Ready!</div>
+                <div style="margin-bottom: 10px;">
+                    <strong>Direct Image URL:</strong>
+                    <div class="embed-url">${embedUrl}</div>
+                    <button class="btn btn-secondary" onclick="copyToClipboard('${embedUrl}')" style="padding: 6px 12px; font-size: 12px;">Copy URL</button>
+                </div>
+                <div style="margin-bottom: 10px;">
+                    <strong>HTML Embed Code:</strong>
+                    <div class="embed-url">&lt;img src="${embedUrl}" alt="Avatar" width="200" height="200"&gt;</div>
+                    <button class="btn btn-secondary" onclick="copyToClipboard('&lt;img src=&quot;${embedUrl}&quot; alt=&quot;Avatar&quot; width=&quot;200&quot; height=&quot;200&quot;&gt;')" style="padding: 6px 12px; font-size: 12px;">Copy HTML</button>
+                </div>
+                <div style="margin-bottom: 10px;">
+                    <strong>Markdown:</strong>
+                    <div class="embed-url">![Avatar](${embedUrl})</div>
+                    <button class="btn btn-secondary" onclick="copyToClipboard('![Avatar](${embedUrl})')" style="padding: 6px 12px; font-size: 12px;">Copy Markdown</button>
+                </div>
+            `;
+        }
+
+        // Copy to clipboard
+        async function copyToClipboard(text) {
+            try {
+                const cleanText = text.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"');
+                await navigator.clipboard.writeText(cleanText);
+                alert('✅ Copied to clipboard!');
+            } catch (err) {
+                alert('❌ Copy failed');
+            }
+        }
+
+        // Update auth UI
+        function updateAuthUI() {
+            const authSection = document.getElementById('auth-section');
+            if (!authSection) return;
+            
+            if (currentUser) {
+                authSection.innerHTML = `
+                    <div style="color: #155724; background: #d4edda; padding: 10px; border-radius: 4px; margin-bottom: 10px;">
+                        ✅ Signed in as: ${currentUser.uid.substring(0, 8)}...
+                    </div>
+                `;
+            } else {
+                authSection.innerHTML = `
+                    <div style="color: #856404; margin-bottom: 10px;">
+                        🔐 Sign in to save your avatar and get embeddable links
+                    </div>
+                    <button class="btn btn-primary" onclick="signInAnonymously()" style="width: 100%;">
+                        🚀 Sign In Anonymously
+                    </button>
+                `;
+            }
+        }
+
         // Build the interface or show single image mode
         function buildInterface() {
             if (isImageMode()) {
+                // Check if we have an avatar ID
+                const urlParams = new URLSearchParams(window.location.search);
+                const avatarId = urlParams.get('id');
+                
+                if (avatarId) {
+                    loadSavedAvatarImage(avatarId);
+                    return;
+                }
+                
                 // Generate the avatar SVG first
                 const avatarSVG = renderAvatar();
                 
@@ -356,7 +706,7 @@
                 
                 // Convert to single image and display
                 setTimeout(async () => {
-                    const imageData = await convertSVGToImage();
+                    const imageData = await convertSVGToWebP();
                     if (imageData) {
                         document.getElementById('app-content').innerHTML = `
                             <div style="display: flex; justify-content: center; align-items: center; min-height: 100vh; background: transparent; margin: 0; padding: 0;">
@@ -376,6 +726,7 @@
             
             // Normal interface mode
             document.getElementById('app-content').innerHTML = `
+                <div id="auth-section" class="auth-section"></div>
                 <div class="main-layout">
                     <div class="customization-panel">
                         ${buildCategories()}
@@ -387,15 +738,17 @@
                         <div class="control-buttons">
                             <button class="btn btn-primary" onclick="randomize()">🎲 Random</button>
                             <button class="btn btn-secondary" onclick="copyURL()">📋 Copy URL</button>
-                            <button class="btn btn-secondary" onclick="save()">💾 Save</button>
+                            <button class="btn btn-success" onclick="saveAvatarToFirebase()">💾 Save Avatar</button>
                         </div>
                         <div class="avatar-url" id="url-display">
                             ${generateURL()}
                         </div>
+                        <div id="embed-section" class="embed-section" style="display: none;"></div>
                     </div>
                 </div>
             `;
             updateDisplay();
+            updateAuthUI();
         }
 
         // Color palette - nice pastel colors and skin tones
@@ -719,27 +1072,19 @@
             }
         }
 
-        // Save
+        // Save (legacy local storage)
         function save() {
-            localStorage.setItem('polor_avatar', JSON.stringify(avatarState));
-            alert('✅ Avatar saved!');
+            const savedData = {
+                ...avatarState,
+                timestamp: Date.now()
+            };
+            alert('✅ Avatar saved locally! Use "Save Avatar" for cloud saving and embedding.');
         }
 
         // Load saved
         function loadSaved() {
-            const saved = localStorage.getItem('polor_avatar');
-            if (saved) {
-                try {
-                    avatarState = JSON.parse(saved);
-                } catch (err) {
-                    console.error('Load failed:', err);
-                }
-            }
+            // This is now handled by Firebase auth state changes
         }
 
         // Start - load from URL if in image mode
-        loadSaved();
         initialize();
-    </script>
-</body>
-</html>
