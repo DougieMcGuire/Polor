@@ -338,10 +338,29 @@
         const DEFAULT_AVATAR_URL = `https://polor.org/Avatars/?backgrounds=bg4.png&bases=base.png&hair=1.png&eyes=BasicMale.png&brows=Basic.png&mouths=chad.png&noses=basic.png&tops=16.png&hats=chef.png&backgroundsColor=FFC0CB&basesColor=F4C2A1&hairColor=F1C0E8&eyesColor=000000&browsColor=654321&mouthsColor=000000&nosesColor=FFA07A&neckColor=FFB6C1&topsColor=FF0000&glassesColor=6B4423&hatsColor=F1C0E8`;
 
         // Check if user is already logged in
-        auth.onAuthStateChanged((user) => {
+        auth.onAuthStateChanged(async (user) => {
+            console.log('Auth state changed:', user ? user.email : 'No user');
+            
             if (user) {
-                // User is signed in, redirect to home
-                window.location.href = 'home.html';
+                // User is signed in, check if we need to create profile first
+                try {
+                    const userDoc = await firestore.collection('users').doc(user.uid).get();
+                    
+                    if (!userDoc.exists) {
+                        // New user from Google auth - create profile
+                        console.log('Creating profile for new Google user...');
+                        document.getElementById('success-message').innerHTML = '<strong>✅ Setting up your account...</strong> Almost done!';
+                        document.getElementById('success-message').classList.add('show');
+                        await createUserProfile(user);
+                    }
+                    
+                    // Redirect to home
+                    console.log('Redirecting to home...');
+                    window.location.href = 'home.html';
+                    
+                } catch (error) {
+                    console.error('Error in auth state change:', error);
+                }
             }
         });
 
@@ -665,37 +684,50 @@
 
         // Handle redirect result from Google Sign In
         auth.getRedirectResult().then(async (result) => {
-            if (result.user) {
+            console.log('Checking redirect result...', result);
+            
+            if (result && result.user) {
                 console.log('Google sign in successful:', result.user.email);
                 const user = result.user;
                 
                 try {
+                    // Show loading message
+                    document.getElementById('success-message').innerHTML = '<strong>✅ Signing you in...</strong> Please wait...';
+                    document.getElementById('success-message').classList.add('show');
+                    
                     // Check if this is a new user
                     const userDoc = await firestore.collection('users').doc(user.uid).get();
                     
                     if (!userDoc.exists) {
                         // New user - create profile
                         console.log('Creating new user profile...');
+                        document.getElementById('success-message').innerHTML = '<strong>✅ Creating your account...</strong> Almost done!';
                         await createUserProfile(user);
-                        document.getElementById('success-message').classList.add('show');
-                        setTimeout(() => {
-                            window.location.href = 'home.html';
-                        }, 1500);
+                        document.getElementById('success-message').innerHTML = '<strong>✅ Account created!</strong> Redirecting to your dashboard...';
                     } else {
                         // Existing user - update last login
                         console.log('Updating existing user login...');
+                        document.getElementById('success-message').innerHTML = '<strong>✅ Welcome back!</strong> Redirecting to your dashboard...';
                         await updateLastLogin(user);
-                        window.location.href = 'home.html';
                     }
+                    
+                    // Redirect after a short delay
+                    setTimeout(() => {
+                        window.location.href = 'home.html';
+                    }, 1000);
+                    
                 } catch (error) {
                     console.error('Error processing Google sign in:', error);
-                    showError('login-email', 'Failed to complete sign in. Please try again.');
+                    document.getElementById('success-message').classList.remove('show');
+                    showError('signup-email', 'Failed to complete sign in. Please try again.');
                 }
+            } else {
+                console.log('No redirect result found');
             }
         }).catch((error) => {
             console.error('Redirect result error:', error);
             if (error.code !== 'auth/redirect-cancelled-by-user') {
-                showError('login-email', 'Google sign in failed. Please try again.');
+                showError('signup-email', 'Google sign in failed. Please try again.');
             }
         });
 
