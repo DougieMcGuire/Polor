@@ -13,7 +13,7 @@
         
         body {
             font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--bg-gradient, linear-gradient(135deg, #667eea 0%, #764ba2 100%));
             min-height: 100vh;
             padding: 20px;
         }
@@ -195,10 +195,132 @@
             color: #495057;
         }
         
-        .loading {
+        .compact-editor {
+            max-width: 400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        .compact-header {
+            background: #f8f9fa;
+            padding: 20px;
             text-align: center;
-            padding: 50px;
-            color: #666;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .compact-title {
+            color: #333;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        
+        .compact-avatar {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 15px;
+            border: 3px solid #ddd;
+            border-radius: 50%;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        
+        .compact-avatar svg {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .compact-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        
+        .compact-sections {
+            padding: 20px;
+        }
+        
+        .section-tabs {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .section-tab {
+            padding: 12px 8px;
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s ease;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .section-tab.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .section-content {
+            display: none;
+        }
+        
+        .section-content.active {
+            display: block;
+        }
+        
+        .compact-color-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 30px);
+            gap: 8px;
+            margin-bottom: 15px;
+            justify-content: center;
+        }
+        
+        .compact-items-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+        
+        .compact-item {
+            width: 60px;
+            height: 60px;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            background: white;
+        }
+        
+        .compact-item:hover {
+            border-color: #667eea;
+            transform: scale(1.05);
+        }
+        
+        .compact-item.selected {
+            border-color: #667eea;
+            background: #f0f3ff;
+        }
+        
+        .compact-none {
+            background: #f0f0f0;
+            color: #999;
+            font-size: 10px;
+            text-align: center;
         }
         
         .auth-section {
@@ -329,6 +451,11 @@
                 const value = urlParams.get(`${category}Color`);
                 if (value) avatarState.colors[category] = `#${value}`;
             });
+        }
+
+        function isCompactMode() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('compact') === 'true';
         }
 
         function handleImageMode() {
@@ -516,12 +643,222 @@
             });
         }
 
-        function updateDisplay() {
-            const avatarDisplay = document.getElementById('avatar-display');
-            const urlDisplay = document.getElementById('url-display');
+        function buildCompactInterface() {
+            // Update background gradient
+            updateBackgroundGradient();
             
-            if (avatarDisplay) avatarDisplay.innerHTML = renderAvatar();
-            if (urlDisplay) urlDisplay.textContent = generateURL();
+            const sections = ['hair', 'eyes', 'brows', 'mouths', 'noses', 'tops', 'glasses', 'hats', 'skintone'];
+            
+            document.getElementById('app-content').innerHTML = `
+                <div class="compact-editor">
+                    <div class="compact-header">
+                        <div class="compact-title">Avatar Editor</div>
+                        <div class="compact-avatar" id="compact-avatar-display">
+                            ${renderAvatar()}
+                        </div>
+                        <div class="compact-buttons">
+                            <button class="btn btn-success" onclick="saveCompactAvatar()">💾 Save</button>
+                            <button class="btn btn-secondary" onclick="closeCompactEditor()">✕ Close</button>
+                        </div>
+                    </div>
+                    <div class="compact-sections">
+                        <div class="section-tabs">
+                            ${sections.map((section, index) => `
+                                <div class="section-tab ${index === 0 ? 'active' : ''}" onclick="switchCompactSection('${section}')">
+                                    ${getCompactIcon(section)} ${getCompactLabel(section)}
+                                </div>
+                            `).join('')}
+                        </div>
+                        ${sections.map((section, index) => `
+                            <div class="section-content ${index === 0 ? 'active' : ''}" id="section-${section}">
+                                ${buildCompactSection(section)}
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>`;
+        }
+
+        function updateBackgroundGradient() {
+            const bgColor = avatarState.colors.backgrounds;
+            if (bgColor && bgColor !== '#FFFFFF') {
+                const hex = bgColor.replace('#', '');
+                const r = parseInt(hex.substr(0, 2), 16);
+                const g = parseInt(hex.substr(2, 2), 16);
+                const b = parseInt(hex.substr(4, 2), 16);
+                
+                const lighterR = Math.min(255, r + 30);
+                const lighterG = Math.min(255, g + 30);
+                const lighterB = Math.min(255, b + 30);
+                
+                const darkerR = Math.max(0, r - 40);
+                const darkerG = Math.max(0, g - 40);
+                const darkerB = Math.max(0, b - 40);
+                
+                const baseColor = `rgb(${r}, ${g}, ${b})`;
+                const lighterColor = `rgb(${lighterR}, ${lighterG}, ${lighterB})`;
+                const darkerColor = `rgb(${darkerR}, ${darkerG}, ${darkerB})`;
+                
+                const gradient = `linear-gradient(135deg, ${lighterColor} 0%, ${baseColor} 50%, ${darkerColor} 100%)`;
+                document.documentElement.style.setProperty('--bg-gradient', gradient);
+            }
+        }
+
+        function getCompactIcon(section) {
+            const icons = {
+                hair: '💇', eyes: '👁️', brows: '🤨', mouths: '👄', 
+                noses: '👃', tops: '👔', glasses: '🤓', hats: '🎩', skintone: '👤'
+            };
+            return icons[section] || '🎨';
+        }
+
+        function getCompactLabel(section) {
+            const labels = {
+                hair: 'Hair', eyes: 'Eyes', brows: 'Brows', mouths: 'Mouth', 
+                noses: 'Nose', tops: 'Tops', glasses: 'Glasses', hats: 'Hats', skintone: 'Skin'
+            };
+            return labels[section] || section;
+        }
+
+        function buildCompactSection(section) {
+            if (section === 'skintone') {
+                // Special skin tone section
+                const skinTones = ['#FDBCB4', '#F4C2A1', '#E8B982', '#D1A374', '#C19A6B', '#A67C5A', '#8D5524', '#6B4423'];
+                return `
+                    <div class="compact-color-grid">
+                        ${skinTones.map(color => `
+                            <div class="color-option ${avatarState.colors.bases === color ? 'selected' : ''}" 
+                                 style="background-color: ${color}"
+                                 data-color="${color}"
+                                 onclick="updateCompactColor('bases', '${color}')"></div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+            
+            const items = manifest[section] ? manifest[section].filter(item => !item.includes('overlay')) : [];
+            const currentColor = avatarState.colors[section];
+            
+            return `
+                <div class="compact-color-grid">
+                    ${colorPalette.slice(0, 18).map(color => `
+                        <div class="color-option ${currentColor === color ? 'selected' : ''}" 
+                             style="background-color: ${color}"
+                             data-color="${color}"
+                             onclick="updateCompactColor('${section}', '${color}')"></div>
+                    `).join('')}
+                </div>
+                <div class="compact-items-grid">
+                    <div class="compact-item compact-none ${avatarState.selectedParts[section] === '' ? 'selected' : ''}" 
+                         onclick="selectCompactItem('${section}', '')">None</div>
+                    ${items.slice(0, 15).map(item => `
+                        <div class="compact-item ${avatarState.selectedParts[section] === item ? 'selected' : ''}" 
+                             onclick="selectCompactItem('${section}', '${item}')">
+                            ${generateCompactPreview(section, item, currentColor)}
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function generateCompactPreview(category, item, color) {
+            return `
+                <svg width="50" height="50" viewBox="0 0 50 50">
+                    <defs>
+                        <filter id="cfilter_${category}_${item.replace(/[^a-zA-Z0-9]/g, '_')}">
+                            <feComponentTransfer in="SourceGraphic" result="greenMask">
+                                <feFuncG type="discrete" tableValues="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1"/>
+                            </feComponentTransfer>
+                            <feFlood flood-color="${color}" result="replacementColor"/>
+                            <feComposite in="replacementColor" in2="greenMask" operator="in" result="coloredGreens"/>
+                            <feComposite in="SourceGraphic" in2="greenMask" operator="out" result="nonGreenAreas"/>
+                            <feComposite in="nonGreenAreas" in2="coloredGreens" operator="over"/>
+                        </filter>
+                    </defs>
+                    <image href="https://polor.org/Avatars/characters/${category}/${item}" 
+                           x="0" y="0" width="50" height="50" 
+                           filter="url(#cfilter_${category}_${item.replace(/[^a-zA-Z0-9]/g, '_')})"/>
+                </svg>`;
+        }
+
+        function switchCompactSection(section) {
+            // Update tabs
+            document.querySelectorAll('.section-tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelector(`[onclick="switchCompactSection('${section}')"]`).classList.add('active');
+            
+            // Update content
+            document.querySelectorAll('.section-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(`section-${section}`).classList.add('active');
+        }
+
+        function selectCompactItem(category, item) {
+            avatarState.selectedParts[category] = item;
+            updateCompactDisplay();
+            
+            // Update selection in current section
+            const currentSection = document.querySelector('.section-content.active');
+            currentSection.querySelectorAll('.compact-item').forEach(el => el.classList.remove('selected'));
+            currentSection.querySelector(`[onclick="selectCompactItem('${category}', '${item}')"]`).classList.add('selected');
+        }
+
+        function updateCompactColor(category, color) {
+            avatarState.colors[category] = color;
+            updateCompactDisplay();
+            updateBackgroundGradient();
+            
+            // Update selection in current section
+            const currentSection = document.querySelector('.section-content.active');
+            currentSection.querySelectorAll('.color-option').forEach(el => el.classList.remove('selected'));
+            currentSection.querySelector(`[data-color="${color}"]`).classList.add('selected');
+        }
+
+        function updateCompactDisplay() {
+            const avatarDisplay = document.getElementById('compact-avatar-display');
+            if (avatarDisplay) {
+                avatarDisplay.innerHTML = renderAvatar();
+            }
+        }
+
+        async function saveCompactAvatar() {
+            if (!currentUser || !firestore) {
+                alert('Please sign in first!');
+                return;
+            }
+
+            try {
+                const avatarIMG = await convertToWebP();
+                if (!avatarIMG) throw new Error('Failed to generate image');
+
+                const avatarURL = generateURL();
+                
+                await firestore.collection('users').doc(currentUser.uid).update({
+                    avatarURL: avatarURL,
+                    avatarIMG: avatarIMG,
+                    lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                alert('✅ Avatar saved successfully!');
+                
+                // Check if they came from homepage and redirect back
+                const urlParams = new URLSearchParams(window.location.search);
+                if (urlParams.get('ref') === 'home') {
+                    window.location.href = 'https://polor.org/home';
+                }
+                
+            } catch (error) {
+                console.error('Save failed:', error);
+                alert('❌ Save failed: ' + error.message);
+            }
+        }
+
+        function closeCompactEditor() {
+            if (confirm('Do you want to save your changes before leaving?')) {
+                saveCompactAvatar();
+            } else {
+                const urlParams = new URLSearchParams(window.location.search);
+                if (urlParams.get('ref') === 'home') {
+                    window.location.href = 'https://polor.org/home';
+                }
+            }
         }
 
         function generateURL() {
@@ -759,7 +1096,22 @@
             }
         }
 
+        function updateDisplay() {
+            if (isCompactMode()) {
+                updateCompactDisplay();
+            } else {
+                const avatarDisplay = document.getElementById('avatar-display');
+                const urlDisplay = document.getElementById('url-display');
+                
+                if (avatarDisplay) avatarDisplay.innerHTML = renderAvatar();
+                if (urlDisplay) urlDisplay.textContent = generateURL();
+            }
+        }
+
         function updateAuthUI() {
+            // Skip auth UI in compact mode
+            if (isCompactMode()) return;
+            
             const authSection = document.getElementById('auth-section');
             const saveBtn = document.getElementById('save-btn');
             
