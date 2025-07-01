@@ -658,18 +658,27 @@
                     const g = parseInt(color.slice(3,5), 16);
                     const b = parseInt(color.slice(5,7), 16);
                     
-                    // Replace green pixels (where G > 200)
+                    // Replace ONLY bright green pixels (like #00FF00)
                     for (let i = 0; i < data.length; i += 4) {
                         const red = data[i];
                         const green = data[i + 1];
                         const blue = data[i + 2];
+                        const alpha = data[i + 3];
                         
-                        // Check if this is a green pixel we want to replace
-                        if (green > 200 && green > red && green > blue) {
-                            data[i] = r;     // Red
-                            data[i + 1] = g; // Green
-                            data[i + 2] = b; // Blue
-                            // Alpha stays the same
+                        // Skip transparent/semi-transparent pixels
+                        if (alpha < 200) continue;
+                        
+                        // Check if this is a bright green pixel we want to replace
+                        // Must be: Green > 200, Green significantly higher than Red and Blue
+                        if (green > 200 && green > (red + 50) && green > (blue + 50)) {
+                            // Additional check: make sure it's actually greenish, not just bright
+                            const greenDominance = green - Math.max(red, blue);
+                            if (greenDominance > 80) {
+                                data[i] = r;     // Red
+                                data[i + 1] = g; // Green
+                                data[i + 2] = b; // Blue
+                                // Alpha stays the same
+                            }
                         }
                     }
                     
@@ -734,6 +743,13 @@
                 });
 
                 alert('✅ Avatar saved successfully!');
+                
+                // Check if they came from homepage and redirect back
+                const urlParams = new URLSearchParams(window.location.search);
+                if (urlParams.get('ref') === 'home') {
+                    window.location.href = 'home.html';
+                }
+                
             } catch (error) {
                 console.error('Save failed:', error);
                 alert('❌ Save failed: ' + error.message);
