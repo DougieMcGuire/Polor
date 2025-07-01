@@ -80,6 +80,7 @@
             align-items: center;
             justify-content: center;
             overflow: hidden;
+            margin: 0 auto;
         }
         
         .avatar-display svg {
@@ -359,16 +360,16 @@
         ];
 
         const sections = [
-            { id: 'hair', name: 'Hair', icon: '💇‍♀️' },
-            { id: 'skintone', name: 'Skin', icon: '👤' },
-            { id: 'eyes', name: 'Eyes', icon: '👁️' },
-            { id: 'brows', name: 'Brows', icon: '🤨' },
-            { id: 'mouths', name: 'Mouth', icon: '👄' },
-            { id: 'noses', name: 'Nose', icon: '👃' },
-            { id: 'tops', name: 'Clothes', icon: '👔' },
-            { id: 'glasses', name: 'Glasses', icon: '🤓' },
-            { id: 'hats', name: 'Hats', icon: '🎩' },
-            { id: 'background', name: 'Background', icon: '🎨' }
+            { id: 'hair', name: 'Hair', icon: 'HAIR_ICON_URL' },
+            { id: 'skintone', name: 'Skin', icon: 'SKIN_ICON_URL' },
+            { id: 'eyes', name: 'Eyes', icon: 'EYES_ICON_URL' },
+            { id: 'brows', name: 'Brows', icon: 'BROWS_ICON_URL' },
+            { id: 'mouths', name: 'Mouth', icon: 'MOUTH_ICON_URL' },
+            { id: 'noses', name: 'Nose', icon: 'NOSE_ICON_URL' },
+            { id: 'tops', name: 'Clothes', icon: 'CLOTHES_ICON_URL' },
+            { id: 'glasses', name: 'Glasses', icon: 'GLASSES_ICON_URL' },
+            { id: 'hats', name: 'Hats', icon: 'HATS_ICON_URL' },
+            { id: 'background', name: 'Background', icon: 'BACKGROUND_ICON_URL' }
         ];
 
         async function initialize() {
@@ -409,16 +410,16 @@
                     <div class="top-section">
                         <button class="save-btn" onclick="saveAvatar()" id="save-btn">💾 Save</button>
                         
-                        <div class="avatar-preview">
-                            <div class="avatar-display" id="avatar-display">
-                                ${renderAvatar()}
-                            </div>
-                        </div>
-                        
-                        <div class="color-picker-section">
+                        <div class="color-picker-section" id="color-picker-section">
                             <div class="color-label" id="color-label">Hair Color</div>
                             <div class="color-stack" id="color-stack">
                                 ${buildColorStack()}
+                            </div>
+                        </div>
+                        
+                        <div class="avatar-preview">
+                            <div class="avatar-display" id="avatar-display">
+                                ${renderAvatar()}
                             </div>
                         </div>
                     </div>
@@ -444,7 +445,7 @@
             return sections.map(section => `
                 <div class="section-card ${section.id === currentSection ? 'active' : ''}" 
                      onclick="switchSection('${section.id}')">
-                    <span class="section-icon">${section.icon}</span>
+                    <img src="${section.icon}" alt="${section.name}" class="section-icon" style="width: 32px; height: 32px; object-fit: contain;">
                     <div class="section-name">${section.name}</div>
                 </div>
             `).join('');
@@ -461,7 +462,12 @@
 
         function buildItemsGrid(section) {
             if (section === 'skintone') {
-                const skinTones = ['#FDBCB4', '#F4C2A1', '#E8B982', '#D1A374', '#C19A6B', '#A67C5A', '#8D5524', '#6B4423'];
+                const skinTones = [
+                    '#FDBCB4', '#F4C2A1', '#E8B982', '#D1A374', '#C19A6B', '#A67C5A', '#8D5524', '#6B4423',
+                    '#FFE0D6', '#F2D2BD', '#E6C7A3', '#D4B894', '#C2A882', '#A89970', '#8F7A5E', '#76654C',
+                    '#FFF8F5', '#F7E6D3', '#EDD4B1', '#E1C28F', '#D5B06D', '#C99E4B', '#BD8C29', '#B17A07',
+                    '#FFEEE6', '#F5D5C4', '#EBCCA2', '#E1B380', '#D79A5E', '#CD813C', '#C3681A', '#B94F00'
+                ];
                 const currentSelection = avatarState.colors.bases;
                 
                 return skinTones.map(color => `
@@ -473,7 +479,13 @@
             }
             
             if (section === 'background') {
-                const bgColors = ['#667eea', '#FF9A9E', '#FFB3BA', '#FFDFBA', '#FFFFBA', '#BAFFC9', '#BAE1FF', '#C9BAFF', '#FFBAF3', '#FFC9BA'];
+                const bgColors = [
+                    '#667eea', '#764ba2', '#FF9A9E', '#FECFEF', '#FECDA3', '#96E6A1', '#89CDF1', '#A8DADC',
+                    '#F1C0E8', '#CFBAF0', '#FFB3BA', '#FFDFBA', '#FFFFBA', '#BAFFC9', '#BAE1FF', '#C9BAFF',
+                    '#FFBAF3', '#FFC9BA', '#FF7F7F', '#FFA07A', '#FFDAB9', '#F5DEB3', '#90EE90', '#87CEEB',
+                    '#DDA0DD', '#FFB6C1', '#FF69B4', '#FF1493', '#DC143C', '#B22222', '#8B0000', '#654321',
+                    '#2F4F4F', '#556B2F', '#800000', '#008000', '#000080', '#4B0082', '#800080', '#008080'
+                ];
                 const currentSelection = avatarState.colors.backgrounds;
                 
                 return bgColors.map(color => `
@@ -586,9 +598,17 @@
             itemsHeader.textContent = `${sectionName} Options`;
             itemsGrid.innerHTML = buildItemsGrid(sectionId);
             
-            // Update color picker
-            updateColorLabel();
-            updateColorStack();
+            // Show/hide color picker based on section
+            const colorPickerSection = document.getElementById('color-picker-section');
+            const hiddenSections = ['noses', 'brows', 'background', 'skintone'];
+            
+            if (hiddenSections.includes(sectionId)) {
+                colorPickerSection.style.display = 'none';
+            } else {
+                colorPickerSection.style.display = 'flex';
+                updateColorLabel();
+                updateColorStack();
+            }
         }
 
         function getCurrentSectionColor() {
@@ -792,6 +812,11 @@
                 });
 
                 alert('✅ Avatar saved successfully!');
+                
+                // Send message to parent window to close iframe
+                if (window.parent !== window) {
+                    window.parent.postMessage('avatarSaved', '*');
+                }
                 
                 const urlParams = new URLSearchParams(window.location.search);
                 if (urlParams.get('ref') === 'home') {
