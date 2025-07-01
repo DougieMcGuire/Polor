@@ -407,7 +407,7 @@
                             <p>Default Avatar</p>
                         </div>
                     </div>
-                    <a href="editor.html" class="btn btn-primary">Customize Avatar</a>
+                    <a href="https://polor.org/Avatars/" class="btn btn-primary">Customize Avatar</a>
                 </div>
                 
                 <!-- Embed Section -->
@@ -455,7 +455,7 @@
                 
                 <h2 style="margin-top: 30px;">⚡ Quick Actions</h2>
                 <div class="quick-actions">
-                    <a href="editor.html" class="action-item">
+                    <a href="https://polor.org/Avatars/" class="action-item">
                         <div class="action-icon">🎨</div>
                         <div class="action-content">
                             <h3>Edit Avatar</h3>
@@ -501,8 +501,12 @@
         const firebaseConfig = {
             apiKey: "AIzaSyA8HcTDiCQtJHRiMES2p1iUlA30AkZPx1Y",
             authDomain: "polor-62c29.firebaseapp.com",
+            databaseURL: "https://polor-62c29-default-rtdb.firebaseio.com",
             projectId: "polor-62c29",
-            appId: "1:232986823513:web:a6ee6bef6b0609ace3da48"
+            storageBucket: "polor-62c29.firebasestorage.app",
+            messagingSenderId: "232986823513",
+            appId: "1:232986823513:web:a6ee6bef6b0609ace3da48",
+            measurementId: "G-KRT42D5TQK"
         };
 
         // Initialize Firebase
@@ -682,7 +686,7 @@
         // Randomize avatar
         function randomizeAvatar() {
             // Redirect to editor with random parameter
-            window.location.href = 'editor.html?random=true';
+            window.location.href = 'https://polor.org/Avatars/?random=true';
         }
 
         // Download avatar
