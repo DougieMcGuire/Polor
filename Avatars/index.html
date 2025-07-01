@@ -592,39 +592,122 @@
         }
 
         async function convertToPNG() {
-            const svgElement = document.querySelector('#avatar-display svg');
-            if (!svgElement) return null;
+            const { selectedParts, colors } = avatarState;
             
-            return new Promise((resolve) => {
+            return new Promise(async (resolve) => {
                 const canvas = document.createElement('canvas');
                 canvas.width = 200;
                 canvas.height = 200;
                 const ctx = canvas.getContext('2d');
                 
-                // Create a white background first
+                // Create white background
                 ctx.fillStyle = 'white';
                 ctx.fillRect(0, 0, 200, 200);
                 
-                const svgData = new XMLSerializer().serializeToString(svgElement);
-                const svgBlob = new Blob([svgData], {type: 'image/svg+xml;charset=utf-8'});
-                const svgUrl = URL.createObjectURL(svgBlob);
+                // Define layer order
+                const layerOrder = [
+                    'backgrounds', 'bases', 'neck', 'hair', 'eyes', 'brows', 
+                    'noses', 'mouths', 'tops', 'glasses', 'hats'
+                ];
                 
-                const img = new Image();
-                img.crossOrigin = 'anonymous';
-                img.onload = () => {
-                    ctx.drawImage(img, 0, 0, 200, 200);
-                    URL.revokeObjectURL(svgUrl);
+                try {
+                    // Process each layer in order
+                    for (const layerName of layerOrder) {
+                        const selectedItem = selectedParts[layerName];
+                        if (!selectedItem) continue;
+                        
+                        // Load and draw main item with color filter
+                        await drawLayerWithColor(ctx, layerName, selectedItem, colors[layerName]);
+                        
+                        // Load and draw overlay (no color filter)
+                        await drawOverlay(ctx, layerName, selectedItem);
+                    }
                     
-                    // Convert to PNG base64
+                    // Convert final canvas to PNG
                     const pngData = canvas.toDataURL('image/png');
                     resolve(pngData);
-                };
-                img.onerror = () => {
-                    URL.revokeObjectURL(svgUrl);
-                    console.error('Failed to load SVG image');
+                    
+                } catch (error) {
+                    console.error('Failed to bake avatar:', error);
                     resolve(null);
+                }
+            });
+        }
+        
+        async function drawLayerWithColor(ctx, category, item, color) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.crossOrigin = 'anonymous';
+                
+                img.onload = () => {
+                    // Create temporary canvas for color filtering
+                    const tempCanvas = document.createElement('canvas');
+                    tempCanvas.width = 200;
+                    tempCanvas.height = 200;
+                    const tempCtx = tempCanvas.getContext('2d');
+                    
+                    // Draw original image
+                    tempCtx.drawImage(img, 0, 0, 200, 200);
+                    
+                    // Apply color filtering to green pixels
+                    const imageData = tempCtx.getImageData(0, 0, 200, 200);
+                    const data = imageData.data;
+                    
+                    // Convert hex color to RGB
+                    const r = parseInt(color.slice(1,3), 16);
+                    const g = parseInt(color.slice(3,5), 16);
+                    const b = parseInt(color.slice(5,7), 16);
+                    
+                    // Replace green pixels (where G > 200)
+                    for (let i = 0; i < data.length; i += 4) {
+                        const red = data[i];
+                        const green = data[i + 1];
+                        const blue = data[i + 2];
+                        
+                        // Check if this is a green pixel we want to replace
+                        if (green > 200 && green > red && green > blue) {
+                            data[i] = r;     // Red
+                            data[i + 1] = g; // Green
+                            data[i + 2] = b; // Blue
+                            // Alpha stays the same
+                        }
+                    }
+                    
+                    // Put the modified image data back
+                    tempCtx.putImageData(imageData, 0, 0);
+                    
+                    // Draw the colored result onto main canvas
+                    ctx.drawImage(tempCanvas, 0, 0);
+                    resolve();
                 };
-                img.src = svgUrl;
+                
+                img.onerror = () => {
+                    console.log(`Failed to load ${category}/${item}, skipping...`);
+                    resolve();
+                };
+                
+                img.src = `https://polor.org/Avatars/characters/${category}/${item}`;
+            });
+        }
+        
+        async function drawOverlay(ctx, category, item) {
+            return new Promise((resolve) => {
+                const overlayFile = item.replace('.png', 'overlay.png');
+                const img = new Image();
+                img.crossOrigin = 'anonymous';
+                
+                img.onload = () => {
+                    // Draw overlay without any color filtering
+                    ctx.drawImage(img, 0, 0, 200, 200);
+                    resolve();
+                };
+                
+                img.onerror = () => {
+                    // Overlay doesn't exist, that's fine
+                    resolve();
+                };
+                
+                img.src = `https://polor.org/Avatars/characters/${category}/${overlayFile}`;
             });
         }
 
