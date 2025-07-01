@@ -449,7 +449,7 @@
                 
                 console.log('🏷️ Final username:', finalUsername);
                 
-                // Generate base64 avatar image
+                // Generate base64 avatar image from default.png
                 console.log('🎨 Generating default avatar as base64...');
                 const avatarBase64 = await generateDefaultAvatarBase64();
                 
@@ -459,7 +459,7 @@
                     username: finalUsername,
                     displayName: user.displayName || finalUsername,
                     avatarURL: DEFAULT_AVATAR_URL,
-                    avatarIMG: avatarBase64, // Save as base64 instead of URL
+                    avatarIMG: avatarBase64, // Save default.png as base64
                     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                     lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
                     isActive: true
@@ -492,10 +492,7 @@
                 canvas.height = 200;
                 const ctx = canvas.getContext('2d');
                 
-                // Create the avatar URL with image parameter
-                const imageUrl = DEFAULT_AVATAR_URL + '&I=1';
-                
-                // Load the avatar image
+                // Load the default.png image directly
                 const img = new Image();
                 img.crossOrigin = 'anonymous';
                 
@@ -505,39 +502,26 @@
                     
                     // Convert to base64 WebP format
                     const base64 = canvas.toDataURL('image/webp', 0.8);
-                    console.log('✅ Generated base64 avatar');
+                    console.log('✅ Generated base64 avatar from default.png');
                     resolve(base64);
                 };
                 
                 img.onerror = () => {
-                    console.log('❌ Failed to load avatar image, using fallback');
-                    // Use fallback image
-                    const fallbackImg = new Image();
-                    fallbackImg.crossOrigin = 'anonymous';
-                    
-                    fallbackImg.onload = () => {
-                        ctx.drawImage(fallbackImg, 0, 0, 200, 200);
-                        const base64 = canvas.toDataURL('image/webp', 0.8);
-                        resolve(base64);
-                    };
-                    
-                    fallbackImg.onerror = () => {
-                        console.log('❌ Fallback image also failed, using placeholder');
-                        // Final fallback - simple gray circle
-                        ctx.fillStyle = '#808080';
-                        ctx.fillRect(0, 0, 200, 200);
-                        ctx.fillStyle = '#FFF8F5';
-                        ctx.beginPath();
-                        ctx.arc(100, 100, 80, 0, 2 * Math.PI);
-                        ctx.fill();
-                        const base64 = canvas.toDataURL('image/webp', 0.8);
-                        resolve(base64);
-                    };
-                    
-                    fallbackImg.src = 'https://polor.org/Avatars/default.png';
+                    console.log('❌ Failed to load default.png, using simple placeholder');
+                    // Final fallback - simple gray circle
+                    ctx.fillStyle = '#808080';
+                    ctx.fillRect(0, 0, 200, 200);
+                    ctx.fillStyle = '#FFF8F5';
+                    ctx.beginPath();
+                    ctx.arc(100, 100, 80, 0, 2 * Math.PI);
+                    ctx.fill();
+                    const base64 = canvas.toDataURL('image/webp', 0.8);
+                    console.log('✅ Generated fallback placeholder');
+                    resolve(base64);
                 };
                 
-                img.src = imageUrl;
+                // Load default.png directly
+                img.src = 'https://polor.org/Avatars/default.png';
             });
         }
 
