@@ -58,6 +58,13 @@
             font-weight: 600;
         }
         
+        .user-handle {
+            color: #667eea;
+            font-size: 1.1rem;
+            font-weight: 500;
+            margin-bottom: 15px;
+        }
+        
         .ask-subtitle {
             color: #666;
             font-size: 1rem;
@@ -344,8 +351,9 @@
             <div class="user-avatar" id="user-avatar">
                 <img src="https://polor.org/Avatars/default.png" alt="User Avatar">
             </div>
-            <h1 class="ask-title">Ask <span id="user-name">User</span> anything...</h1>
-            <p class="ask-subtitle">Send an anonymous question</p>
+            <div class="user-handle" id="user-handle">@username</div>
+            <h1 class="ask-title" id="ask-title">Ask <span id="user-name">User</span> anything...</h1>
+            <p class="ask-subtitle" id="ask-subtitle">Send an anonymous question</p>
         </div>
         
         <!-- Question Input -->
@@ -364,7 +372,7 @@
                 </div>
                 <span class="toggle-text" id="toggle-text">Send anonymously</span>
             </div>
-            <div class="toggle-switch" id="anonymous-toggle" onclick="toggleAnonymous()">
+            <div class="toggle-switch active" id="anonymous-toggle" onclick="toggleAnonymous()">
                 <div class="toggle-slider"></div>
             </div>
         </div>
@@ -419,12 +427,25 @@
         const firestore = firebase.firestore();
 
         let currentUser = null;
+        let currentUserProfile = null;
         let targetUser = null;
-        let isAnonymous = true;
+        let isAnonymous = true; // Default to anonymous ON
+        let hasPrefilledQuestion = false; // Track if Q query is used
 
         // Auth state listener
-        auth.onAuthStateChanged((user) => {
+        auth.onAuthStateChanged(async (user) => {
             currentUser = user;
+            if (user) {
+                // Load current user's profile to get avatarIMG
+                try {
+                    const userDoc = await firestore.collection('users').doc(user.uid).get();
+                    if (userDoc.exists) {
+                        currentUserProfile = userDoc.data();
+                    }
+                } catch (error) {
+                    console.error('Error loading user profile:', error);
+                }
+            }
             updateToggleState();
         });
 
@@ -483,14 +504,23 @@
             const prefilledQuestion = urlParams.get('q');
             
             if (prefilledQuestion) {
+                hasPrefilledQuestion = true;
                 document.getElementById('question-input').value = decodeURIComponent(prefilledQuestion);
+                
+                // Update the title to show the question instead of "Ask [name] anything..."
+                document.getElementById('ask-title').textContent = decodeURIComponent(prefilledQuestion);
             }
         }
 
         // Update user interface with target user info
         function updateUserInterface() {
-            // Update user name
-            document.getElementById('user-name').textContent = targetUser.displayName || targetUser.username;
+            // Update user name (only if no prefilled question)
+            if (!hasPrefilledQuestion) {
+                document.getElementById('ask-title').textContent = `Ask ${targetUser.displayName || targetUser.username} anything...`;
+            }
+            
+            // Update user handle
+            document.getElementById('user-handle').textContent = `@${targetUser.username}`;
             
             // Update user avatar
             const avatarImg = document.querySelector('#user-avatar img');
@@ -502,6 +532,9 @@
             
             // Update background gradient
             updateBackgroundGradient();
+            
+            // Update subtitle based on anonymous mode
+            updateSubtitle();
         }
 
         // Update background gradient based on user's avatar
@@ -536,13 +569,16 @@
 
         // Toggle anonymous mode
         function toggleAnonymous() {
-            if (!currentUser && !isAnonymous) {
+            isAnonymous = !isAnonymous;
+            
+            if (!isAnonymous && !currentUser) {
                 // User wants to go non-anonymous but isn't logged in
                 document.getElementById('login-prompt').style.display = 'block';
-                return;
+                isAnonymous = true; // Reset to anonymous
+            } else {
+                document.getElementById('login-prompt').style.display = 'none';
             }
             
-            isAnonymous = !isAnonymous;
             updateToggleState();
         }
 
@@ -553,25 +589,57 @@
             const toggleAvatar = document.querySelector('#toggle-avatar img');
             const loginPrompt = document.getElementById('login-prompt');
             
-            loginPrompt.style.display = 'none';
-            
             if (isAnonymous) {
-                toggle.classList.remove('active');
+                // Anonymous mode ON (toggle active)
+                toggle.classList.add('active');
                 toggleText.textContent = 'Send anonymously';
                 toggleAvatar.src = 'https://polor.org/Avatars/anonymous.png';
+                loginPrompt.style.display = 'none';
             } else {
-                if (currentUser) {
-                    toggle.classList.add('active');
+                // Non-anonymous mode ON (toggle inactive)
+                if (currentUser && currentUserProfile) {
+                    toggle.classList.remove('active');
                     toggleText.textContent = 'Send as yourself';
-                    // Use current user's avatar
-                    toggleAvatar.src = currentUser.photoURL || 'https://polor.org/Avatars/default.png';
+                    // Use current user's avatarIMG (base64 webp)
+                    if (currentUserProfile.avatarIMG) {
+                        toggleAvatar.src = currentUserProfile.avatarIMG;
+                    } else if (currentUserProfile.avatarURL) {
+                        toggleAvatar.src = currentUserProfile.avatarURL + '&I=1';
+                    } else {
+                        toggleAvatar.src = 'https://polor.org/Avatars/default.png';
+                    }
+                    loginPrompt.style.display = 'none';
                 } else {
                     // Reset to anonymous if not logged in
                     isAnonymous = true;
-                    toggle.classList.remove('active');
+                    toggle.classList.add('active');
                     toggleText.textContent = 'Send anonymously';
                     toggleAvatar.src = 'https://polor.org/Avatars/anonymous.png';
                     loginPrompt.style.display = 'block';
+                }
+            }
+            
+            // Update subtitle based on mode
+            updateSubtitle();
+        }
+        
+        // Update subtitle based on anonymous mode
+        function updateSubtitle() {
+            const subtitle = document.getElementById('ask-subtitle');
+            
+            if (hasPrefilledQuestion) {
+                // When Q query is used, change wording to "response"
+                if (isAnonymous) {
+                    subtitle.textContent = 'Send an anonymous response';
+                } else {
+                    subtitle.textContent = 'Send a response';
+                }
+            } else {
+                // Normal mode uses "question"
+                if (isAnonymous) {
+                    subtitle.textContent = 'Send an anonymous question';
+                } else {
+                    subtitle.textContent = 'Send a message';
                 }
             }
         }
