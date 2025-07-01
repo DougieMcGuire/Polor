@@ -77,7 +77,7 @@
             right: 20px;
             width: 40px;
             height: 40px;
-            border: none;
+            border: 2px solid #e9ecef;
             background: #f8f9fa;
             border-radius: 50%;
             cursor: pointer;
@@ -91,6 +91,7 @@
         
         .settings-icon-btn:hover {
             background: #e9ecef;
+            border-color: #667eea;
             transform: scale(1.1);
         }
         
@@ -99,7 +100,7 @@
             height: 120px;
             border-radius: 50%;
             overflow: hidden;
-            border: 4px solid #667eea;
+            border: 4px solid var(--avatar-border-color, #667eea);
             position: relative;
             background: #f8f9fa;
             margin: 0 auto 20px;
@@ -342,9 +343,28 @@
             margin: 0 auto;
         }
         
-        .edit-avatar-btn:hover {
+        .signout-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e9ecef;
+            text-align: center;
+        }
+        
+        .signout-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 12px 24px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            width: 100%;
+        }
+        
+        .signout-btn:hover {
+            background: #c82333;
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
         }
         
         .settings-header {
@@ -439,12 +459,21 @@
         }
         
         @media (max-width: 768px) {
+            .header {
+                padding: 30px 20px;
+            }
+            
             .welcome-text h1 {
                 font-size: 2rem;
             }
             
             .username {
                 font-size: 1.2rem;
+            }
+            
+            .avatar-container {
+                width: 100px;
+                height: 100px;
             }
             
             .avatar-editor-container {
@@ -468,6 +497,57 @@
                 height: 35px;
                 font-size: 16px;
             }
+            
+            .inbox-section {
+                padding: 20px;
+            }
+            
+            .inbox-header {
+                font-size: 1.5rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .dashboard {
+                padding: 10px;
+            }
+            
+            .header {
+                padding: 25px 15px;
+            }
+            
+            .welcome-text h1 {
+                font-size: 1.7rem;
+            }
+            
+            .username {
+                font-size: 1.1rem;
+            }
+            
+            .avatar-container {
+                width: 90px;
+                height: 90px;
+                border-width: 3px;
+            }
+            
+            .settings-icon-btn {
+                width: 32px;
+                height: 32px;
+                font-size: 14px;
+            }
+            
+            .inbox-section {
+                padding: 15px;
+            }
+            
+            .settings-content {
+                padding: 25px;
+                width: 95%;
+            }
+            
+            .avatar-edit-section {
+                padding: 15px;
+            }
         }
     </style>
 </head>
@@ -488,7 +568,6 @@
             <button class="settings-icon-btn" onclick="openSettings()" title="Settings">⚙️</button>
             <div class="avatar-container" id="header-avatar" onclick="editAvatar()">
                 <div class="avatar-placeholder">🎨</div>
-                <div class="avatar-edit-overlay">✏️</div>
             </div>
             <div class="welcome-text">
                 <h1 id="welcome-message">Welcome to Polor!</h1>
@@ -555,6 +634,12 @@
                     💾 Save Changes
                 </button>
             </form>
+            
+            <div class="signout-section">
+                <button class="signout-btn" onclick="signOut()">
+                    🚪 Sign Out
+                </button>
+            </div>
         </div>
     </div>
 
@@ -646,28 +731,29 @@
             // Update avatar
             updateAvatarDisplay();
             
-            // Update background gradient based on avatar background color
+            // Update background gradient and avatar border based on avatar background color
             updateBackgroundGradient();
         }
 
-        // Update background gradient based on avatar background color
+        // Update background gradient and avatar border based on avatar background color
         function updateBackgroundGradient() {
             if (userProfile.avatarURL) {
                 const urlParams = new URLSearchParams(userProfile.avatarURL.split('?')[1]);
                 const bgColor = urlParams.get('backgroundsColor');
                 
                 if (bgColor) {
-                    // Convert hex to lighter version
+                    // Convert hex to RGB
                     const hex = bgColor.replace('#', '');
                     const r = parseInt(hex.substr(0, 2), 16);
                     const g = parseInt(hex.substr(2, 2), 16);
                     const b = parseInt(hex.substr(4, 2), 16);
                     
-                    // Create lighter version by reducing saturation
+                    // Create lighter version for background
                     const lighterR = Math.min(255, r + 30);
                     const lighterG = Math.min(255, g + 30);
                     const lighterB = Math.min(255, b + 30);
                     
+                    // Create darker version for avatar border and background gradient
                     const darkerR = Math.max(0, r - 40);
                     const darkerG = Math.max(0, g - 40);
                     const darkerB = Math.max(0, b - 40);
@@ -676,8 +762,12 @@
                     const lighterColor = `rgb(${lighterR}, ${lighterG}, ${lighterB})`;
                     const darkerColor = `rgb(${darkerR}, ${darkerG}, ${darkerB})`;
                     
+                    // Set background gradient
                     const gradient = `linear-gradient(135deg, ${lighterColor} 0%, ${baseColor} 50%, ${darkerColor} 100%)`;
                     document.documentElement.style.setProperty('--bg-gradient', gradient);
+                    
+                    // Set avatar border color to darker version
+                    document.documentElement.style.setProperty('--avatar-border-color', darkerColor);
                 }
             }
         }
@@ -694,13 +784,13 @@
             const settingsAvatar = document.getElementById('settings-avatar');
             
             if (userProfile.avatarIMG) {
-                headerAvatar.innerHTML = `<img src="${userProfile.avatarIMG}" alt="Avatar"><div class="avatar-edit-overlay">✏️</div>`;
+                headerAvatar.innerHTML = `<img src="${userProfile.avatarIMG}" alt="Avatar">`;
                 if (settingsAvatar) {
                     settingsAvatar.innerHTML = `<img src="${userProfile.avatarIMG}" alt="Avatar">`;
                 }
             } else if (userProfile.avatarURL) {
                 const imageUrl = userProfile.avatarURL + '&I=1';
-                headerAvatar.innerHTML = `<img src="${imageUrl}" alt="Avatar"><div class="avatar-edit-overlay">✏️</div>`;
+                headerAvatar.innerHTML = `<img src="${imageUrl}" alt="Avatar">`;
                 if (settingsAvatar) {
                     settingsAvatar.innerHTML = `<img src="${imageUrl}" alt="Avatar">`;
                 }
