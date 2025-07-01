@@ -5,361 +5,68 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Polor Avatar Editor</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: Arial, sans-serif;
-            background: var(--bg-gradient, linear-gradient(135deg, #667eea 0%, #764ba2 100%));
-            min-height: 100vh;
-            padding: 20px;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-        }
-        
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        
-        .header h1 {
-            color: #333;
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-        }
-        
-        .main-layout {
-            display: grid;
-            grid-template-columns: 1fr 350px;
-            gap: 30px;
-        }
-        
-        .customization-panel {
-            display: grid;
-            gap: 20px;
-        }
-        
-        .category-section {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 12px;
-            border: 2px solid #e9ecef;
-        }
-        
-        .category-title {
-            color: #333;
-            margin-bottom: 15px;
-            font-size: 1.1rem;
-            font-weight: bold;
-        }
-        
-        .color-grid {
-            display: grid;
-            grid-template-columns: repeat(8, 30px);
-            gap: 5px;
-            margin-bottom: 15px;
-        }
-        
-        .color-option {
-            width: 30px;
-            height: 30px;
-            border-radius: 6px;
-            cursor: pointer;
-            border: 2px solid transparent;
-            transition: all 0.2s ease;
-        }
-        
-        .color-option:hover {
-            transform: scale(1.1);
-            border-color: #666;
-        }
-        
-        .color-option.selected {
-            border-color: #333;
-            border-width: 3px;
-        }
-        
-        .items-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
-            gap: 10px;
-        }
-        
-        .item-option {
-            width: 60px;
-            height: 60px;
-            border: 2px solid transparent;
-            border-radius: 8px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s ease;
-            background: white;
-        }
-        
-        .item-option:hover {
-            border-color: #667eea;
-            transform: scale(1.05);
-        }
-        
-        .item-option.selected {
-            border-color: #667eea;
-            background: #f0f3ff;
-        }
-        
-        .none-option {
-            background: #f0f0f0;
-            color: #999;
-            font-size: 11px;
-            text-align: center;
-        }
-        
-        .avatar-preview {
-            background: #f8f9fa;
-            padding: 25px;
-            border-radius: 12px;
-            text-align: center;
-            border: 2px solid #e9ecef;
-            position: sticky;
-            top: 20px;
-        }
-        
-        .avatar-container {
-            width: 280px;
-            height: 280px;
-            margin: 0 auto 20px;
-            border: 3px solid #ddd;
-            border-radius: 12px;
-            background: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .avatar-container svg {
-            max-width: 100%;
-            max-height: 100%;
-        }
-        
-        .control-buttons {
-            display: grid;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-        
-        .btn {
-            padding: 12px 16px;
-            border: none;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        
-        .btn-primary {
-            background: #667eea;
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            background: #5a6fd8;
-        }
-        
-        .btn-secondary {
-            background: #6c757d;
-            color: white;
-        }
-        
-        .btn-secondary:hover {
-            background: #5a6268;
-        }
-        
-        .avatar-url {
-            background: #e9ecef;
-            padding: 10px;
-            border-radius: 6px;
-            font-family: monospace;
-            font-size: 11px;
-            word-break: break-all;
-            color: #495057;
-        }
-        
-        .compact-editor {
-            max-width: 400px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-        }
-        
-        .compact-header {
-            background: #f8f9fa;
-            padding: 20px;
-            text-align: center;
-            border-bottom: 2px solid #e9ecef;
-        }
-        
-        .compact-title {
-            color: #333;
-            font-size: 1.5rem;
-            font-weight: bold;
-            margin-bottom: 15px;
-        }
-        
-        .compact-avatar {
-            width: 120px;
-            height: 120px;
-            margin: 0 auto 15px;
-            border: 3px solid #ddd;
-            border-radius: 50%;
-            background: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-        }
-        
-        .compact-avatar svg {
-            width: 100%;
-            height: 100%;
-        }
-        
-        .compact-buttons {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-        }
-        
-        .compact-sections {
-            padding: 20px;
-        }
-        
-        .section-tabs {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        
-        .section-tab {
-            padding: 12px 8px;
-            background: #f8f9fa;
-            border: 2px solid #e9ecef;
-            border-radius: 8px;
-            cursor: pointer;
-            text-align: center;
-            transition: all 0.2s ease;
-            font-size: 12px;
-            font-weight: 600;
-        }
-        
-        .section-tab.active {
-            background: #667eea;
-            color: white;
-            border-color: #667eea;
-        }
-        
-        .section-content {
-            display: none;
-        }
-        
-        .section-content.active {
-            display: block;
-        }
-        
-        .compact-color-grid {
-            display: grid;
-            grid-template-columns: repeat(6, 30px);
-            gap: 8px;
-            margin-bottom: 15px;
-            justify-content: center;
-        }
-        
-        .compact-items-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 8px;
-        }
-        
-        .compact-item {
-            width: 60px;
-            height: 60px;
-            border: 2px solid transparent;
-            border-radius: 8px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s ease;
-            background: white;
-        }
-        
-        .compact-item:hover {
-            border-color: #667eea;
-            transform: scale(1.05);
-        }
-        
-        .compact-item.selected {
-            border-color: #667eea;
-            background: #f0f3ff;
-        }
-        
-        .compact-none {
-            background: #f0f0f0;
-            color: #999;
-            font-size: 10px;
-            text-align: center;
-        }
-        
-        .auth-section {
-            background: #fff3cd;
-            padding: 15px;
-            border-radius: 8px;
-            border: 1px solid #ffeaa7;
-            margin-bottom: 15px;
-            display: none;
-        }
-        
-        .btn-success {
-            background: #28a745;
-            color: white;
-        }
-        
-        .btn-success:hover {
-            background: #218838;
-        }
-        
-        .btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-        
-        .spinner {
-            display: inline-block;
-            width: 16px;
-            height: 16px;
-            border: 2px solid rgba(255,255,255,0.3);
-            border-top: 2px solid white;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: var(--bg-gradient, linear-gradient(135deg, #667eea 0%, #764ba2 100%)); min-height: 100vh; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 20px; padding: 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+        .header { text-align: center; margin-bottom: 30px; }
+        .header h1 { color: #333; font-size: 2.5rem; margin-bottom: 10px; }
+        .main-layout { display: grid; grid-template-columns: 1fr 350px; gap: 30px; }
+        .customization-panel { display: grid; gap: 20px; }
+        .category-section { background: #f8f9fa; padding: 20px; border-radius: 12px; border: 2px solid #e9ecef; }
+        .category-title { color: #333; margin-bottom: 15px; font-size: 1.1rem; font-weight: bold; }
+        .color-grid { display: grid; grid-template-columns: repeat(8, 30px); gap: 5px; margin-bottom: 15px; }
+        .color-option { width: 30px; height: 30px; border-radius: 6px; cursor: pointer; border: 2px solid transparent; transition: all 0.2s ease; }
+        .color-option:hover { transform: scale(1.1); border-color: #666; }
+        .color-option.selected { border-color: #333; border-width: 3px; }
+        .items-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap: 10px; }
+        .item-option { width: 60px; height: 60px; border: 2px solid transparent; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; background: white; }
+        .item-option:hover { border-color: #667eea; transform: scale(1.05); }
+        .item-option.selected { border-color: #667eea; background: #f0f3ff; }
+        .none-option { background: #f0f0f0; color: #999; font-size: 11px; text-align: center; }
+        .avatar-preview { background: #f8f9fa; padding: 25px; border-radius: 12px; text-align: center; border: 2px solid #e9ecef; position: sticky; top: 20px; }
+        .avatar-container { width: 280px; height: 280px; margin: 0 auto 20px; border: 3px solid #ddd; border-radius: 12px; background: white; display: flex; align-items: center; justify-content: center; }
+        .avatar-container svg { max-width: 100%; max-height: 100%; }
+        .control-buttons { display: grid; gap: 10px; margin-bottom: 15px; }
+        .btn { padding: 12px 16px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: all 0.2s ease; }
+        .btn-primary { background: #667eea; color: white; }
+        .btn-primary:hover { background: #5a6fd8; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .btn-secondary:hover { background: #5a6268; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-success:hover { background: #218838; }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .avatar-url { background: #e9ecef; padding: 10px; border-radius: 6px; font-family: monospace; font-size: 11px; word-break: break-all; color: #495057; }
+        .loading { text-align: center; padding: 50px; color: #666; }
+        .auth-section { background: #fff3cd; padding: 15px; border-radius: 8px; border: 1px solid #ffeaa7; margin-bottom: 15px; display: none; }
+        .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top: 2px solid white; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Compact Mode Styles */
+        .compact-editor { max-width: 400px; margin: 0 auto; background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+        .compact-header { background: #f8f9fa; padding: 20px; text-align: center; border-bottom: 2px solid #e9ecef; }
+        .compact-title { color: #333; font-size: 1.5rem; font-weight: bold; margin-bottom: 15px; }
+        .compact-avatar { width: 120px; height: 120px; margin: 0 auto 15px; border: 3px solid #ddd; border-radius: 50%; background: white; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .compact-avatar svg { width: 100%; height: 100%; }
+        .compact-buttons { display: flex; gap: 10px; justify-content: center; }
+        .compact-main { display: flex; height: 350px; }
+        .compact-sections { flex: 1; padding: 15px; overflow-y: auto; }
+        .compact-sidebar { width: 60px; background: #f8f9fa; border-left: 2px solid #e9ecef; padding: 10px 5px; display: flex; flex-direction: column; gap: 8px; }
+        .section-tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 15px; }
+        .section-tab { padding: 12px 8px; background: #f8f9fa; border: 2px solid #e9ecef; border-radius: 8px; cursor: pointer; text-align: center; transition: all 0.2s ease; font-size: 11px; font-weight: 600; }
+        .section-tab.active { background: #667eea; color: white; border-color: #667eea; }
+        .section-content { display: none; }
+        .section-content.active { display: block; }
+        .color-sidebar { display: flex; flex-direction: column; gap: 8px; }
+        .sidebar-color { width: 40px; height: 40px; border: 2px solid #e9ecef; border-radius: 8px; cursor: pointer; transition: all 0.2s ease; }
+        .sidebar-color:hover, .sidebar-color.selected { border-color: #667eea; transform: scale(1.1); }
+        .compact-items { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+        .compact-item { width: 60px; height: 60px; border: 2px solid transparent; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; background: white; }
+        .compact-item:hover { border-color: #667eea; transform: scale(1.05); }
+        .compact-item.selected { border-color: #667eea; background: #f0f3ff; }
+        .compact-none { background: #f0f0f0; color: #999; font-size: 10px; text-align: center; }
+        .color-only-section { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; padding: 20px; }
+        .color-only-option { width: 50px; height: 50px; border: 3px solid #e9ecef; border-radius: 12px; cursor: pointer; transition: all 0.2s ease; }
+        .color-only-option:hover, .color-only-option.selected { border-color: #667eea; transform: scale(1.1); }
     </style>
 </head>
 <body>
@@ -377,57 +84,23 @@
         </div>
     </div>
 
-    <!-- Firebase SDK (Optional) -->
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 
     <script>
-        // Firebase config
-        const firebaseConfig = {
-            apiKey: "AIzaSyA8HcTDiCQtJHRiMES2p1iUlA30AkZPx1Y",
-            authDomain: "polor-62c29.firebaseapp.com",
-            databaseURL: "https://polor-62c29-default-rtdb.firebaseio.com",
-            projectId: "polor-62c29",
-            storageBucket: "polor-62c29.firebasestorage.app",
-            messagingSenderId: "232986823513",
-            appId: "1:232986823513:web:a6ee6bef6b0609ace3da48",
-            measurementId: "G-KRT42D5TQK"
-        };
+        const firebaseConfig = { apiKey: "AIzaSyA8HcTDiCQtJHRiMES2p1iUlA30AkZPx1Y", authDomain: "polor-62c29.firebaseapp.com", databaseURL: "https://polor-62c29-default-rtdb.firebaseio.com", projectId: "polor-62c29", storageBucket: "polor-62c29.firebasestorage.app", messagingSenderId: "232986823513", appId: "1:232986823513:web:a6ee6bef6b0609ace3da48", measurementId: "G-KRT42D5TQK" };
 
-        // Initialize Firebase
         let auth = null, firestore = null, currentUser = null;
-        try {
-            firebase.initializeApp(firebaseConfig);
-            auth = firebase.auth();
-            firestore = firebase.firestore();
-            auth.onAuthStateChanged(user => {
-                currentUser = user;
-                updateAuthUI();
-            });
-        } catch (e) {}
+        try { firebase.initializeApp(firebaseConfig); auth = firebase.auth(); firestore = firebase.firestore(); auth.onAuthStateChanged(user => { currentUser = user; updateAuthUI(); }); } catch (e) {}
 
         let manifest = {};
-        let avatarState = {
-            selectedParts: {
-                backgrounds: '', bases: 'base.png', hair: '1.png', eyes: 'BasicMale.png', 
-                brows: 'Basic.png', mouths: 'Basic.png', noses: 'basic.png', neck: '',
-                tops: '113.png', glasses: '', hats: ''
-            },
-            colors: {
-                backgrounds: '#FFFFFF', bases: '#F4C2A1', hair: '#8B4513', eyes: '#000000',
-                brows: '#654321', mouths: '#000000', noses: '#FFA07A', neck: '#000000',
-                tops: '#FF0000', glasses: '#000000', hats: '#000000'
-            }
-        };
+        let avatarState = { selectedParts: { backgrounds: 'bg1.png', bases: 'base.png', hair: '1.png', eyes: 'BasicMale.png', brows: 'Basic.png', mouths: 'Basic.png', noses: 'basic.png', neck: '', tops: '113.png', glasses: '', hats: '' }, colors: { backgrounds: '#FFFFFF', bases: '#F4C2A1', hair: '#8B4513', eyes: '#000000', brows: '#654321', mouths: '#000000', noses: '#FFA07A', neck: '#000000', tops: '#FF0000', glasses: '#000000', hats: '#000000' } };
 
-        const colorPalette = [
-            '#FDBCB4', '#F4C2A1', '#E8B982', '#D1A374', '#C19A6B', '#A67C5A', '#8D5524', '#6B4423',
-            '#FFB3BA', '#FFDFBA', '#FFFFBA', '#BAFFC9', '#BAE1FF', '#C9BAFF', '#FFBAF3', '#FFC9BA',
-            '#FF9A9E', '#FECFEF', '#FECDA3', '#96E6A1', '#89CDF1', '#A8DADC', '#F1C0E8', '#CFBAF0',
-            '#FF7F7F', '#FFD1A9', '#FFFACD', '#98FB98', '#87CEEB', '#DDA0DD', '#FFB6C1', '#F0E68C',
-            '#FFA07A', '#FFDAB9', '#F5DEB3', '#90EE90', '#B0E0E6', '#D8BFD8', '#FFC0CB', '#F5F5DC'
-        ];
+        const colorPalette = ['#FDBCB4', '#F4C2A1', '#E8B982', '#D1A374', '#C19A6B', '#A67C5A', '#8D5524', '#6B4423', '#FFB3BA', '#FFDFBA', '#FFFFBA', '#BAFFC9', '#BAE1FF', '#C9BAFF', '#FFBAF3', '#FFC9BA', '#FF9A9E', '#FECFEF', '#FECDA3', '#96E6A1', '#89CDF1', '#A8DADC', '#F1C0E8', '#CFBAF0', '#FF7F7F', '#FFD1A9', '#FFFACD', '#98FB98', '#87CEEB', '#DDA0DD', '#FFB6C1', '#F0E68C', '#FFA07A', '#FFDAB9', '#F5DEB3', '#90EE90', '#B0E0E6', '#D8BFD8', '#FFC0CB', '#F5F5DC'];
+        const skinTones = ['#FDBCB4', '#F4C2A1', '#E8B982', '#D1A374', '#C19A6B', '#A67C5A', '#8D5524', '#6B4423'];
+        const backgroundColors = ['#FFB3BA', '#FFDFBA', '#FFFFBA', '#BAFFC9', '#BAE1FF', '#C9BAFF', '#FFBAF3', '#FFC9BA', '#FF9A9E', '#FECFEF', '#FECDA3', '#96E6A1'];
 
         async function initialize() {
             try {
@@ -453,31 +126,16 @@
             });
         }
 
-        function isCompactMode() {
-            const urlParams = new URLSearchParams(window.location.search);
-            return urlParams.get('compact') === 'true';
-        }
-
-        function handleImageMode() {
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.get('image') === 'true' || urlParams.get('I') === '1') {
-                showImageOnly();
-                return true;
-            }
-            return false;
-        }
+        function isCompactMode() { return new URLSearchParams(window.location.search).get('compact') === 'true'; }
+        function handleImageMode() { if (new URLSearchParams(window.location.search).get('image') === 'true' || new URLSearchParams(window.location.search).get('I') === '1') { showImageOnly(); return true; } return false; }
 
         async function showImageOnly() {
             const avatarSVG = renderAvatar();
             document.getElementById('app-content').innerHTML = `<div style="position: absolute; top: -9999px;">${avatarSVG}</div>`;
-            
             setTimeout(async () => {
                 const imageData = await convertToWebP();
                 if (imageData) {
-                    document.getElementById('app-content').innerHTML = `
-                        <div style="display: flex; justify-content: center; align-items: center; min-height: 100vh; background: transparent; margin: 0; padding: 0;">
-                            <img src="${imageData}" style="width: 200px; height: 200px; display: block;" alt="Avatar">
-                        </div>`;
+                    document.getElementById('app-content').innerHTML = `<div style="display: flex; justify-content: center; align-items: center; min-height: 100vh; background: transparent; margin: 0; padding: 0;"><img src="${imageData}" style="width: 200px; height: 200px; display: block;" alt="Avatar"></div>`;
                     document.body.style.background = 'transparent';
                     document.querySelector('.container').style.cssText = 'background: transparent; box-shadow: none; padding: 0;';
                     document.querySelector('.header').style.display = 'none';
@@ -485,365 +143,138 @@
             }, 100);
         }
 
-        function showError() {
-            document.getElementById('app-content').innerHTML = `
-                <div class="loading"><h3>❌ Loading Failed</h3><p>Could not fetch avatar assets</p></div>`;
-        }
+        function showError() { document.getElementById('app-content').innerHTML = `<div class="loading"><h3>❌ Loading Failed</h3><p>Could not fetch avatar assets</p></div>`; }
 
         function buildInterface() {
-            document.getElementById('app-content').innerHTML = `
-                <div id="auth-section" class="auth-section"></div>
-                <div class="main-layout">
-                    <div class="customization-panel">${buildCategories()}</div>
-                    <div class="avatar-preview">
-                        <div class="avatar-container" id="avatar-display">${renderAvatar()}</div>
-                        <div class="control-buttons">
-                            <button class="btn btn-primary" onclick="randomize()">🎲 Random</button>
-                            <button class="btn btn-secondary" onclick="copyURL()">📋 Copy URL</button>
-                            <button class="btn btn-success" onclick="saveAvatar()" id="save-btn" style="display: none;">💾 Save Avatar</button>
-                        </div>
-                        <div class="avatar-url" id="url-display">${generateURL()}</div>
-                    </div>
-                </div>`;
+            if (isCompactMode()) { buildCompactInterface(); return; }
+            document.getElementById('app-content').innerHTML = `<div id="auth-section" class="auth-section"></div><div class="main-layout"><div class="customization-panel">${buildCategories()}</div><div class="avatar-preview"><div class="avatar-container" id="avatar-display">${renderAvatar()}</div><div class="control-buttons"><button class="btn btn-primary" onclick="randomize()">🎲 Random</button><button class="btn btn-secondary" onclick="copyURL()">📋 Copy URL</button><button class="btn btn-success" onclick="saveAvatar()" id="save-btn" style="display: none;">💾 Save Avatar</button></div><div class="avatar-url" id="url-display">${generateURL()}</div></div></div>`;
             updateDisplay();
             updateAuthUI();
-        }
-
-        function buildCategories() {
-            return Object.keys(manifest).map(categoryName => {
-                const items = manifest[categoryName];
-                if (!items || items.length === 0) return '';
-                
-                const displayName = categoryName.charAt(0).toUpperCase() + categoryName.slice(1);
-                const selectableItems = items.filter(item => !item.includes('overlay'));
-                const currentColor = avatarState.colors[categoryName];
-                
-                return `
-                    <div class="category-section" data-category="${categoryName}">
-                        <div class="category-title">${getIcon(categoryName)} ${displayName}</div>
-                        <div class="color-grid">
-                            ${colorPalette.map(color => `
-                                <div class="color-option ${currentColor === color ? 'selected' : ''}" 
-                                     style="background-color: ${color}" data-color="${color}"
-                                     onclick="updateColor('${categoryName}', '${color}')"></div>
-                            `).join('')}
-                        </div>
-                        <div class="items-grid">
-                            <div class="item-option none-option ${avatarState.selectedParts[categoryName] === '' ? 'selected' : ''}" 
-                                 data-item="" onclick="selectItem('${categoryName}', '')">None</div>
-                            ${selectableItems.map(item => `
-                                <div class="item-option ${avatarState.selectedParts[categoryName] === item ? 'selected' : ''}" 
-                                     data-item="${item}" onclick="selectItem('${categoryName}', '${item}')">
-                                    ${generatePreview(categoryName, item, currentColor)}
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>`;
-            }).join('');
-        }
-
-        function generatePreview(category, item, color) {
-            const svgId = `preview_${category}_${item.replace(/[^a-zA-Z0-9]/g, '_')}`;
-            const overlayFile = item.replace('.png', 'overlay.png');
-            
-            return `
-                <svg width="50" height="50" viewBox="0 0 50 50">
-                    <defs>
-                        <filter id="filter_${svgId}">
-                            <feComponentTransfer in="SourceGraphic" result="greenMask">
-                                <feFuncG type="discrete" tableValues="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1"/>
-                            </feComponentTransfer>
-                            <feFlood flood-color="${color}" result="replacementColor"/>
-                            <feComposite in="replacementColor" in2="greenMask" operator="in" result="coloredGreens"/>
-                            <feComposite in="SourceGraphic" in2="greenMask" operator="out" result="nonGreenAreas"/>
-                            <feComposite in="nonGreenAreas" in2="coloredGreens" operator="over"/>
-                        </filter>
-                    </defs>
-                    <image href="https://polor.org/Avatars/characters/${category}/${item}" 
-                           x="0" y="0" width="50" height="50" filter="url(#filter_${svgId})"/>
-                    <image href="https://polor.org/Avatars/characters/${category}/${overlayFile}" 
-                           x="0" y="0" width="50" height="50"/>
-                </svg>`;
-        }
-
-        function renderAvatar() {
-            const { selectedParts, colors } = avatarState;
-            const colorFilters = Object.entries(colors).map(([category, hexColor]) => `
-                <filter id="greenFilter_${category}">
-                    <feComponentTransfer in="SourceGraphic" result="greenMask">
-                        <feFuncG type="discrete" tableValues="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1"/>
-                    </feComponentTransfer>
-                    <feFlood flood-color="${hexColor}" result="replacementColor"/>
-                    <feComposite in="replacementColor" in2="greenMask" operator="in" result="coloredGreens"/>
-                    <feComposite in="SourceGraphic" in2="greenMask" operator="out" result="nonGreenAreas"/>
-                    <feComposite in="nonGreenAreas" in2="coloredGreens" operator="over"/>
-                </filter>`).join('');
-
-            const layerOrder = ['backgrounds', 'backgroundsoverlay', 'bases', 'basesoverlay', 'neck', 'neckoverlay', 
-                               'hair', 'hairoverlay', 'eyes', 'eyesoverlay', 'brows', 'browsoverlay', 'noses', 'nosesoverlay',
-                               'mouths', 'mouthsoverlay', 'tops', 'topsoverlay', 'glasses', 'glassesoverlay', 'hats', 'hatsoverlay'];
-            
-            const layers = [];
-            layerOrder.forEach(layerName => {
-                if (layerName.includes('overlay')) {
-                    const baseCategory = layerName.replace('overlay', '');
-                    const selectedItem = selectedParts[baseCategory];
-                    if (selectedItem) {
-                        const overlayFile = selectedItem.replace('.png', 'overlay.png');
-                        layers.push(`<image href="https://polor.org/Avatars/characters/${baseCategory}/${overlayFile}" x="0" y="0" width="200" height="200"/>`);
-                    }
-                } else {
-                    const selectedItem = selectedParts[layerName];
-                    if (selectedItem) {
-                        layers.push(`<image href="https://polor.org/Avatars/characters/${layerName}/${selectedItem}" x="0" y="0" width="200" height="200" filter="url(#greenFilter_${layerName})"/>`);
-                    }
-                }
-            });
-
-            return `
-                <svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-                    <defs>${colorFilters}</defs>
-                    ${layers.join('')}
-                </svg>`;
-        }
-
-        function selectItem(category, item) {
-            avatarState.selectedParts[category] = item;
-            updateDisplay();
-            updateSelection(category);
-        }
-
-        function updateColor(category, color) {
-            avatarState.colors[category] = color;
-            updateDisplay();
-            updateSelection(category);
-            updatePreviews(category, color);
-        }
-
-        function updateSelection(category) {
-            const section = document.querySelector(`[data-category="${category}"]`);
-            if (!section) return;
-            
-            section.querySelectorAll('.item-option').forEach(option => {
-                option.classList.toggle('selected', option.getAttribute('data-item') === avatarState.selectedParts[category]);
-            });
-            
-            section.querySelectorAll('.color-option').forEach(option => {
-                option.classList.toggle('selected', option.getAttribute('data-color') === avatarState.colors[category]);
-            });
-        }
-
-        function updatePreviews(category, newColor) {
-            const section = document.querySelector(`[data-category="${category}"]`);
-            if (!section) return;
-            
-            section.querySelectorAll('.item-option[data-item]:not(.none-option)').forEach(option => {
-                const item = option.getAttribute('data-item');
-                if (item) option.innerHTML = generatePreview(category, item, newColor);
-            });
+            updateBackgroundGradient();
         }
 
         function buildCompactInterface() {
-            // Update background gradient
             updateBackgroundGradient();
-            
-            const sections = ['hair', 'eyes', 'brows', 'mouths', 'noses', 'tops', 'glasses', 'hats', 'skintone'];
-            
+            const sections = [
+                { id: 'hair', icon: '💇', label: 'Hair', hasColor: true },
+                { id: 'eyes', icon: '👁️', label: 'Eyes', hasColor: true },
+                { id: 'mouths', icon: '👄', label: 'Mouth', hasColor: true },
+                { id: 'tops', icon: '👔', label: 'Tops', hasColor: true },
+                { id: 'glasses', icon: '🤓', label: 'Glasses', hasColor: true },
+                { id: 'hats', icon: '🎩', label: 'Hats', hasColor: true },
+                { id: 'skintone', icon: '👤', label: 'Skin', hasColor: false },
+                { id: 'backgrounds', icon: '🎨', label: 'BG', hasColor: false }
+            ];
+
             document.getElementById('app-content').innerHTML = `
                 <div class="compact-editor">
                     <div class="compact-header">
                         <div class="compact-title">Avatar Editor</div>
-                        <div class="compact-avatar" id="compact-avatar-display">
-                            ${renderAvatar()}
-                        </div>
+                        <div class="compact-avatar" id="compact-avatar-display">${renderAvatar()}</div>
                         <div class="compact-buttons">
                             <button class="btn btn-success" onclick="saveCompactAvatar()">💾 Save</button>
                             <button class="btn btn-secondary" onclick="closeCompactEditor()">✕ Close</button>
                         </div>
                     </div>
-                    <div class="compact-sections">
-                        <div class="section-tabs">
-                            ${sections.map((section, index) => `
-                                <div class="section-tab ${index === 0 ? 'active' : ''}" onclick="switchCompactSection('${section}')">
-                                    ${getCompactIcon(section)} ${getCompactLabel(section)}
-                                </div>
-                            `).join('')}
-                        </div>
-                        ${sections.map((section, index) => `
-                            <div class="section-content ${index === 0 ? 'active' : ''}" id="section-${section}">
-                                ${buildCompactSection(section)}
+                    <div class="compact-main">
+                        <div class="compact-sections">
+                            <div class="section-tabs">
+                                ${sections.map((section, index) => `<div class="section-tab ${index === 0 ? 'active' : ''}" onclick="switchCompactSection('${section.id}')">${section.icon}<br>${section.label}</div>`).join('')}
                             </div>
-                        `).join('')}
+                            ${sections.map((section, index) => `<div class="section-content ${index === 0 ? 'active' : ''}" id="section-${section.id}">${buildCompactSection(section)}</div>`).join('')}
+                        </div>
+                        <div class="compact-sidebar" id="color-sidebar" style="display: none;">
+                            <div class="color-sidebar" id="sidebar-colors"></div>
+                        </div>
                     </div>
                 </div>`;
+        }
+
+        function buildCompactSection(section) {
+            if (section.id === 'skintone') {
+                return `<div class="color-only-section">${skinTones.map(color => `<div class="color-only-option ${avatarState.colors.bases === color ? 'selected' : ''}" style="background-color: ${color}" onclick="updateCompactColor('bases', '${color}')"></div>`).join('')}</div>`;
+            }
+            if (section.id === 'backgrounds') {
+                return `<div class="color-only-section">${backgroundColors.map(color => `<div class="color-only-option ${avatarState.colors.backgrounds === color ? 'selected' : ''}" style="background-color: ${color}" onclick="updateCompactColor('backgrounds', '${color}')"></div>`).join('')}</div>`;
+            }
+            
+            const items = manifest[section.id] ? manifest[section.id].filter(item => !item.includes('overlay')).slice(0, 16) : [];
+            return `<div class="compact-items"><div class="compact-item compact-none ${avatarState.selectedParts[section.id] === '' ? 'selected' : ''}" onclick="selectCompactItem('${section.id}', '')">None</div>${items.map(item => `<div class="compact-item ${avatarState.selectedParts[section.id] === item ? 'selected' : ''}" onclick="selectCompactItem('${section.id}', '${item}')">${generateCompactPreview(section.id, item, avatarState.colors[section.id])}</div>`).join('')}</div>`;
+        }
+
+        function generateCompactPreview(category, item, color) {
+            return `<svg width="50" height="50" viewBox="0 0 50 50"><defs><filter id="cf_${category}_${item.replace(/[^a-zA-Z0-9]/g, '_')}"><feComponentTransfer in="SourceGraphic" result="greenMask"><feFuncG type="discrete" tableValues="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1"/></feComponentTransfer><feFlood flood-color="${color}" result="replacementColor"/><feComposite in="replacementColor" in2="greenMask" operator="in" result="coloredGreens"/><feComposite in="SourceGraphic" in2="greenMask" operator="out" result="nonGreenAreas"/><feComposite in="nonGreenAreas" in2="coloredGreens" operator="over"/></filter></defs><image href="https://polor.org/Avatars/characters/${category}/${item}" x="0" y="0" width="50" height="50" filter="url(#cf_${category}_${item.replace(/[^a-zA-Z0-9]/g, '_')})"/></svg>`;
+        }
+
+        function switchCompactSection(section) {
+            document.querySelectorAll('.section-tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelector(`[onclick="switchCompactSection('${section}')"]`).classList.add('active');
+            document.querySelectorAll('.section-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(`section-${section}`).classList.add('active');
+            
+            const sidebar = document.getElementById('color-sidebar');
+            const shouldShowSidebar = !['backgrounds', 'skintone', 'noses', 'brows'].includes(section);
+            
+            if (shouldShowSidebar) {
+                updateColorSidebar(section);
+                sidebar.style.display = 'flex';
+            } else {
+                sidebar.style.display = 'none';
+            }
+        }
+
+        function updateColorSidebar(section) {
+            const sidebarColors = document.getElementById('sidebar-colors');
+            const currentColor = avatarState.colors[section];
+            sidebarColors.innerHTML = colorPalette.slice(0, 12).map(color => `<div class="sidebar-color ${currentColor === color ? 'selected' : ''}" style="background-color: ${color}" onclick="updateCompactColor('${section}', '${color}')"></div>`).join('');
+        }
+
+        function selectCompactItem(category, item) {
+            avatarState.selectedParts[category] = item;
+            updateCompactDisplay();
+            document.querySelectorAll(`#section-${category} .compact-item`).forEach(el => el.classList.remove('selected'));
+            document.querySelector(`[onclick="selectCompactItem('${category}', '${item}')"]`).classList.add('selected');
+        }
+
+        function updateCompactColor(category, color) {
+            avatarState.colors[category] = color;
+            updateCompactDisplay();
+            if (category === 'backgrounds') updateBackgroundGradient();
+            
+            // Update selections
+            document.querySelectorAll('.sidebar-color, .color-only-option').forEach(el => el.classList.remove('selected'));
+            document.querySelector(`[onclick="updateCompactColor('${category}', '${color}')"]`)?.classList.add('selected');
+        }
+
+        function updateCompactDisplay() {
+            const avatarDisplay = document.getElementById('compact-avatar-display');
+            if (avatarDisplay) avatarDisplay.innerHTML = renderAvatar();
         }
 
         function updateBackgroundGradient() {
             const bgColor = avatarState.colors.backgrounds;
             if (bgColor && bgColor !== '#FFFFFF') {
                 const hex = bgColor.replace('#', '');
-                const r = parseInt(hex.substr(0, 2), 16);
-                const g = parseInt(hex.substr(2, 2), 16);
-                const b = parseInt(hex.substr(4, 2), 16);
-                
-                const lighterR = Math.min(255, r + 30);
-                const lighterG = Math.min(255, g + 30);
-                const lighterB = Math.min(255, b + 30);
-                
-                const darkerR = Math.max(0, r - 40);
-                const darkerG = Math.max(0, g - 40);
-                const darkerB = Math.max(0, b - 40);
-                
-                const baseColor = `rgb(${r}, ${g}, ${b})`;
-                const lighterColor = `rgb(${lighterR}, ${lighterG}, ${lighterB})`;
-                const darkerColor = `rgb(${darkerR}, ${darkerG}, ${darkerB})`;
-                
-                const gradient = `linear-gradient(135deg, ${lighterColor} 0%, ${baseColor} 50%, ${darkerColor} 100%)`;
+                const r = parseInt(hex.substr(0, 2), 16), g = parseInt(hex.substr(2, 2), 16), b = parseInt(hex.substr(4, 2), 16);
+                const lighter = `rgb(${Math.min(255, r + 40)}, ${Math.min(255, g + 40)}, ${Math.min(255, b + 40)})`;
+                const darker = `rgb(${Math.max(0, r - 60)}, ${Math.max(0, g - 60)}, ${Math.max(0, b - 60)})`;
+                const gradient = `linear-gradient(135deg, ${lighter} 0%, rgb(${r}, ${g}, ${b}) 50%, ${darker} 100%)`;
                 document.documentElement.style.setProperty('--bg-gradient', gradient);
-            }
-        }
-
-        function getCompactIcon(section) {
-            const icons = {
-                hair: '💇', eyes: '👁️', brows: '🤨', mouths: '👄', 
-                noses: '👃', tops: '👔', glasses: '🤓', hats: '🎩', skintone: '👤'
-            };
-            return icons[section] || '🎨';
-        }
-
-        function getCompactLabel(section) {
-            const labels = {
-                hair: 'Hair', eyes: 'Eyes', brows: 'Brows', mouths: 'Mouth', 
-                noses: 'Nose', tops: 'Tops', glasses: 'Glasses', hats: 'Hats', skintone: 'Skin'
-            };
-            return labels[section] || section;
-        }
-
-        function buildCompactSection(section) {
-            if (section === 'skintone') {
-                // Special skin tone section
-                const skinTones = ['#FDBCB4', '#F4C2A1', '#E8B982', '#D1A374', '#C19A6B', '#A67C5A', '#8D5524', '#6B4423'];
-                return `
-                    <div class="compact-color-grid">
-                        ${skinTones.map(color => `
-                            <div class="color-option ${avatarState.colors.bases === color ? 'selected' : ''}" 
-                                 style="background-color: ${color}"
-                                 data-color="${color}"
-                                 onclick="updateCompactColor('bases', '${color}')"></div>
-                        `).join('')}
-                    </div>
-                `;
-            }
-            
-            const items = manifest[section] ? manifest[section].filter(item => !item.includes('overlay')) : [];
-            const currentColor = avatarState.colors[section];
-            
-            return `
-                <div class="compact-color-grid">
-                    ${colorPalette.slice(0, 18).map(color => `
-                        <div class="color-option ${currentColor === color ? 'selected' : ''}" 
-                             style="background-color: ${color}"
-                             data-color="${color}"
-                             onclick="updateCompactColor('${section}', '${color}')"></div>
-                    `).join('')}
-                </div>
-                <div class="compact-items-grid">
-                    <div class="compact-item compact-none ${avatarState.selectedParts[section] === '' ? 'selected' : ''}" 
-                         onclick="selectCompactItem('${section}', '')">None</div>
-                    ${items.slice(0, 15).map(item => `
-                        <div class="compact-item ${avatarState.selectedParts[section] === item ? 'selected' : ''}" 
-                             onclick="selectCompactItem('${section}', '${item}')">
-                            ${generateCompactPreview(section, item, currentColor)}
-                        </div>
-                    `).join('')}
-                </div>
-            `;
-        }
-
-        function generateCompactPreview(category, item, color) {
-            return `
-                <svg width="50" height="50" viewBox="0 0 50 50">
-                    <defs>
-                        <filter id="cfilter_${category}_${item.replace(/[^a-zA-Z0-9]/g, '_')}">
-                            <feComponentTransfer in="SourceGraphic" result="greenMask">
-                                <feFuncG type="discrete" tableValues="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1"/>
-                            </feComponentTransfer>
-                            <feFlood flood-color="${color}" result="replacementColor"/>
-                            <feComposite in="replacementColor" in2="greenMask" operator="in" result="coloredGreens"/>
-                            <feComposite in="SourceGraphic" in2="greenMask" operator="out" result="nonGreenAreas"/>
-                            <feComposite in="nonGreenAreas" in2="coloredGreens" operator="over"/>
-                        </filter>
-                    </defs>
-                    <image href="https://polor.org/Avatars/characters/${category}/${item}" 
-                           x="0" y="0" width="50" height="50" 
-                           filter="url(#cfilter_${category}_${item.replace(/[^a-zA-Z0-9]/g, '_')})"/>
-                </svg>`;
-        }
-
-        function switchCompactSection(section) {
-            // Update tabs
-            document.querySelectorAll('.section-tab').forEach(tab => tab.classList.remove('active'));
-            document.querySelector(`[onclick="switchCompactSection('${section}')"]`).classList.add('active');
-            
-            // Update content
-            document.querySelectorAll('.section-content').forEach(content => content.classList.remove('active'));
-            document.getElementById(`section-${section}`).classList.add('active');
-        }
-
-        function selectCompactItem(category, item) {
-            avatarState.selectedParts[category] = item;
-            updateCompactDisplay();
-            
-            // Update selection in current section
-            const currentSection = document.querySelector('.section-content.active');
-            currentSection.querySelectorAll('.compact-item').forEach(el => el.classList.remove('selected'));
-            currentSection.querySelector(`[onclick="selectCompactItem('${category}', '${item}')"]`).classList.add('selected');
-        }
-
-        function updateCompactColor(category, color) {
-            avatarState.colors[category] = color;
-            updateCompactDisplay();
-            updateBackgroundGradient();
-            
-            // Update selection in current section
-            const currentSection = document.querySelector('.section-content.active');
-            currentSection.querySelectorAll('.color-option').forEach(el => el.classList.remove('selected'));
-            currentSection.querySelector(`[data-color="${color}"]`).classList.add('selected');
-        }
-
-        function updateCompactDisplay() {
-            const avatarDisplay = document.getElementById('compact-avatar-display');
-            if (avatarDisplay) {
-                avatarDisplay.innerHTML = renderAvatar();
+            } else {
+                document.documentElement.style.setProperty('--bg-gradient', 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)');
             }
         }
 
         async function saveCompactAvatar() {
-            if (!currentUser || !firestore) {
-                alert('Please sign in first!');
-                return;
-            }
-
+            if (!currentUser || !firestore) { alert('Please sign in first!'); return; }
             try {
                 const avatarIMG = await convertToWebP();
                 if (!avatarIMG) throw new Error('Failed to generate image');
-
                 const avatarURL = generateURL();
-                
-                await firestore.collection('users').doc(currentUser.uid).update({
-                    avatarURL: avatarURL,
-                    avatarIMG: avatarIMG,
-                    lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
-                });
-
+                await firestore.collection('users').doc(currentUser.uid).update({ avatarURL: avatarURL, avatarIMG: avatarIMG, lastUpdated: firebase.firestore.FieldValue.serverTimestamp() });
                 alert('✅ Avatar saved successfully!');
-                
-                // Check if they came from homepage and redirect back
                 const urlParams = new URLSearchParams(window.location.search);
-                if (urlParams.get('ref') === 'home') {
-                    window.location.href = 'https://polor.org/home';
-                }
-                
+                if (urlParams.get('ref') === 'home') window.location.href = 'https://polor.org/home';
             } catch (error) {
                 console.error('Save failed:', error);
                 alert('❌ Save failed: ' + error.message);
@@ -851,298 +282,36 @@
         }
 
         function closeCompactEditor() {
-            if (confirm('Do you want to save your changes before leaving?')) {
-                saveCompactAvatar();
-            } else {
+            if (confirm('Do you want to save your changes before leaving?')) { saveCompactAvatar(); } else {
                 const urlParams = new URLSearchParams(window.location.search);
-                if (urlParams.get('ref') === 'home') {
-                    window.location.href = 'https://polor.org/home';
-                }
+                if (urlParams.get('ref') === 'home') window.location.href = 'https://polor.org/home';
             }
         }
 
-        function generateURL() {
-            const params = new URLSearchParams();
-            Object.entries(avatarState.selectedParts).forEach(([category, item]) => {
-                params.append(category, item || '');
-            });
-            Object.entries(avatarState.colors).forEach(([category, color]) => {
-                params.append(`${category}Color`, color.replace('#', ''));
-            });
-            return `https://polor.org/Avatars/?${params.toString()}`;
-        }
+        function buildCategories() { return Object.keys(manifest).map(categoryName => { const items = manifest[categoryName]; if (!items || items.length === 0) return ''; const displayName = categoryName.charAt(0).toUpperCase() + categoryName.slice(1); const selectableItems = items.filter(item => !item.includes('overlay')); const currentColor = avatarState.colors[categoryName]; return `<div class="category-section" data-category="${categoryName}"><div class="category-title">${getIcon(categoryName)} ${displayName}</div><div class="color-grid">${colorPalette.map(color => `<div class="color-option ${currentColor === color ? 'selected' : ''}" style="background-color: ${color}" data-color="${color}" onclick="updateColor('${categoryName}', '${color}')"></div>`).join('')}</div><div class="items-grid"><div class="item-option none-option ${avatarState.selectedParts[categoryName] === '' ? 'selected' : ''}" data-item="" onclick="selectItem('${categoryName}', '')">None</div>${selectableItems.map(item => `<div class="item-option ${avatarState.selectedParts[categoryName] === item ? 'selected' : ''}" data-item="${item}" onclick="selectItem('${categoryName}', '${item}')">${generatePreview(categoryName, item, currentColor)}</div>`).join('')}</div></div>`; }).join(''); }
 
-        function getIcon(category) {
-            const icons = {
-                backgrounds: '🎨', bases: '👤', hair: '💇', eyes: '👁️', brows: '🤨', 
-                mouths: '👄', noses: '👃', neck: '📿', tops: '👔', glasses: '🤓', hats: '🎩'
-            };
-            return icons[category] || '🎨';
-        }
+        function generatePreview(category, item, color) { const svgId = `preview_${category}_${item.replace(/[^a-zA-Z0-9]/g, '_')}`; const overlayFile = item.replace('.png', 'overlay.png'); return `<svg width="50" height="50" viewBox="0 0 50 50"><defs><filter id="filter_${svgId}"><feComponentTransfer in="SourceGraphic" result="greenMask"><feFuncG type="discrete" tableValues="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1"/></feComponentTransfer><feFlood flood-color="${color}" result="replacementColor"/><feComposite in="replacementColor" in2="greenMask" operator="in" result="coloredGreens"/><feComposite in="SourceGraphic" in2="greenMask" operator="out" result="nonGreenAreas"/><feComposite in="nonGreenAreas" in2="coloredGreens" operator="over"/></filter></defs><image href="https://polor.org/Avatars/characters/${category}/${item}" x="0" y="0" width="50" height="50" filter="url(#filter_${svgId})"/><image href="https://polor.org/Avatars/characters/${category}/${overlayFile}" x="0" y="0" width="50" height="50"/></svg>`; }
 
-        function randomize() {
-            Object.keys(avatarState.selectedParts).forEach(category => {
-                if (manifest[category]) {
-                    const items = manifest[category].filter(item => !item.includes('overlay'));
-                    if (items.length > 0) {
-                        avatarState.selectedParts[category] = items[Math.floor(Math.random() * items.length)];
-                    }
-                }
-            });
-            Object.keys(avatarState.colors).forEach(category => {
-                avatarState.colors[category] = colorPalette[Math.floor(Math.random() * colorPalette.length)];
-            });
-            buildInterface();
-        }
+        function renderAvatar() { const { selectedParts, colors } = avatarState; const colorFilters = Object.entries(colors).map(([category, hexColor]) => `<filter id="greenFilter_${category}"><feComponentTransfer in="SourceGraphic" result="greenMask"><feFuncG type="discrete" tableValues="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1"/></feComponentTransfer><feFlood flood-color="${hexColor}" result="replacementColor"/><feComposite in="replacementColor" in2="greenMask" operator="in" result="coloredGreens"/><feComposite in="SourceGraphic" in2="greenMask" operator="out" result="nonGreenAreas"/><feComposite in="nonGreenAreas" in2="coloredGreens" operator="over"/></filter>`).join(''); const layerOrder = ['backgrounds', 'backgroundsoverlay', 'bases', 'basesoverlay', 'neck', 'neckoverlay', 'hair', 'hairoverlay', 'eyes', 'eyesoverlay', 'brows', 'browsoverlay', 'noses', 'nosesoverlay', 'mouths', 'mouthsoverlay', 'tops', 'topsoverlay', 'glasses', 'glassesoverlay', 'hats', 'hatsoverlay']; const layers = []; layerOrder.forEach(layerName => { if (layerName.includes('overlay')) { const baseCategory = layerName.replace('overlay', ''); const selectedItem = selectedParts[baseCategory]; if (selectedItem) { const overlayFile = selectedItem.replace('.png', 'overlay.png'); layers.push(`<image href="https://polor.org/Avatars/characters/${baseCategory}/${overlayFile}" x="0" y="0" width="200" height="200"/>`); } } else { const selectedItem = selectedParts[layerName]; if (selectedItem) { layers.push(`<image href="https://polor.org/Avatars/characters/${layerName}/${selectedItem}" x="0" y="0" width="200" height="200" filter="url(#greenFilter_${layerName})"/>`); } } }); return `<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><defs>${colorFilters}</defs>${layers.join('')}</svg>`; }
 
-        async function copyURL() {
-            try {
-                await navigator.clipboard.writeText(generateURL());
-                alert('✅ URL copied!');
-            } catch (err) {
-                alert('❌ Copy failed');
-            }
-        }
+        function selectItem(category, item) { avatarState.selectedParts[category] = item; updateDisplay(); updateSelection(category); }
+        function updateColor(category, color) { avatarState.colors[category] = color; updateDisplay(); updateSelection(category); updatePreviews(category, color); }
+        function updateSelection(category) { const section = document.querySelector(`[data-category="${category}"]`); if (!section) return; section.querySelectorAll('.item-option').forEach(option => { option.classList.toggle('selected', option.getAttribute('data-item') === avatarState.selectedParts[category]); }); section.querySelectorAll('.color-option').forEach(option => { option.classList.toggle('selected', option.getAttribute('data-color') === avatarState.colors[category]); }); }
+        function updatePreviews(category, newColor) { const section = document.querySelector(`[data-category="${category}"]`); if (!section) return; section.querySelectorAll('.item-option[data-item]:not(.none-option)').forEach(option => { const item = option.getAttribute('data-item'); if (item) option.innerHTML = generatePreview(category, item, newColor); }); }
+        function updateDisplay() { if (isCompactMode()) { updateCompactDisplay(); } else { const avatarDisplay = document.getElementById('avatar-display'); const urlDisplay = document.getElementById('url-display'); if (avatarDisplay) avatarDisplay.innerHTML = renderAvatar(); if (urlDisplay) urlDisplay.textContent = generateURL(); } }
+        function generateURL() { const params = new URLSearchParams(); Object.entries(avatarState.selectedParts).forEach(([category, item]) => { params.append(category, item || ''); }); Object.entries(avatarState.colors).forEach(([category, color]) => { params.append(`${category}Color`, color.replace('#', '')); }); return `https://polor.org/Avatars/?${params.toString()}`; }
+        function getIcon(category) { const icons = { backgrounds: '🎨', bases: '👤', hair: '💇', eyes: '👁️', brows: '🤨', mouths: '👄', noses: '👃', neck: '📿', tops: '👔', glasses: '🤓', hats: '🎩' }; return icons[category] || '🎨'; }
+        function randomize() { Object.keys(avatarState.selectedParts).forEach(category => { if (manifest[category]) { const items = manifest[category].filter(item => !item.includes('overlay')); if (items.length > 0) { avatarState.selectedParts[category] = items[Math.floor(Math.random() * items.length)]; } } }); Object.keys(avatarState.colors).forEach(category => { avatarState.colors[category] = colorPalette[Math.floor(Math.random() * colorPalette.length)]; }); buildInterface(); }
+        async function copyURL() { try { await navigator.clipboard.writeText(generateURL()); alert('✅ URL copied!'); } catch (err) { alert('❌ Copy failed'); } }
 
-        async function convertToWebP() {
-            const svgElement = document.querySelector('#avatar-display svg');
-            if (!svgElement) return null;
-            
-            return new Promise((resolve) => {
-                const canvas = document.createElement('canvas');
-                canvas.width = 200;
-                canvas.height = 200;
-                const ctx = canvas.getContext('2d');
-                
-                const svgData = new XMLSerializer().serializeToString(svgElement);
-                const svgBlob = new Blob([svgData], {type: 'image/svg+xml;charset=utf-8'});
-                const svgUrl = URL.createObjectURL(svgBlob);
-                
-                const img = new Image();
-                img.onload = () => {
-                    ctx.drawImage(img, 0, 0, 200, 200);
-                    URL.revokeObjectURL(svgUrl);
-                    resolve(canvas.toDataURL('image/webp', 0.8));
-                };
-                img.src = svgUrl;
-            });
-        }
+        async function convertToWebP() { const { selectedParts, colors } = avatarState; return new Promise(async (resolve) => { const canvas = document.createElement('canvas'); canvas.width = 200; canvas.height = 200; const ctx = canvas.getContext('2d'); ctx.fillStyle = 'white'; ctx.fillRect(0, 0, 200, 200); const layerOrder = ['backgrounds', 'bases', 'neck', 'hair', 'eyes', 'brows', 'noses', 'mouths', 'tops', 'glasses', 'hats']; try { for (const layerName of layerOrder) { const selectedItem = selectedParts[layerName]; if (!selectedItem) continue; await drawLayerWithColor(ctx, layerName, selectedItem, colors[layerName]); await drawOverlay(ctx, layerName, selectedItem); } const webpData = canvas.toDataURL('image/webp', 0.9); resolve(webpData); } catch (error) { console.error('Failed to bake avatar:', error); resolve(null); } }); }
 
-        async function convertToWebP() {
-            const { selectedParts, colors } = avatarState;
-            
-            return new Promise(async (resolve) => {
-                const canvas = document.createElement('canvas');
-                canvas.width = 200;
-                canvas.height = 200;
-                const ctx = canvas.getContext('2d');
-                
-                // Create white background
-                ctx.fillStyle = 'white';
-                ctx.fillRect(0, 0, 200, 200);
-                
-                // Define layer order
-                const layerOrder = [
-                    'backgrounds', 'bases', 'neck', 'hair', 'eyes', 'brows', 
-                    'noses', 'mouths', 'tops', 'glasses', 'hats'
-                ];
-                
-                try {
-                    // Process each layer in order
-                    for (const layerName of layerOrder) {
-                        const selectedItem = selectedParts[layerName];
-                        if (!selectedItem) continue;
-                        
-                        // Load and draw main item with color filter
-                        await drawLayerWithColor(ctx, layerName, selectedItem, colors[layerName]);
-                        
-                        // Load and draw overlay (no color filter)
-                        await drawOverlay(ctx, layerName, selectedItem);
-                    }
-                    
-                    // Convert final canvas to WebP
-                    const webpData = canvas.toDataURL('image/webp', 0.9);
-                    resolve(webpData);
-                    
-                } catch (error) {
-                    console.error('Failed to bake avatar:', error);
-                    resolve(null);
-                }
-            });
-        }
-        
-        async function drawLayerWithColor(ctx, category, item, color) {
-            return new Promise((resolve) => {
-                const img = new Image();
-                img.crossOrigin = 'anonymous';
-                
-                img.onload = () => {
-                    // Create temporary canvas for color filtering
-                    const tempCanvas = document.createElement('canvas');
-                    tempCanvas.width = 200;
-                    tempCanvas.height = 200;
-                    const tempCtx = tempCanvas.getContext('2d');
-                    
-                    // Draw original image
-                    tempCtx.drawImage(img, 0, 0, 200, 200);
-                    
-                    // Apply color filtering to green pixels
-                    const imageData = tempCtx.getImageData(0, 0, 200, 200);
-                    const data = imageData.data;
-                    
-                    // Convert hex color to RGB
-                    const r = parseInt(color.slice(1,3), 16);
-                    const g = parseInt(color.slice(3,5), 16);
-                    const b = parseInt(color.slice(5,7), 16);
-                    
-                    // Replace ONLY bright green pixels (like #00FF00)
-                    for (let i = 0; i < data.length; i += 4) {
-                        const red = data[i];
-                        const green = data[i + 1];
-                        const blue = data[i + 2];
-                        const alpha = data[i + 3];
-                        
-                        // Skip transparent/semi-transparent pixels
-                        if (alpha < 200) continue;
-                        
-                        // Check if this is a bright green pixel we want to replace
-                        // Must be: Green > 200, Green significantly higher than Red and Blue
-                        if (green > 200 && green > (red + 50) && green > (blue + 50)) {
-                            // Additional check: make sure it's actually greenish, not just bright
-                            const greenDominance = green - Math.max(red, blue);
-                            if (greenDominance > 80) {
-                                data[i] = r;     // Red
-                                data[i + 1] = g; // Green
-                                data[i + 2] = b; // Blue
-                                // Alpha stays the same
-                            }
-                        }
-                    }
-                    
-                    // Put the modified image data back
-                    tempCtx.putImageData(imageData, 0, 0);
-                    
-                    // Draw the colored result onto main canvas
-                    ctx.drawImage(tempCanvas, 0, 0);
-                    resolve();
-                };
-                
-                img.onerror = () => {
-                    console.log(`Failed to load ${category}/${item}, skipping...`);
-                    resolve();
-                };
-                
-                img.src = `https://polor.org/Avatars/characters/${category}/${item}`;
-            });
-        }
-        
-        async function drawOverlay(ctx, category, item) {
-            return new Promise((resolve) => {
-                const overlayFile = item.replace('.png', 'overlay.png');
-                const img = new Image();
-                img.crossOrigin = 'anonymous';
-                
-                img.onload = () => {
-                    // Draw overlay without any color filtering
-                    ctx.drawImage(img, 0, 0, 200, 200);
-                    resolve();
-                };
-                
-                img.onerror = () => {
-                    // Overlay doesn't exist, that's fine
-                    resolve();
-                };
-                
-                img.src = `https://polor.org/Avatars/characters/${category}/${overlayFile}`;
-            });
-        }
+        async function drawLayerWithColor(ctx, category, item, color) { return new Promise((resolve) => { const img = new Image(); img.crossOrigin = 'anonymous'; img.onload = () => { const tempCanvas = document.createElement('canvas'); tempCanvas.width = 200; tempCanvas.height = 200; const tempCtx = tempCanvas.getContext('2d'); tempCtx.drawImage(img, 0, 0, 200, 200); const imageData = tempCtx.getImageData(0, 0, 200, 200); const data = imageData.data; const r = parseInt(color.slice(1,3), 16); const g = parseInt(color.slice(3,5), 16); const b = parseInt(color.slice(5,7), 16); for (let i = 0; i < data.length; i += 4) { const red = data[i]; const green = data[i + 1]; const blue = data[i + 2]; const alpha = data[i + 3]; if (alpha < 200) continue; if (green > 200 && green > (red + 50) && green > (blue + 50)) { const greenDominance = green - Math.max(red, blue); if (greenDominance > 80) { data[i] = r; data[i + 1] = g; data[i + 2] = b; } } } tempCtx.putImageData(imageData, 0, 0); ctx.drawImage(tempCanvas, 0, 0); resolve(); }; img.onerror = () => { console.log(`Failed to load ${category}/${item}, skipping...`); resolve(); }; img.src = `https://polor.org/Avatars/characters/${category}/${item}`; }); }
 
-        async function saveAvatar() {
-            if (!currentUser || !firestore) {
-                alert('Please sign in first!');
-                return;
-            }
+        async function drawOverlay(ctx, category, item) { return new Promise((resolve) => { const overlayFile = item.replace('.png', 'overlay.png'); const img = new Image(); img.crossOrigin = 'anonymous'; img.onload = () => { ctx.drawImage(img, 0, 0, 200, 200); resolve(); }; img.onerror = () => { resolve(); }; img.src = `https://polor.org/Avatars/characters/${category}/${overlayFile}`; }); }
 
-            const saveBtn = document.getElementById('save-btn');
-            saveBtn.disabled = true;
-            saveBtn.innerHTML = '<span class="spinner"></span> Saving...';
+        async function saveAvatar() { if (!currentUser || !firestore) { alert('Please sign in first!'); return; } const saveBtn = document.getElementById('save-btn'); saveBtn.disabled = true; saveBtn.innerHTML = '<span class="spinner"></span> Saving...'; try { const avatarIMG = await convertToWebP(); if (!avatarIMG) throw new Error('Failed to generate image'); const avatarURL = generateURL(); await firestore.collection('users').doc(currentUser.uid).update({ avatarURL: avatarURL, avatarIMG: avatarIMG, lastUpdated: firebase.firestore.FieldValue.serverTimestamp() }); alert('✅ Avatar saved successfully!'); const urlParams = new URLSearchParams(window.location.search); if (urlParams.get('ref') === 'home') { window.location.href = 'https://polor.org/home'; } } catch (error) { console.error('Save failed:', error); alert('❌ Save failed: ' + error.message); } finally { saveBtn.disabled = false; saveBtn.innerHTML = '💾 Save Avatar'; } }
 
-            try {
-                const avatarIMG = await convertToWebP();
-                if (!avatarIMG) throw new Error('Failed to generate image');
+        function updateAuthUI() { if (isCompactMode()) return; const authSection = document.getElementById('auth-section'); const saveBtn = document.getElementById('save-btn'); if (!auth || !authSection) return; if (currentUser) { authSection.innerHTML = `<div style="color: #155724; background: #d4edda; padding: 10px; border-radius: 4px;">✅ Signed in as: ${currentUser.displayName || currentUser.email}</div>`; authSection.style.display = 'block'; if (saveBtn) saveBtn.style.display = 'block'; } else { authSection.innerHTML = `<div style="color: #856404;">💡 <a href="auth.html" style="color: #856404;">Sign in</a> to save your avatar permanently</div>`; authSection.style.display = 'block'; if (saveBtn) saveBtn.style.display = 'none'; } }
 
-                const avatarURL = generateURL();
-                
-                await firestore.collection('users').doc(currentUser.uid).update({
-                    avatarURL: avatarURL,
-                    avatarIMG: avatarIMG,
-                    lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
-                });
-
-                alert('✅ Avatar saved successfully!');
-                
-                // Check if they came from homepage and redirect back
-                const urlParams = new URLSearchParams(window.location.search);
-                if (urlParams.get('ref') === 'home') {
-                    window.location.href = 'https://polor.org/home';
-                }
-                
-            } catch (error) {
-                console.error('Save failed:', error);
-                alert('❌ Save failed: ' + error.message);
-            } finally {
-                saveBtn.disabled = false;
-                saveBtn.innerHTML = '💾 Save Avatar';
-            }
-        }
-
-        function updateDisplay() {
-            if (isCompactMode()) {
-                updateCompactDisplay();
-            } else {
-                const avatarDisplay = document.getElementById('avatar-display');
-                const urlDisplay = document.getElementById('url-display');
-                
-                if (avatarDisplay) avatarDisplay.innerHTML = renderAvatar();
-                if (urlDisplay) urlDisplay.textContent = generateURL();
-            }
-        }
-
-        function updateAuthUI() {
-            // Skip auth UI in compact mode
-            if (isCompactMode()) return;
-            
-            const authSection = document.getElementById('auth-section');
-            const saveBtn = document.getElementById('save-btn');
-            
-            if (!auth || !authSection) return;
-            
-            if (currentUser) {
-                authSection.innerHTML = `
-                    <div style="color: #155724; background: #d4edda; padding: 10px; border-radius: 4px;">
-                        ✅ Signed in as: ${currentUser.displayName || currentUser.email}
-                    </div>`;
-                authSection.style.display = 'block';
-                if (saveBtn) saveBtn.style.display = 'block';
-            } else {
-                authSection.innerHTML = `
-                    <div style="color: #856404;">
-                        💡 <a href="auth.html" style="color: #856404;">Sign in</a> to save your avatar permanently
-                    </div>`;
-                authSection.style.display = 'block';
-                if (saveBtn) saveBtn.style.display = 'none';
-            }
-        }
-
-        // Load saved state and start
-        const saved = localStorage.getItem('polor_avatar');
-        if (saved) {
-            try {
-                avatarState = JSON.parse(saved);
-            } catch (err) {}
-        }
-        
-        initialize();
-    </script>
-</body>
-</html>
+        const saved = localStorage.getItem('polor_avatar'); if (saved) { try { avatarState = JSON.parse(saved); } catch (err) {} } initialize();
