@@ -75,24 +75,25 @@
             position: absolute;
             top: 20px;
             right: 20px;
-            width: 40px;
-            height: 40px;
-            border: 2px solid #e9ecef;
-            background: #f8f9fa;
+            width: 45px;
+            height: 45px;
+            border: 3px solid white;
+            background: linear-gradient(135deg, #667eea, #764ba2);
             border-radius: 50%;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             transition: all 0.2s ease;
-            font-size: 18px;
-            color: #666;
+            font-size: 20px;
+            color: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
         
         .settings-icon-btn:hover {
-            background: #e9ecef;
-            border-color: #667eea;
+            background: linear-gradient(135deg, #5a6fd8, #6a4c93);
             transform: scale(1.1);
+            box-shadow: 0 6px 18px rgba(0,0,0,0.25);
         }
         
         .avatar-container {
@@ -329,7 +330,7 @@
         }
         
         .edit-avatar-btn {
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: var(--bg-gradient, linear-gradient(135deg, #667eea, #764ba2));
             color: white;
             border: none;
             border-radius: 12px;
@@ -341,6 +342,11 @@
             align-items: center;
             gap: 8px;
             margin: 0 auto;
+        }
+        
+        .edit-avatar-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
         }
         
         .signout-section {
@@ -436,7 +442,7 @@
         .save-btn {
             width: 100%;
             padding: 15px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: var(--bg-gradient, linear-gradient(135deg, #667eea, #764ba2));
             color: white;
             border: none;
             border-radius: 12px;
@@ -493,9 +499,9 @@
             .settings-icon-btn {
                 top: 15px;
                 right: 15px;
-                width: 35px;
-                height: 35px;
-                font-size: 16px;
+                width: 40px;
+                height: 40px;
+                font-size: 18px;
             }
             
             .inbox-section {
@@ -531,9 +537,9 @@
             }
             
             .settings-icon-btn {
-                width: 32px;
-                height: 32px;
-                font-size: 14px;
+                width: 38px;
+                height: 38px;
+                font-size: 16px;
             }
             
             .inbox-section {
