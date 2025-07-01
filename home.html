@@ -591,12 +591,18 @@
             const headerAvatar = document.getElementById('header-avatar');
             const largeAvatar = document.getElementById('large-avatar');
             
-            if (userProfile.avatarURL) {
+            // Use avatarIMG (WebP base64) if available, otherwise fall back to avatarURL + &image=true
+            if (userProfile.avatarIMG) {
                 // Header avatar
-                headerAvatar.innerHTML = `<img src="${userProfile.avatarURL}" alt="Avatar">`;
+                headerAvatar.innerHTML = `<img src="${userProfile.avatarIMG}" alt="Avatar">`;
                 
                 // Large avatar
-                largeAvatar.innerHTML = `<img src="${userProfile.avatarURL}" alt="Avatar">`;
+                largeAvatar.innerHTML = `<img src="${userProfile.avatarIMG}" alt="Avatar">`;
+            } else if (userProfile.avatarURL) {
+                // Fallback to URL with image mode
+                const imageUrl = userProfile.avatarURL + '&image=true';
+                headerAvatar.innerHTML = `<img src="${imageUrl}" alt="Avatar">`;
+                largeAvatar.innerHTML = `<img src="${imageUrl}" alt="Avatar">`;
             }
         }
 
@@ -628,15 +634,23 @@
 
         // Update embed section
         function updateEmbedSection() {
-            if (userProfile.avatarURL) {
+            // Use the WebP image if available, otherwise use avatarURL + &image=true
+            let embedImageUrl;
+            if (userProfile.avatarIMG) {
+                embedImageUrl = userProfile.avatarIMG;
+            } else if (userProfile.avatarURL) {
+                embedImageUrl = userProfile.avatarURL + '&image=true';
+            }
+            
+            if (embedImageUrl) {
                 const embedSection = document.getElementById('embed-section');
                 const directUrl = document.getElementById('direct-url');
                 const htmlCode = document.getElementById('html-code');
                 const markdownCode = document.getElementById('markdown-code');
                 
-                directUrl.textContent = userProfile.avatarURL;
-                htmlCode.textContent = `<img src="${userProfile.avatarURL}" alt="Avatar" width="200" height="200">`;
-                markdownCode.textContent = `![Avatar](${userProfile.avatarURL})`;
+                directUrl.textContent = embedImageUrl;
+                htmlCode.textContent = `<img src="${embedImageUrl}" alt="Avatar" width="200" height="200">`;
+                markdownCode.textContent = `![Avatar](${embedImageUrl})`;
                 
                 embedSection.style.display = 'block';
             }
@@ -691,18 +705,42 @@
 
         // Download avatar
         async function downloadAvatar() {
-            if (userProfile.avatarURL) {
+            let imageUrl;
+            
+            // Use WebP image if available, otherwise use avatarURL + &image=true
+            if (userProfile.avatarIMG) {
+                imageUrl = userProfile.avatarIMG;
+            } else if (userProfile.avatarURL) {
+                imageUrl = userProfile.avatarURL + '&image=true';
+            }
+            
+            if (imageUrl) {
                 try {
-                    const response = await fetch(userProfile.avatarURL);
-                    const blob = await response.blob();
-                    
-                    const link = document.createElement('a');
-                    link.href = URL.createObjectURL(blob);
-                    link.download = `${userProfile.username}_avatar.png`;
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    URL.revokeObjectURL(link.href);
+                    // For data URLs, create blob directly
+                    if (imageUrl.startsWith('data:')) {
+                        const response = await fetch(imageUrl);
+                        const blob = await response.blob();
+                        
+                        const link = document.createElement('a');
+                        link.href = URL.createObjectURL(blob);
+                        link.download = `${userProfile.username}_avatar.webp`;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        URL.revokeObjectURL(link.href);
+                    } else {
+                        // For regular URLs
+                        const response = await fetch(imageUrl);
+                        const blob = await response.blob();
+                        
+                        const link = document.createElement('a');
+                        link.href = URL.createObjectURL(blob);
+                        link.download = `${userProfile.username}_avatar.png`;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        URL.revokeObjectURL(link.href);
+                    }
                 } catch (error) {
                     console.error('Download failed:', error);
                     alert('❌ Download failed');
@@ -712,15 +750,30 @@
 
         // Share avatar
         function shareAvatar() {
-            if (navigator.share && userProfile.avatarURL) {
+            let shareUrl;
+            
+            // Use WebP image if available, otherwise use avatarURL + &image=true
+            if (userProfile.avatarIMG) {
+                shareUrl = userProfile.avatarIMG;
+            } else if (userProfile.avatarURL) {
+                shareUrl = userProfile.avatarURL + '&image=true';
+            }
+            
+            if (navigator.share && shareUrl) {
                 navigator.share({
                     title: `${userProfile.username}'s Avatar`,
                     text: 'Check out my custom avatar!',
-                    url: userProfile.avatarURL
+                    url: shareUrl
                 }).catch(console.error);
             } else {
                 // Fallback to copying URL
-                copyToClipboard('direct-url');
+                if (shareUrl) {
+                    navigator.clipboard.writeText(shareUrl).then(() => {
+                        alert('✅ Avatar URL copied to clipboard!');
+                    }).catch(() => {
+                        alert('❌ Copy failed');
+                    });
+                }
             }
         }
 
