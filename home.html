@@ -378,11 +378,11 @@
         
         <!-- Navigation Grid -->
         <div class="nav-grid">
-            <a href="https://polor.org/Avatars/" class="nav-card">
+            <div class="nav-card" onclick="editAvatar()">
                 <div class="nav-card-icon">🎨</div>
                 <h3>Avatar Creator</h3>
                 <p>Design and customize your unique avatar with thousands of combinations</p>
-            </a>
+            </div>
             
             <div class="nav-card" onclick="openSettings()">
                 <div class="nav-card-icon">⚙️</div>
@@ -407,9 +407,9 @@
         <div class="quick-actions">
             <h2>⚡ Quick Actions</h2>
             <div class="action-buttons">
-                <a href="https://polor.org/Avatars/" class="btn btn-primary">
-                    🎨 Create Avatar
-                </a>
+                <button class="btn btn-primary" onclick="editAvatar()">
+                    🎨 Edit Avatar
+                </button>
                 <button class="btn btn-secondary" onclick="randomizeAvatar()">
                     🎲 Random Avatar
                 </button>
@@ -673,6 +673,16 @@
                 saveBtn.textContent = '💾 Save Changes';
             }
         });
+
+        // Edit avatar - goes to user's specific avatar URL
+        function editAvatar() {
+            if (userProfile && userProfile.avatarURL) {
+                window.location.href = userProfile.avatarURL;
+            } else {
+                // Fallback to default editor if no saved avatar
+                window.location.href = 'https://polor.org/Avatars/';
+            }
+        }
 
         // Coming soon function
         function comingSoon(feature) {
