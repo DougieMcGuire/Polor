@@ -376,24 +376,51 @@
                 `;
             }).join('');
             
-            // Layer order
-            const layerOrder = ['backgrounds', 'bases', 'neck', 'hair', 'eyes', 'brows', 'noses', 'mouths', 'tops', 'glasses', 'hats'];
+            // Define layer order with overlays
+            const layerOrder = [
+                'backgrounds', 'backgroundsoverlay',
+                'bases', 'basesoverlay',
+                'neck', 'neckoverlay', 
+                'hair', 'hairoverlay',
+                'eyes', 'eyesoverlay',
+                'brows', 'browsoverlay',
+                'noses', 'nosesoverlay',
+                'mouths', 'mouthsoverlay',
+                'tops', 'topsoverlay',
+                'glasses', 'glassesoverlay',
+                'hats', 'hatsoverlay'
+            ];
             
-            const layers = layerOrder.map(category => {
-                const selectedItem = selectedParts[category];
-                if (!selectedItem) return '';
-                
-                return `<image href="https://polor.org/Avatars/characters/${category}/${selectedItem}" 
-                               x="0" y="0" width="200" height="200" 
-                               filter="url(#greenFilter_${category})"/>`;
-            }).join('');
+            const layers = [];
+            
+            // Process each layer
+            layerOrder.forEach(layerName => {
+                if (layerName.includes('overlay')) {
+                    // This is an overlay layer
+                    const baseCategory = layerName.replace('overlay', '');
+                    const selectedItem = selectedParts[baseCategory];
+                    if (!selectedItem) return;
+                    
+                    // Add overlay (no filter - keep original colors)
+                    const overlayFile = selectedItem.replace('.png', 'overlay.png');
+                    layers.push(`<image href="https://polor.org/Avatars/characters/${baseCategory}/${overlayFile}" x="0" y="0" width="200" height="200"/>`);
+                    
+                } else {
+                    // This is a main layer
+                    const selectedItem = selectedParts[layerName];
+                    if (!selectedItem) return;
+                    
+                    // Add main item with green filter
+                    layers.push(`<image href="https://polor.org/Avatars/characters/${layerName}/${selectedItem}" x="0" y="0" width="200" height="200" filter="url(#greenFilter_${layerName})"/>`);
+                }
+            });
             
             return `
                 <svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
                     <defs>
                         ${colorFilters}
                     </defs>
-                    ${layers}
+                    ${layers.join('')}
                 </svg>
             `;
         }
