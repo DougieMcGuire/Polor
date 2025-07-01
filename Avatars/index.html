@@ -332,7 +332,8 @@
         }
 
         function handleImageMode() {
-            if (new URLSearchParams(window.location.search).get('image') === 'true') {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('image') === 'true' || urlParams.get('I') === '1') {
                 showImageOnly();
                 return true;
             }
@@ -344,7 +345,7 @@
             document.getElementById('app-content').innerHTML = `<div style="position: absolute; top: -9999px;">${avatarSVG}</div>`;
             
             setTimeout(async () => {
-                const imageData = await convertToWebP();
+                const imageData = await convertToPNG();
                 if (imageData) {
                     document.getElementById('app-content').innerHTML = `
                         <div style="display: flex; justify-content: center; align-items: center; min-height: 100vh; background: transparent; margin: 0; padding: 0;">
@@ -601,7 +602,7 @@
             saveBtn.innerHTML = '<span class="spinner"></span> Saving...';
 
             try {
-                const avatarIMG = await convertToWebP();
+                const avatarIMG = await convertToPNG();
                 if (!avatarIMG) throw new Error('Failed to generate image');
 
                 const avatarURL = generateURL();
