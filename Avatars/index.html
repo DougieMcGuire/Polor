@@ -348,50 +348,48 @@
         function generateAvatarSVG(config) {
             const { parts, colors } = config;
             
-            // Create ONLY lime green replacement filters - preserve all other colors
+            // Create ONLY green pixel replacement filters - preserve ALL other colors exactly
             const colorFilters = Object.entries(colors).map(([part, color]) => {
                 const rgb = hexToRGB(color);
                 
-                // Create darker version for shading (reduce brightness by 30%)
+                // Create darker version for dark green shading
                 const darkerR = Math.max(0, rgb.r * 0.7);
                 const darkerG = Math.max(0, rgb.g * 0.7);
                 const darkerB = Math.max(0, rgb.b * 0.7);
                 
                 return `
                     <filter id="${part}GreenScreenFilter" x="0%" y="0%" width="100%" height="100%">
-                        <!-- Only target lime green (#00FF00) and dark green, preserve all other colors -->
+                        <!-- Isolate bright lime green (#00FF00) and darker green pixels only -->
                         <feColorMatrix type="matrix" values="
-                            1 0 0 0 0
-                            0 1 0 0 0  
-                            0 0 1 0 0
-                            0 0 0 1 0"/>
+                            0 0 0 0 0
+                            0 1 0 0 0
+                            0 0 0 0 0
+                            0 0 0 1 0" result="greenChannel"/>
                         
-                        <!-- Replace only green pixels -->
-                        <feComponentTransfer>
-                            <!-- Only change pixels that are green (high G, low R&B) -->
-                            <feFuncR type="discrete" tableValues="1 ${rgb.r/255} ${darkerR/255} 1 1 1 1 1 1 1 1 1 1 1 1 1"/>
-                            <feFuncG type="discrete" tableValues="1 ${rgb.g/255} ${darkerG/255} 1 1 1 1 1 1 1 1 1 1 1 1 1"/>
-                            <feFuncB type="discrete" tableValues="1 ${rgb.b/255} ${darkerB/255} 1 1 1 1 1 1 1 1 1 1 1 1 1"/>
+                        <!-- Create mask for bright green (255 green, 0 red, 0 blue) -->
+                        <feComponentTransfer in="greenChannel" result="brightGreenMask">
+                            <feFuncR type="discrete" tableValues="1 0"/>
+                            <feFuncG type="discrete" tableValues="0 1"/>
+                            <feFuncB type="discrete" tableValues="1 0"/>
                         </feComponentTransfer>
                         
-                        <!-- Better green detection - only replace if R=0, G=255, B=0-128 -->
-                        <feColorMatrix type="matrix" values="
-                            0.299 0.587 0.114 0 0
-                            0.299 0.587 0.114 0 0
-                            0.299 0.587 0.114 0 0
-                            0     0     0     1 0"/>
-                            
-                        <feComponentTransfer>
-                            <feFuncR type="discrete" tableValues="${rgb.r/255} ${darkerR/255}"/>
-                            <feFuncG type="discrete" tableValues="${rgb.g/255} ${darkerG/255}"/>
-                            <feFuncB type="discrete" tableValues="${rgb.b/255} ${darkerB/255}"/>
-                        </feComponentTransfer>
+                        <!-- Create replacement color layer -->
+                        <feFlood flood-color="${color}" result="replacementColor"/>
+                        <feFlood flood-color="rgb(${darkerR},${darkerG},${darkerB})" result="darkReplacementColor"/>
+                        
+                        <!-- Composite: only replace where mask shows bright green -->
+                        <feComposite in="replacementColor" in2="brightGreenMask" operator="in" result="coloredGreen"/>
+                        
+                        <!-- Keep original image for non-green areas -->
+                        <feComposite in="SourceGraphic" in2="brightGreenMask" operator="out" result="nonGreenAreas"/>
+                        
+                        <!-- Combine non-green original + colored green areas -->
+                        <feComposite in="nonGreenAreas" in2="coloredGreen" operator="over"/>
                     </filter>
                 `;
             }).join('');
             
             const colorableCategories = ['tops', 'eyes', 'hair', 'glasses', 'bases', 'neck', 'backgrounds', 'mouths'];
-            // Fixed layer order: backgrounds, bases, neck (in front of bases, behind tops), then rest
             const layerOrder = ['backgrounds', 'bases', 'neck', 'hair', 'eyes', 'brows', 'noses', 'mouths', 'tops', 'glasses', 'hats'];
             
             const layers = layerOrder.map(category => {
@@ -427,7 +425,7 @@
                 params.append(`${category}Color`, color.replace('#', ''));
             });
             
-            return `https://polor.org/Avatars?${params.toString()}`;
+            return `https://polor.org/avatar/?${params.toString()}`;
         }
 
         function hexToRGB(hex) {
