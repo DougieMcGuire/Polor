@@ -35,28 +35,7 @@
             min-height: 180px;
         }
         
-        .close-btn {
-            position: absolute;
-            top: 15px;
-            left: 15px;
-            width: 32px;
-            height: 32px;
-            border: none;
-            background: #6c757d;
-            color: white;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s ease;
-        }
-        
-        .close-btn:hover {
-            background: #5a6268;
-            transform: scale(1.1);
-        }
+
         
         .save-btn {
             position: absolute;
@@ -88,6 +67,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            padding: 0 20px;
         }
         
         .avatar-display {
@@ -175,10 +155,26 @@
         }
         
         .section-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            display: flex;
             gap: 15px;
             margin-bottom: 20px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+            scroll-snap-type: x mandatory;
+        }
+        
+        .section-grid::-webkit-scrollbar {
+            height: 6px;
+        }
+        
+        .section-grid::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+        }
+        
+        .section-grid::-webkit-scrollbar-thumb {
+            background: #ccc;
+            border-radius: 3px;
         }
         
         .section-card {
@@ -190,6 +186,9 @@
             border: 2px solid transparent;
             transition: all 0.2s ease;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            min-width: 100px;
+            flex-shrink: 0;
+            scroll-snap-align: start;
         }
         
         .section-card:hover {
@@ -408,7 +407,6 @@
             document.getElementById('app-content').innerHTML = `
                 <div class="editor-container">
                     <div class="top-section">
-                        <button class="close-btn" onclick="closeEditor()" title="Close">✕</button>
                         <button class="save-btn" onclick="saveAvatar()" id="save-btn">💾 Save</button>
                         
                         <div class="avatar-preview">
@@ -462,8 +460,28 @@
         }
 
         function buildItemsGrid(section) {
-            if (section === 'skintone' || section === 'background') {
-                return '<p style="text-align: center; color: #666; font-style: italic;">Use the color picker on the right to customize</p>';
+            if (section === 'skintone') {
+                const skinTones = ['#FDBCB4', '#F4C2A1', '#E8B982', '#D1A374', '#C19A6B', '#A67C5A', '#8D5524', '#6B4423'];
+                const currentSelection = avatarState.colors.bases;
+                
+                return skinTones.map(color => `
+                    <div class="item-card ${currentSelection === color ? 'selected' : ''}" 
+                         onclick="updateCurrentColor('${color}')">
+                        <div style="width: 50px; height: 50px; background-color: ${color}; border-radius: 8px; border: 2px solid #ddd;"></div>
+                    </div>
+                `).join('');
+            }
+            
+            if (section === 'background') {
+                const bgColors = ['#667eea', '#FF9A9E', '#FFB3BA', '#FFDFBA', '#FFFFBA', '#BAFFC9', '#BAE1FF', '#C9BAFF', '#FFBAF3', '#FFC9BA'];
+                const currentSelection = avatarState.colors.backgrounds;
+                
+                return bgColors.map(color => `
+                    <div class="item-card ${currentSelection === color ? 'selected' : ''}" 
+                         onclick="updateCurrentColor('${color}')">
+                        <div style="width: 50px; height: 50px; background-color: ${color}; border-radius: 8px; border: 2px solid #ddd;"></div>
+                    </div>
+                `).join('');
             }
 
             const items = manifest[section] ? manifest[section].filter(item => !item.includes('overlay')) : [];
@@ -488,6 +506,7 @@
         function generatePreview(category, item) {
             const currentColor = avatarState.colors[category];
             const svgId = `preview_${category}_${item.replace(/[^a-zA-Z0-9]/g, '_')}`;
+            const overlayFile = item.replace('.png', 'overlay.png');
             
             return `
                 <svg width="60" height="60" viewBox="0 0 60 60">
@@ -504,6 +523,8 @@
                     </defs>
                     <image href="https://polor.org/Avatars/characters/${category}/${item}" 
                            x="0" y="0" width="60" height="60" filter="url(#filter_${svgId})"/>
+                    <image href="https://polor.org/Avatars/characters/${category}/${overlayFile}" 
+                           x="0" y="0" width="60" height="60"/>
                 </svg>`;
         }
 
@@ -599,11 +620,9 @@
             updateDisplay();
             updateColorStack();
             
-            // Update items grid if not skintone/background
-            if (currentSection !== 'skintone' && currentSection !== 'background') {
-                const itemsGrid = document.getElementById('items-grid');
-                itemsGrid.innerHTML = buildItemsGrid(currentSection);
-            }
+            // Update items grid for all sections
+            const itemsGrid = document.getElementById('items-grid');
+            itemsGrid.innerHTML = buildItemsGrid(currentSection);
         }
 
         function selectItem(category, item) {
