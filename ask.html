@@ -662,6 +662,8 @@
             try {
                 // Create message object
                 const messageData = {
+                    toUser: targetUser.username,
+                    toUserId: targetUser.uid,
                     fromUser: isAnonymous ? null : currentUser.uid,
                     fromUserProfile: isAnonymous ? null : {
                         username: currentUserProfile?.username,
@@ -680,9 +682,8 @@
                     readAt: null
                 };
                 
-                // Save to user's askMessages subcollection
-                await firestore.collection('users').doc(targetUser.uid)
-                    .collection('askMessages').add(messageData);
+                // Save to askMessages collection
+                await firestore.collection('askMessages').add(messageData);
                 
                 // Show success
                 showSuccess();
@@ -760,8 +761,9 @@
             
             try {
                 const now = new Date();
-                const messages = await firestore.collection('users').doc(targetUser.uid)
-                    .collection('askMessages').get();
+                const messages = await firestore.collection('askMessages')
+                    .where('toUserId', '==', targetUser.uid)
+                    .get();
                 
                 const toDelete = [];
                 
