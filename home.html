@@ -257,7 +257,7 @@
         }
         
         .avatar-editor-header {
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: var(--bg-gradient, linear-gradient(135deg, #667eea, #764ba2));
             color: white;
             padding: 20px;
             text-align: center;
@@ -527,8 +527,7 @@
     <div id="avatar-editor-popup" class="avatar-editor-popup">
         <div class="avatar-editor-container">
             <div class="avatar-editor-header">
-                <h2>🎨 Avatar Creator</h2>
-                <button class="popup-close-btn" onclick="closeAvatarEditor()">&times;</button>
+                <h2>Edit Avatar</h2>
             </div>
             <div class="loading-iframe" id="iframe-loading">
                 <div class="iframe-spinner"></div>
@@ -758,7 +757,9 @@
             }, 300);
             
             // Refresh user data in case avatar was saved
-            loadUserProfile();
+            setTimeout(() => {
+                loadUserProfile();
+            }, 500);
         }
 
         // Listen for messages from the iframe
