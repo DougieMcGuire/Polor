@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ask Anonymous Question - Polor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-gradient, linear-gradient(135deg, #667eea 0%, #764ba2 100%));
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .ask-container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            width: 100%;
+            max-width: 500px;
+            position: relative;
+        }
+        
+        .user-info {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .user-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            overflow: hidden;
+            border: 3px solid #e9ecef;
+        }
+        
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .ask-title {
+            color: #333;
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .ask-subtitle {
+            color: #666;
+            font-size: 1rem;
+            margin-bottom: 20px;
+        }
+        
+        .question-input {
+            width: 100%;
+            min-height: 120px;
+            padding: 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            font-size: 16px;
+            font-family: inherit;
+            resize: vertical;
+            transition: border-color 0.2s ease;
+            background: #f8f9fa;
+        }
+        
+        .question-input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+        }
+        
+        .question-input::placeholder {
+            color: #999;
+        }
+        
+        .anonymous-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border: 2px solid #e9ecef;
+        }
+        
+        .toggle-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .toggle-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 2px solid #ddd;
+        }
+        
+        .toggle-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .toggle-text {
+            color: #333;
+            font-weight: 500;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 25px;
+            background: #ccc;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        
+        .toggle-switch.active {
+            background: #667eea;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 21px;
+            height: 21px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .toggle-switch.active .toggle-slider {
+            transform: translateX(25px);
+        }
+        
+        .login-prompt {
+            display: none;
+            color: #dc3545;
+            font-size: 14px;
+            margin-top: 10px;
+            text-align: center;
+        }
+        
+        .send-button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: 20px;
+        }
+        
+        .send-button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .send-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .sending-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+        
+        .sending-overlay.show {
+            display: flex;
+        }
+        
+        .sending-animation {
+            width: 60px;
+            height: 60px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .sending-text {
+            color: #333;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .sending-countdown {
+            color: #667eea;
+            font-size: 0.9rem;
+        }
+        
+        .success-message {
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .success-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+        
+        .success-title {
+            color: #28a745;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .success-subtitle {
+            color: #666;
+            margin-bottom: 20px;
+        }
+        
+        .new-question-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 12px 24px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .new-question-btn:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+        
+        .error-message {
+            background: #fff5f5;
+            color: #dc3545;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #f5c6cb;
+            display: none;
+        }
+        
+        .error-message.show {
+            display: block;
+        }
+        
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-gradient, linear-gradient(135deg, #667eea 0%, #764ba2 100%));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            color: white;
+        }
+        
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255,255,255,0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .ask-container {
+                padding: 30px 20px;
+                margin: 10px;
+            }
+            
+            .ask-title {
+                font-size: 1.5rem;
+            }
+            
+            .user-avatar {
+                width: 60px;
+                height: 60px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="loading-screen">
+        <div style="text-align: center;">
+            <div class="loading-spinner"></div>
+            <h2>Loading...</h2>
+        </div>
+    </div>
+
+    <!-- Ask Container -->
+    <div id="ask-container" class="ask-container" style="display: none;">
+        <!-- Error Message -->
+        <div id="error-message" class="error-message"></div>
+        
+        <!-- User Info -->
+        <div class="user-info">
+            <div class="user-avatar" id="user-avatar">
+                <img src="https://polor.org/Avatars/default.png" alt="User Avatar">
+            </div>
+            <h1 class="ask-title">Ask <span id="user-name">User</span> anything...</h1>
+            <p class="ask-subtitle">Send an anonymous question</p>
+        </div>
+        
+        <!-- Question Input -->
+        <textarea 
+            id="question-input" 
+            class="question-input" 
+            placeholder="What's on your mind? Ask anything..."
+            maxlength="500"
+        ></textarea>
+        
+        <!-- Anonymous Toggle -->
+        <div class="anonymous-toggle">
+            <div class="toggle-info">
+                <div class="toggle-avatar" id="toggle-avatar">
+                    <img src="https://polor.org/Avatars/anonymous.png" alt="Anonymous">
+                </div>
+                <span class="toggle-text" id="toggle-text">Send anonymously</span>
+            </div>
+            <div class="toggle-switch" id="anonymous-toggle" onclick="toggleAnonymous()">
+                <div class="toggle-slider"></div>
+            </div>
+        </div>
+        
+        <!-- Login Prompt -->
+        <div id="login-prompt" class="login-prompt">
+            <a href="auth.html" style="color: #667eea;">Sign in</a> to send non-anonymous messages
+        </div>
+        
+        <!-- Send Button -->
+        <button id="send-button" class="send-button" onclick="sendMessage()">
+            Send Question
+        </button>
+        
+        <!-- Sending Overlay -->
+        <div id="sending-overlay" class="sending-overlay">
+            <div class="sending-animation"></div>
+            <div class="sending-text">Sending your question...</div>
+            <div class="sending-countdown" id="sending-countdown">Please wait...</div>
+        </div>
+        
+        <!-- Success Message -->
+        <div id="success-message" class="success-message" style="display: none;">
+            <div class="success-icon">✅</div>
+            <div class="success-title">Message Sent!</div>
+            <div class="success-subtitle">Your question has been delivered</div>
+            <button class="new-question-btn" onclick="resetForm()">Ask Another Question</button>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        // Firebase config
+        const firebaseConfig = {
+            apiKey: "AIzaSyA8HcTDiCQtJHRiMES2p1iUlA30AkZPx1Y",
+            authDomain: "polor-62c29.firebaseapp.com",
+            databaseURL: "https://polor-62c29-default-rtdb.firebaseio.com",
+            projectId: "polor-62c29",
+            storageBucket: "polor-62c29.firebasestorage.app",
+            messagingSenderId: "232986823513",
+            appId: "1:232986823513:web:a6ee6bef6b0609ace3da48",
+            measurementId: "G-KRT42D5TQK"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const firestore = firebase.firestore();
+
+        let currentUser = null;
+        let targetUser = null;
+        let isAnonymous = true;
+
+        // Auth state listener
+        auth.onAuthStateChanged((user) => {
+            currentUser = user;
+            updateToggleState();
+        });
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                await loadTargetUser();
+                await loadPrefilledQuestion();
+                await cleanupExpiredMessages();
+                showAskForm();
+            } catch (error) {
+                showError('Failed to load user information');
+                console.error('Page load error:', error);
+            }
+        });
+
+        // Load target user from URL parameters
+        async function loadTargetUser() {
+            const urlParams = new URLSearchParams(window.location.search);
+            let username = urlParams.get('user') || urlParams.get('@') || '';
+            
+            // Handle @username format
+            if (username.startsWith('@')) {
+                username = username.substring(1);
+            }
+            
+            // Extract username from URL path if not in query
+            if (!username) {
+                const pathMatch = window.location.search.match(/[?&]@([^&]+)/);
+                if (pathMatch) {
+                    username = pathMatch[1];
+                }
+            }
+            
+            if (!username) {
+                throw new Error('No username specified');
+            }
+            
+            // Find user in Firestore
+            const usersQuery = await firestore.collection('users')
+                .where('username', '==', username)
+                .limit(1)
+                .get();
+            
+            if (usersQuery.empty) {
+                throw new Error('User not found');
+            }
+            
+            targetUser = usersQuery.docs[0].data();
+            updateUserInterface();
+        }
+
+        // Load prefilled question from ?q parameter
+        async function loadPrefilledQuestion() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const prefilledQuestion = urlParams.get('q');
+            
+            if (prefilledQuestion) {
+                document.getElementById('question-input').value = decodeURIComponent(prefilledQuestion);
+            }
+        }
+
+        // Update user interface with target user info
+        function updateUserInterface() {
+            // Update user name
+            document.getElementById('user-name').textContent = targetUser.displayName || targetUser.username;
+            
+            // Update user avatar
+            const avatarImg = document.querySelector('#user-avatar img');
+            if (targetUser.avatarIMG) {
+                avatarImg.src = targetUser.avatarIMG;
+            } else if (targetUser.avatarURL) {
+                avatarImg.src = targetUser.avatarURL + '&I=1';
+            }
+            
+            // Update background gradient
+            updateBackgroundGradient();
+        }
+
+        // Update background gradient based on user's avatar
+        function updateBackgroundGradient() {
+            if (targetUser.avatarURL) {
+                const urlParams = new URLSearchParams(targetUser.avatarURL.split('?')[1]);
+                const bgColor = urlParams.get('backgroundsColor');
+                
+                if (bgColor) {
+                    const hex = bgColor.replace('#', '');
+                    const r = parseInt(hex.substr(0, 2), 16);
+                    const g = parseInt(hex.substr(2, 2), 16);
+                    const b = parseInt(hex.substr(4, 2), 16);
+                    
+                    const lighterR = Math.min(255, r + 30);
+                    const lighterG = Math.min(255, g + 30);
+                    const lighterB = Math.min(255, b + 30);
+                    
+                    const darkerR = Math.max(0, r - 40);
+                    const darkerG = Math.max(0, g - 40);
+                    const darkerB = Math.max(0, b - 40);
+                    
+                    const baseColor = `rgb(${r}, ${g}, ${b})`;
+                    const lighterColor = `rgb(${lighterR}, ${lighterG}, ${lighterB})`;
+                    const darkerColor = `rgb(${darkerR}, ${darkerG}, ${darkerB})`;
+                    
+                    const gradient = `linear-gradient(135deg, ${lighterColor} 0%, ${baseColor} 50%, ${darkerColor} 100%)`;
+                    document.documentElement.style.setProperty('--bg-gradient', gradient);
+                }
+            }
+        }
+
+        // Toggle anonymous mode
+        function toggleAnonymous() {
+            if (!currentUser && !isAnonymous) {
+                // User wants to go non-anonymous but isn't logged in
+                document.getElementById('login-prompt').style.display = 'block';
+                return;
+            }
+            
+            isAnonymous = !isAnonymous;
+            updateToggleState();
+        }
+
+        // Update toggle state UI
+        function updateToggleState() {
+            const toggle = document.getElementById('anonymous-toggle');
+            const toggleText = document.getElementById('toggle-text');
+            const toggleAvatar = document.querySelector('#toggle-avatar img');
+            const loginPrompt = document.getElementById('login-prompt');
+            
+            loginPrompt.style.display = 'none';
+            
+            if (isAnonymous) {
+                toggle.classList.remove('active');
+                toggleText.textContent = 'Send anonymously';
+                toggleAvatar.src = 'https://polor.org/Avatars/anonymous.png';
+            } else {
+                if (currentUser) {
+                    toggle.classList.add('active');
+                    toggleText.textContent = 'Send as yourself';
+                    // Use current user's avatar
+                    toggleAvatar.src = currentUser.photoURL || 'https://polor.org/Avatars/default.png';
+                } else {
+                    // Reset to anonymous if not logged in
+                    isAnonymous = true;
+                    toggle.classList.remove('active');
+                    toggleText.textContent = 'Send anonymously';
+                    toggleAvatar.src = 'https://polor.org/Avatars/anonymous.png';
+                    loginPrompt.style.display = 'block';
+                }
+            }
+        }
+
+        // Send message
+        async function sendMessage() {
+            const message = document.getElementById('question-input').value.trim();
+            
+            if (!message) {
+                showError('Please write a question first');
+                return;
+            }
+            
+            if (!isAnonymous && !currentUser) {
+                showError('Please sign in to send non-anonymous messages');
+                return;
+            }
+            
+            // Show sending animation
+            showSendingAnimation();
+            
+            try {
+                // Create message object
+                const messageData = {
+                    toUser: targetUser.username,
+                    fromUser: isAnonymous ? null : currentUser.uid,
+                    message: message,
+                    isAnonymous: isAnonymous,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    status: 'unread',
+                    hasAnswer: false,
+                    answer: '',
+                    answeredAt: null,
+                    readAt: null
+                };
+                
+                // Save to Firestore
+                await firestore.collection('askMessages').add(messageData);
+                
+                // Show success
+                showSuccess();
+                
+            } catch (error) {
+                console.error('Send error:', error);
+                showError('Failed to send message. Please try again.');
+                hideSendingAnimation();
+            }
+        }
+
+        // Show sending animation with countdown
+        function showSendingAnimation() {
+            const overlay = document.getElementById('sending-overlay');
+            const countdown = document.getElementById('sending-countdown');
+            
+            overlay.classList.add('show');
+            
+            let timeLeft = 6; // Actually 6 seconds for ad time
+            countdown.textContent = `Sending in ${timeLeft} seconds...`;
+            
+            const timer = setInterval(() => {
+                timeLeft--;
+                if (timeLeft > 0) {
+                    countdown.textContent = `Sending in ${timeLeft} seconds...`;
+                } else {
+                    countdown.textContent = 'Almost done...';
+                    clearInterval(timer);
+                }
+            }, 1000);
+        }
+
+        // Hide sending animation
+        function hideSendingAnimation() {
+            document.getElementById('sending-overlay').classList.remove('show');
+        }
+
+        // Show success message
+        function showSuccess() {
+            hideSendingAnimation();
+            document.querySelector('.user-info').style.display = 'none';
+            document.getElementById('question-input').style.display = 'none';
+            document.querySelector('.anonymous-toggle').style.display = 'none';
+            document.getElementById('send-button').style.display = 'none';
+            document.getElementById('success-message').style.display = 'block';
+        }
+
+        // Reset form for new question
+        function resetForm() {
+            document.getElementById('question-input').value = '';
+            document.querySelector('.user-info').style.display = 'block';
+            document.getElementById('question-input').style.display = 'block';
+            document.querySelector('.anonymous-toggle').style.display = 'flex';
+            document.getElementById('send-button').style.display = 'block';
+            document.getElementById('success-message').style.display = 'none';
+            document.getElementById('error-message').classList.remove('show');
+        }
+
+        // Show error message
+        function showError(message) {
+            const errorDiv = document.getElementById('error-message');
+            errorDiv.textContent = message;
+            errorDiv.classList.add('show');
+        }
+
+        // Show ask form
+        function showAskForm() {
+            document.getElementById('loading-screen').style.display = 'none';
+            document.getElementById('ask-container').style.display = 'block';
+        }
+
+        // Cleanup expired messages (run in background) - TESTING: 5 minute timers
+        async function cleanupExpiredMessages() {
+            if (!targetUser) return;
+            
+            try {
+                const now = new Date();
+                const messages = await firestore.collection('askMessages')
+                    .where('toUser', '==', targetUser.username)
+                    .get();
+                
+                const toDelete = [];
+                
+                messages.forEach(doc => {
+                    const data = doc.data();
+                    if (!data.timestamp) return;
+                    
+                    const timestamp = data.timestamp.toDate();
+                    let shouldDelete = false;
+                    
+                    if (data.hasAnswer && data.answeredAt) {
+                        // Answered: 5 minutes (testing)
+                        const expiry = new Date(data.answeredAt.toDate().getTime() + (5 * 60 * 1000));
+                        shouldDelete = now > expiry;
+                    } else if (data.status === 'read' && data.readAt) {
+                        // Read but not answered: 5 minutes (testing)
+                        const expiry = new Date(data.readAt.toDate().getTime() + (5 * 60 * 1000));
+                        shouldDelete = now > expiry;
+                    } else {
+                        // Unread: 5 minutes (testing)
+                        const expiry = new Date(timestamp.getTime() + (5 * 60 * 1000));
+                        shouldDelete = now > expiry;
+                    }
+                    
+                    if (shouldDelete) {
+                        toDelete.push(doc.ref);
+                    }
+                });
+                
+                // Batch delete expired messages
+                if (toDelete.length > 0) {
+                    const batch = firestore.batch();
+                    toDelete.forEach(ref => batch.delete(ref));
+                    await batch.commit();
+                    console.log(`🧹 Cleaned up ${toDelete.length} expired messages (5min test mode)`);
+                }
+            } catch (error) {
+                console.error('Cleanup error:', error);
+            }
+        }
+    </script>
+</body>
+</html>
