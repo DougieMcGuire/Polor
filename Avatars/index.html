@@ -345,7 +345,7 @@
             document.getElementById('app-content').innerHTML = `<div style="position: absolute; top: -9999px;">${avatarSVG}</div>`;
             
             setTimeout(async () => {
-                const imageData = await convertToPNG();
+                const imageData = await convertToWebP();
                 if (imageData) {
                     document.getElementById('app-content').innerHTML = `
                         <div style="display: flex; justify-content: center; align-items: center; min-height: 100vh; background: transparent; margin: 0; padding: 0;">
@@ -591,7 +591,7 @@
             });
         }
 
-        async function convertToPNG() {
+        async function convertToWebP() {
             const { selectedParts, colors } = avatarState;
             
             return new Promise(async (resolve) => {
@@ -623,9 +623,9 @@
                         await drawOverlay(ctx, layerName, selectedItem);
                     }
                     
-                    // Convert final canvas to PNG
-                    const pngData = canvas.toDataURL('image/png');
-                    resolve(pngData);
+                    // Convert final canvas to WebP
+                    const webpData = canvas.toDataURL('image/webp', 0.9);
+                    resolve(webpData);
                     
                 } catch (error) {
                     console.error('Failed to bake avatar:', error);
@@ -722,7 +722,7 @@
             saveBtn.innerHTML = '<span class="spinner"></span> Saving...';
 
             try {
-                const avatarIMG = await convertToPNG();
+                const avatarIMG = await convertToWebP();
                 if (!avatarIMG) throw new Error('Failed to generate image');
 
                 const avatarURL = generateURL();
