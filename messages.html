@@ -551,6 +551,7 @@
 
         // Auth state listener
         auth.onAuthStateChanged(async (user) => {
+            console.log('Auth state changed:', user ? user.uid : 'not logged in');
             currentUser = user;
             if (user) {
                 try {
@@ -558,12 +559,16 @@
                     const userDoc = await firestore.collection('users').doc(user.uid).get();
                     if (userDoc.exists) {
                         currentUserProfile = userDoc.data();
+                        console.log('Loaded user profile:', currentUserProfile);
+                    } else {
+                        console.log('User profile not found');
                     }
                     await loadMessages();
                 } catch (error) {
                     console.error('Error loading user profile:', error);
                 }
             } else {
+                console.log('User not authenticated, showing auth prompt');
                 showAuthPrompt();
             }
             hideLoading();
@@ -571,7 +576,16 @@
 
         // Load messages from Firestore
         async function loadMessages() {
-            if (!currentUser || !currentUserProfile) return;
+            if (!currentUser || !currentUserProfile) {
+                console.log('Cannot load messages - missing user or profile:', {
+                    currentUser: !!currentUser,
+                    currentUserProfile: !!currentUserProfile,
+                    username: currentUserProfile?.username
+                });
+                return;
+            }
+
+            console.log('Loading messages for username:', currentUserProfile.username);
 
             try {
                 // Clean up expired messages first
@@ -588,7 +602,8 @@
                     ...doc.data()
                 }));
 
-                console.log('Loaded messages:', messages); // Debug log
+                console.log('Loaded messages count:', messages.length);
+                console.log('Messages data:', messages);
                 renderMessages();
             } catch (error) {
                 console.error('Error loading messages:', error);
@@ -598,11 +613,13 @@
 
         // Render messages grid
         function renderMessages() {
+            console.log('Rendering messages, count:', messages.length);
             const grid = document.getElementById('messages-grid');
             const countElement = document.getElementById('message-count');
             const noMessages = document.getElementById('no-messages');
 
             if (messages.length === 0) {
+                console.log('No messages found, showing no messages state');
                 showNoMessages();
                 return;
             }
@@ -614,6 +631,9 @@
             // Group messages by read status
             const unreadMessages = messages.filter(msg => msg.status === 'unread');
             const readMessages = messages.filter(msg => msg.status !== 'unread');
+
+            console.log('Unread messages:', unreadMessages.length);
+            console.log('Read messages:', readMessages.length);
 
             // Update count
             countElement.textContent = `${unreadMessages.length} new message${unreadMessages.length !== 1 ? 's' : ''}`;
@@ -630,6 +650,8 @@
             readMessages.forEach(message => {
                 grid.appendChild(createMessageCircle(message, true));
             });
+
+            console.log('Messages rendered successfully');
         }
 
         // Create message circle element
