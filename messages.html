@@ -935,4 +935,30 @@
                     console.log(`🧹 Cleaned up ${toDelete.length} expired messages (5min test mode)`);
                 }
             } catch (error) {
-                console.
+                console.error('Cleanup error:', error);
+            }
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('message-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'message-modal') {
+                closeModal();
+            }
+        });
+
+        // Escape key to close modal
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && document.getElementById('message-modal').classList.contains('show')) {
+                closeModal();
+            }
+        });
+
+        // Auto-refresh messages every 30 seconds
+        setInterval(() => {
+            if (currentUser && !document.getElementById('message-modal').classList.contains('show')) {
+                loadMessages();
+            }
+        }, 30000);
+    </script>
+</body>
+</html>
