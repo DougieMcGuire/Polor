@@ -571,15 +571,15 @@
 
         // Load messages from Firestore
         async function loadMessages() {
-            if (!currentUser) return;
+            if (!currentUser || !currentUserProfile) return;
 
             try {
                 // Clean up expired messages first
                 await cleanupExpiredMessages();
                 
-                // Load messages
+                // Load messages using toUser (username) instead of toUserId
                 const messagesQuery = await firestore.collection('askMessages')
-                    .where('toUserId', '==', currentUser.uid)
+                    .where('toUser', '==', currentUserProfile.username)
                     .orderBy('timestamp', 'desc')
                     .get();
 
@@ -588,6 +588,7 @@
                     ...doc.data()
                 }));
 
+                console.log('Loaded messages:', messages); // Debug log
                 renderMessages();
             } catch (error) {
                 console.error('Error loading messages:', error);
@@ -891,12 +892,12 @@
 
         // Cleanup expired messages (5 minutes for testing)
         async function cleanupExpiredMessages() {
-            if (!currentUser) return;
+            if (!currentUser || !currentUserProfile) return;
             
             try {
                 const now = new Date();
                 const messages = await firestore.collection('askMessages')
-                    .where('toUserId', '==', currentUser.uid)
+                    .where('toUser', '==', currentUserProfile.username)
                     .get();
                 
                 const toDelete = [];
