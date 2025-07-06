@@ -581,7 +581,7 @@
         function initializeApp() {
             setVH();
             
-            if (isMobile() && !isStandalone() && !localStorage.getItem('continueInBrowser')) {
+            if (isMobile() && !isStandalone()) {
                 showMobileInstallScreen();
             } else {
                 hideInstallScreen();
@@ -603,7 +603,6 @@
 
         // Continue in browser
         function continueInBrowser() {
-            localStorage.setItem('continueInBrowser', 'true');
             hideInstallScreen();
             initializeFirebase();
         }
