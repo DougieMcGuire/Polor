@@ -1,58 +1,121 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>AI Blog Generator</title>
   <style>
-    body { font-family:sans-serif; margin:0; padding:40px; background:#f4f4f4; }
-    .box { max-width:600px; margin:auto; background:white; padding:30px; border-radius:10px; box-shadow:0 0 15px rgba(0,0,0,0.1) }
-    input, button { width:100%; padding:15px; margin:10px 0; font-size:1em; }
-    .out-url { word-wrap:break-word; background:#eef; padding:10px; border-radius:5px }
+    body {
+      font-family: sans-serif;
+      margin: 0;
+      padding: 40px;
+      background: #f4f4f4;
+    }
+    .box {
+      max-width: 600px;
+      margin: auto;
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    }
+    input,
+    button {
+      width: 100%;
+      padding: 15px;
+      margin: 10px 0;
+      font-size: 1em;
+    }
+    .out-url {
+      word-wrap: break-word;
+      background: #eef;
+      padding: 10px;
+      border-radius: 5px;
+      margin-top: 10px;
+      font-family: monospace;
+      font-size: 0.9em;
+    }
   </style>
 </head>
 <body>
   <div class="box">
     <h2>Enter blog topic:</h2>
-    <input id="topic" placeholder="e.g. Benefits of meditation">
+    <input id="topic" placeholder="e.g. Benefits of meditation" />
     <button id="go">Generate Blog 👇</button>
-    <div id="out" class="out-url" style="display:none;"></div>
+    <div id="out" class="out-url" style="display: none;"></div>
   </div>
 
   <script>
     async function fetchText(prompt) {
-      const res = await fetch("https://text.pollinations.ai/" + encodeURIComponent(
-        `Fill a blog-post JSON with title, subtitle, intro, 3 sections, 2 images, conclusion, tags for topic: ${prompt}`
-      ));
+      // Use a more detailed prompt to ensure the AI outputs exactly what we want:
+      const fullPrompt = `
+Generate a JSON blog post about "${prompt}" with this exact structure:
+{
+  "title": "string",
+  "subtitle": "string",
+  "author": {
+    "name": "string",
+    "title": "string",
+    "avatar_url": "string (a relevant portrait image url)"
+  },
+  "intro": "string",
+  "sections": [
+    {"heading": "string", "body": "string"},
+    {"heading": "string", "body": "string"},
+    {"heading": "string", "body": "string"}
+  ],
+  "images": [
+    {"url": "string (image url for AI-generated image)", "caption": "string"},
+    {"url": "string (image url for AI-generated image)", "caption": "string"}
+  ],
+  "conclusion": "string",
+  "tags": ["string", "string", "string"]
+}
+Only output JSON. For the images.url, just output captions for now; actual URLs will be generated later.
+`;
+
+      const res = await fetch(
+        "https://text.pollinations.ai/" + encodeURIComponent(fullPrompt)
+      );
       return res.text();
     }
 
-    document.getElementById('go').onclick = async () => {
-      const topic = document.getElementById('topic').value.trim();
-      if(!topic) return alert("Type something!");
+    document.getElementById("go").onclick = async () => {
+      const topic = document.getElementById("topic").value.trim();
+      if (!topic) return alert("Type something!");
 
-      document.getElementById('out').textContent = "Generating...";
+      const out = document.getElementById("out");
+      out.textContent = "Generating...";
+      out.style.display = "block";
+
       const txt = await fetchText(topic);
 
-      // Try parse JSON
       let json;
-      try { json = JSON.parse(txt) }
-      catch(e) {
-        return document.getElementById('out').textContent = "Error parsing JSON:\n" + txt;
+      try {
+        json = JSON.parse(txt);
+      } catch (e) {
+        out.textContent = "Error parsing JSON from AI:\n" + txt;
+        return;
       }
 
-      // Add image URLs
-      json.images = json.images.map(im => ({
+      // Generate real AI image URLs based on captions, append nologo=true
+      json.images = json.images.map((im) => ({
         caption: im.caption,
-        url: `https://image.pollinations.ai/prompt/${encodeURIComponent(im.caption)}?nologo=true`
+        url: `https://image.pollinations.ai/prompt/${encodeURIComponent(
+          im.caption
+        )}?nologo=true`,
       }));
 
-      const dataStr = encodeURIComponent(JSON.stringify(json));
-      const link = window.location.origin + "/template.html?data=" + dataStr;
-      const a = document.createElement('a');
-      a.href = link; a.textContent = link;
-      const out = document.getElementById('out');
-      out.innerHTML = ""; out.style.display = "block"; out.appendChild(a);
-    }
+      // Add a default author avatar if missing
+      if (!json.author.avatar_url) {
+        json.author.avatar_url = `https://image.pollinations.ai/prompt/${encodeURIComponent(
+          json.author.name + " portrait"
+        )}?nologo=true`;
+      }
+
+      // URL encode and redirect
+      const encoded = encodeURIComponent(JSON.stringify(json));
+      window.location.href = `/template.html?data=${encoded}`;
+    };
   </script>
 </body>
 </html>
