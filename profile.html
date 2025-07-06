@@ -16,32 +16,32 @@
             background: #f8f9fa;
             min-height: 100vh;
             color: #333;
+            margin: 0;
+            padding: 0;
         }
         
         .profile-container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: white;
+            width: 100%;
             min-height: 100vh;
-            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            background: white;
         }
         
         .profile-header {
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
-            padding: 60px 50px;
+            padding: 80px 50px;
             text-align: center;
             position: relative;
         }
         
         .profile-avatar {
-            width: 150px;
-            height: 150px;
+            width: 180px;
+            height: 180px;
             border-radius: 50%;
-            margin: 0 auto 25px;
+            margin: 0 auto 30px;
             overflow: hidden;
-            border: 4px solid rgba(255,255,255,0.3);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            border: 5px solid rgba(255,255,255,0.3);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         }
         
         .profile-avatar img {
@@ -51,22 +51,22 @@
         }
         
         .profile-name {
-            font-size: 2.2rem;
+            font-size: 2.8rem;
             font-weight: 600;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
         }
         
         .profile-username {
-            font-size: 1.3rem;
+            font-size: 1.5rem;
             opacity: 0.9;
-            margin-bottom: 30px;
+            margin-bottom: 40px;
         }
         
         .profile-stats {
             display: flex;
             justify-content: center;
-            gap: 40px;
-            margin-top: 25px;
+            gap: 60px;
+            margin-top: 30px;
         }
         
         .stat-item {
@@ -74,21 +74,21 @@
         }
         
         .stat-number {
-            font-size: 1.8rem;
+            font-size: 2.2rem;
             font-weight: bold;
             display: block;
         }
         
         .stat-label {
-            font-size: 1rem;
+            font-size: 1.1rem;
             opacity: 0.8;
         }
         
         .profile-actions {
             display: flex;
-            gap: 20px;
+            gap: 25px;
             justify-content: center;
-            margin-top: 35px;
+            margin-top: 40px;
             flex-wrap: wrap;
         }
         
@@ -96,24 +96,25 @@
             background: rgba(255,255,255,0.2);
             border: 2px solid rgba(255,255,255,0.3);
             color: white;
-            padding: 15px 30px;
-            border-radius: 25px;
+            padding: 18px 40px;
+            border-radius: 30px;
             font-weight: 600;
             text-decoration: none;
             display: inline-flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
             transition: all 0.3s ease;
-            min-width: 160px;
+            min-width: 200px;
             justify-content: center;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 18px;
         }
         
         .ask-button:hover, .follow-button:hover {
             background: rgba(255,255,255,0.3);
             border-color: rgba(255,255,255,0.5);
-            transform: translateY(-2px);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
         }
         
         .follow-button.following {
@@ -133,13 +134,15 @@
         }
         
         .qa-section {
-            padding: 30px;
+            padding: 60px 100px;
+            max-width: 1200px;
+            margin: 0 auto;
         }
         
         .section-title {
-            font-size: 1.3rem;
+            font-size: 1.8rem;
             font-weight: 600;
-            margin-bottom: 20px;
+            margin-bottom: 40px;
             color: #333;
             text-align: center;
         }
@@ -292,45 +295,61 @@
             text-decoration: underline;
         }
         
-        @media (max-width: 768px) {
-            .profile-container {
-                margin: 0;
-                box-shadow: none;
+        @media (max-width: 1024px) {
+            .qa-section {
+                padding: 50px 60px;
             }
-            
+        }
+        
+        @media (max-width: 768px) {
             .profile-header {
-                padding: 30px 20px;
+                padding: 50px 30px;
             }
             
             .profile-avatar {
-                width: 100px;
-                height: 100px;
+                width: 140px;
+                height: 140px;
             }
             
             .profile-name {
-                font-size: 1.5rem;
+                font-size: 2rem;
+            }
+            
+            .profile-username {
+                font-size: 1.2rem;
             }
             
             .profile-stats {
-                gap: 20px;
+                gap: 40px;
+            }
+            
+            .stat-number {
+                font-size: 1.8rem;
             }
             
             .profile-actions {
                 flex-direction: column;
-                gap: 10px;
+                gap: 15px;
+                align-items: center;
             }
             
             .ask-button, .follow-button {
                 width: 100%;
-                max-width: 280px;
+                max-width: 300px;
+                padding: 15px 30px;
+                font-size: 16px;
             }
             
             .qa-section {
-                padding: 20px;
+                padding: 40px 30px;
+            }
+            
+            .section-title {
+                font-size: 1.5rem;
             }
             
             .qa-item {
-                padding: 15px;
+                padding: 20px;
             }
             
             .qa-meta {
@@ -346,35 +365,40 @@
         
         @media (max-width: 480px) {
             .profile-header {
-                padding: 25px 15px;
+                padding: 40px 20px;
+            }
+            
+            .profile-avatar {
+                width: 120px;
+                height: 120px;
             }
             
             .profile-name {
-                font-size: 1.3rem;
+                font-size: 1.8rem;
             }
             
             .profile-username {
-                font-size: 1rem;
+                font-size: 1.1rem;
             }
             
             .stat-number {
-                font-size: 1.3rem;
+                font-size: 1.5rem;
             }
             
             .stat-label {
-                font-size: 0.8rem;
+                font-size: 0.9rem;
             }
             
             .profile-stats {
-                gap: 15px;
+                gap: 30px;
             }
             
             .qa-section {
-                padding: 15px;
+                padding: 30px 20px;
             }
             
             .section-title {
-                font-size: 1.1rem;
+                font-size: 1.3rem;
             }
             
             .question, .answer {
@@ -445,7 +469,7 @@
                 <a href="#" id="ask-button" class="ask-button">
                     💬 Ask Me Anything
                 </a>
-                <button id="follow-button" class="follow-button" onclick="toggleFollow()" style="display: none;">
+                <button id="follow-button" class="follow-button" onclick="toggleFollow()">
                     <span id="follow-icon">👤</span>
                     <span id="follow-text">Follow</span>
                 </button>
@@ -538,7 +562,8 @@
                 }
             }
             
-            return username;
+            // Convert to lowercase for case-insensitive URLs
+            return username.toLowerCase();
         }
 
         // Load user profile
@@ -551,9 +576,9 @@
             }
 
             try {
-                // Find user by username
+                // Find user by username (case-insensitive)
                 const usersQuery = await firestore.collection('users')
-                    .where('username', '==', username)
+                    .where('username', '==', username.toLowerCase())
                     .limit(1)
                     .get();
 
@@ -563,6 +588,7 @@
                 }
 
                 currentProfile = usersQuery.docs[0].data();
+                currentProfile.uid = usersQuery.docs[0].id; // Add UID for follow functionality
                 displayProfile();
                 loadQAs();
 
@@ -619,13 +645,27 @@
             const followIcon = document.getElementById('follow-icon');
             const followText = document.getElementById('follow-text');
 
-            // Don't show follow button for own profile or if not logged in
-            if (!currentUser || (currentUserProfile && currentUserProfile.username === currentProfile?.username)) {
+            // Hide follow button for own profile
+            if (currentUserProfile && currentProfile && currentUserProfile.username === currentProfile.username) {
                 followButton.style.display = 'none';
                 return;
             }
 
+            // Show follow button
             followButton.style.display = 'inline-flex';
+
+            // If not logged in, show "Sign in to follow"
+            if (!currentUser) {
+                followIcon.textContent = '🔒';
+                followText.textContent = 'Sign in to Follow';
+                followButton.onclick = () => {
+                    showToast('Please sign in to follow users', 'error');
+                };
+                return;
+            }
+
+            // Reset onclick handler
+            followButton.onclick = toggleFollow;
 
             if (isFollowing) {
                 followButton.classList.add('following');
