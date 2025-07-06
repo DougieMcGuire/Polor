@@ -986,7 +986,34 @@
                 answerBtn.disabled = true;
                 answerBtn.textContent = 'Posting...';
 
-                // Update message in Firebase
+                // Create Q&A object
+                const qaItem = {
+                    id: currentMessage.id,
+                    question: currentMessage.message,
+                    questionPrompt: currentMessage.questionPrompt || null,
+                    answer: answer,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    isAnonymous: currentMessage.isAnonymous,
+                    fromUser: currentMessage.fromUser
+                };
+
+                // Update user's profile with new Q&A
+                const userRef = firestore.collection('users').doc(currentUser.uid);
+                
+                // Get current user data
+                const userDoc = await userRef.get();
+                const userData = userDoc.data();
+                const currentQAs = userData.answeredQAs || [];
+                
+                // Add new Q&A to the beginning of the array
+                currentQAs.unshift(qaItem);
+                
+                // Update user profile
+                await userRef.update({
+                    answeredQAs: currentQAs
+                });
+
+                // Mark message as answered and delete it (since it's now in user profile)
                 await firestore.collection('askMessages').doc(currentMessage.id).update({
                     answer: answer,
                     hasAnswer: true,
@@ -1002,7 +1029,7 @@
                 updateAnswerSection(currentMessage);
                 renderMessages(); // Update the grid
 
-                showShareToast('Answer posted! You can now share it.');
+                showShareToast('Answer posted and saved to your profile!');
 
             } catch (error) {
                 console.error('Error posting answer:', error);
@@ -1157,24 +1184,32 @@
         function generateTwitterText(message) {
             let text = '';
             
-            // Add question prompt if exists
+            // Always show Q&A format
             if (message.questionPrompt) {
+                // If there was a question prompt, show it
                 text += `Q: ${message.questionPrompt}\n`;
-                text += `A: ${message.message}\n\n`;
             } else {
-                text += `"${message.message}"\n\n`;
+                // Use the original question
+                text += `Q: ${message.message}\n`;
+            }
+            
+            // Add the answer
+            if (message.answer) {
+                text += `A: ${message.answer}\n\n`;
+            } else {
+                text += `A: ${message.message}\n\n`;
             }
             
             // Add attribution
             if (!message.isAnonymous && message.fromUserProfile) {
-                text += `- ${message.fromUserProfile.displayName || message.fromUserProfile.username}\n\n`;
+                text += `Asked by: ${message.fromUserProfile.displayName || message.fromUserProfile.username}\n\n`;
             } else {
-                text += `- Anonymous\n\n`;
+                text += `Asked anonymously\n\n`;
             }
             
             // Add call to action
             if (currentUserProfile) {
-                text += `Ask me anything anonymously 👇\n`;
+                text += `Ask me anything 👇\n`;
                 text += `https://polor.org/ask?@${currentUserProfile.username}\n\n`;
             }
             
