@@ -2,30 +2,186 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Polor</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="application-name" content="Polor">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Polor">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#667eea">
+    <meta name="msapplication-TileColor" content="#667eea">
+    
+    <!-- Prevent text selection and context menus -->
+    <meta name="format-detection" content="telephone=no">
+    <meta name="format-detection" content="email=no">
+    <meta name="format-detection" content="address=no">
+    
+    <!-- PWA Icons -->
+    <link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgdmlld0JveD0iMCAwIDE4MCAxODAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxODAiIGhlaWdodD0iMTgwIiByeD0iNDAiIGZpbGw9InVybCgjZ3JhZGllbnQwX2xpbmVhcl8xXzEpIi8+CjxkZWZzPgo8bGluZWFyR3JhZGllbnQgaWQ9ImdyYWRpZW50MF9saW5lYXJfMV8xIiB4MT0iMCIgeTE9IjAiIHgyPSIxODAiIHkyPSIxODAiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj4KPHN0b3Agc3RvcC1jb2xvcj0iIzY2N2VlYSIvPgo8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3NjRiYTIiLz4KPC9saW5lYXJHcmFkaWVudD4KPC9kZWZzPgo8L3N2Zz4K">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iOCIgZmlsbD0idXJsKCNncmFkaWVudDBfbGluZWFyXzFfMSkiLz4KPGRlZnM+CjxsaW5lYXJHcmFkaWVudCBpZD0iZ3JhZGllbnQwX2xpbmVhcl8xXzEiIHgxPSIwIiB5MT0iMCIgeDI9IjMyIiB5Mj0iMzIiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj4KPHN0b3Agc3RvcC1jb2xvcj0iIzY2N2VlYSIvPgo8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3NjRiYTIiLz4KPC9saW5lYXJHcmFkaWVudD4KPC9kZWZzPgo8L3N2Zz4K">
+    
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        html {
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+            touch-action: manipulation;
+            overscroll-behavior: none;
         }
         
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             background: #000;
             height: 100vh;
+            height: 100dvh;
             overflow: hidden;
-            position: relative;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            left: 0;
+            overscroll-behavior: none;
+            -webkit-overflow-scrolling: touch;
         }
         
-        /* Loading Screen */
-        .loading-screen {
+        /* Hide address bar on mobile */
+        @media screen and (max-width: 768px) {
+            body {
+                height: 100vh;
+                height: calc(var(--vh, 1vh) * 100);
+            }
+        }
+        
+        /* Mobile Detection Screen */
+        .mobile-install-screen {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
+            height: 100dvh;
+            background: #000;
+            color: white;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 40px 30px;
+            z-index: 10000;
+        }
+        
+        .mobile-install-screen.show {
+            display: flex;
+        }
+        
+        .install-logo {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(102, 126, 234, 0.3);
+        }
+        
+        .install-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .install-subtitle {
+            font-size: 16px;
+            color: #999;
+            margin-bottom: 40px;
+            line-height: 1.4;
+        }
+        
+        .install-steps {
+            max-width: 300px;
+            margin-bottom: 40px;
+        }
+        
+        .install-step {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        
+        .step-number {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+        
+        .step-text {
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        
+        .share-icon {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            margin: 0 4px;
+            vertical-align: middle;
+        }
+        
+        .continue-browser-btn {
+            background: transparent;
+            border: 1px solid #333;
+            color: #666;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+        
+        .continue-browser-btn:hover {
+            border-color: #555;
+            color: #999;
+        }
+        
+        /* App Loading Screen */
+        .app-loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            height: 100dvh;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             display: flex;
             align-items: center;
@@ -35,10 +191,29 @@
             color: white;
         }
         
-        .loading-spinner {
+        .app-loading-logo {
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            margin-bottom: 30px;
+            animation: logoFloat 2s ease-in-out infinite;
+            backdrop-filter: blur(20px);
+        }
+        
+        @keyframes logoFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .app-loading-spinner {
             width: 50px;
             height: 50px;
-            border: 3px solid rgba(255,255,255,0.3);
+            border: 3px solid rgba(255,255,255,0.2);
             border-top: 3px solid white;
             border-radius: 50%;
             animation: spin 1s linear infinite;
@@ -50,20 +225,41 @@
             100% { transform: rotate(360deg); }
         }
         
-        .loading-text {
-            font-size: 1.2rem;
-            font-weight: 500;
+        .app-loading-text {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .app-loading-subtitle {
+            font-size: 14px;
+            opacity: 0.8;
         }
         
         /* App Container */
         .app-container {
             display: none;
             height: 100vh;
+            height: 100dvh;
             flex-direction: column;
+            background: #000;
         }
         
         .app-container.show {
             display: flex;
+        }
+        
+        /* Status Bar (for standalone mode) */
+        .status-bar {
+            height: env(safe-area-inset-top);
+            background: var(--nav-bg, linear-gradient(135deg, #667eea, #764ba2));
+            display: none;
+        }
+        
+        @media (display-mode: standalone) {
+            .status-bar {
+                display: block;
+            }
         }
         
         /* Content Area */
@@ -71,6 +267,7 @@
             flex: 1;
             position: relative;
             overflow: hidden;
+            background: #f8f9fa;
         }
         
         .page-iframe {
@@ -92,6 +289,7 @@
             left: 0;
             width: 100%;
             height: 100%;
+            height: 100dvh;
             z-index: 8888;
             display: none;
         }
@@ -108,16 +306,18 @@
         
         /* Bottom Navigation */
         .bottom-nav {
-            height: 80px;
+            height: 70px;
             background: var(--nav-bg, linear-gradient(135deg, #667eea, #764ba2));
             display: flex;
             align-items: center;
             justify-content: space-around;
-            padding: 0 20px;
-            border-top: 1px solid rgba(255,255,255,0.1);
-            backdrop-filter: blur(20px);
+            padding: 8px 20px;
+            padding-bottom: calc(8px + env(safe-area-inset-bottom));
+            border-top: 1px solid rgba(255,255,255,0.15);
+            backdrop-filter: blur(30px);
             position: relative;
             z-index: 100;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
         }
         
         .nav-item {
@@ -125,33 +325,59 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            color: rgba(255,255,255,0.7);
-            transition: all 0.3s ease;
+            color: rgba(255,255,255,0.6);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             cursor: pointer;
-            padding: 8px 12px;
-            border-radius: 12px;
-            min-width: 60px;
+            padding: 8px 16px;
+            border-radius: 16px;
+            min-width: 70px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .nav-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255,255,255,0.1);
+            border-radius: 16px;
+            transform: scale(0);
+            transition: transform 0.3s ease;
+        }
+        
+        .nav-item.active::before {
+            transform: scale(1);
         }
         
         .nav-item.active {
             color: white;
-            background: rgba(255,255,255,0.2);
-            transform: translateY(-2px);
+            transform: translateY(-4px);
         }
         
-        .nav-item:hover {
-            color: white;
-            background: rgba(255,255,255,0.1);
+        .nav-item:active {
+            transform: scale(0.95) translateY(-2px);
         }
         
         .nav-icon {
-            font-size: 24px;
+            font-size: 22px;
             margin-bottom: 4px;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .nav-item.active .nav-icon {
+            font-size: 24px;
         }
         
         .nav-label {
-            font-size: 12px;
-            font-weight: 500;
+            font-size: 11px;
+            font-weight: 600;
+            position: relative;
+            z-index: 1;
         }
         
         /* Page Loading States */
@@ -180,48 +406,75 @@
             animation: spin 1s linear infinite;
         }
         
-        /* Mobile Optimizations */
-        @media (max-width: 768px) {
-            .bottom-nav {
-                height: 70px;
-                padding: 0 10px;
-            }
-            
-            .nav-item {
-                padding: 6px 8px;
-                min-width: 50px;
-            }
-            
-            .nav-icon {
-                font-size: 20px;
-                margin-bottom: 2px;
-            }
-            
-            .nav-label {
-                font-size: 10px;
-            }
+        /* Haptic feedback simulation */
+        .nav-item:active {
+            animation: haptic 0.1s ease;
         }
         
-        /* iPhone Safe Area */
-        @supports (padding-bottom: env(safe-area-inset-bottom)) {
-            .bottom-nav {
-                padding-bottom: calc(10px + env(safe-area-inset-bottom));
-            }
+        @keyframes haptic {
+            0% { transform: scale(1) translateY(-4px); }
+            50% { transform: scale(0.98) translateY(-2px); }
+            100% { transform: scale(1) translateY(-4px); }
         }
         
-        /* Status Bar Style */
-        @media (display-mode: standalone) {
-            body {
+        /* iOS specific fixes */
+        @supports (-webkit-touch-callout: none) {
+            .app-container {
+                padding-top: constant(safe-area-inset-top);
                 padding-top: env(safe-area-inset-top);
             }
+        }
+        
+        /* Hide scrollbars */
+        ::-webkit-scrollbar {
+            display: none;
+        }
+        
+        * {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
         }
     </style>
 </head>
 <body>
-    <!-- Loading Screen -->
-    <div id="loading-screen" class="loading-screen">
-        <div class="loading-spinner"></div>
-        <div class="loading-text">Loading Polor...</div>
+    <!-- Mobile Install Screen -->
+    <div id="mobile-install-screen" class="mobile-install-screen">
+        <div class="install-logo">📱</div>
+        <h1 class="install-title">Download Polor App?</h1>
+        <p class="install-subtitle">Get the best experience with our mobile app</p>
+        
+        <div class="install-steps">
+            <div class="install-step">
+                <div class="step-number">1</div>
+                <div class="step-text">
+                    Tap the share button 
+                    <svg class="share-icon" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/>
+                    </svg>
+                    in your browser
+                </div>
+            </div>
+            <div class="install-step">
+                <div class="step-number">2</div>
+                <div class="step-text">Select "Add to Home Screen"</div>
+            </div>
+            <div class="install-step">
+                <div class="step-number">3</div>
+                <div class="step-text">Tap "Add" to install Polor</div>
+            </div>
+        </div>
+        
+        <button class="continue-browser-btn" onclick="continueInBrowser()">
+            Continue in browser (not recommended)
+        </button>
+    </div>
+    
+    <!-- App Loading Screen -->
+    <div id="app-loading-screen" class="app-loading-screen">
+        <div class="app-loading-logo">📱</div>
+        <div class="app-loading-spinner"></div>
+        <div class="app-loading-text">Loading Polor</div>
+        <div class="app-loading-subtitle">Setting up your experience...</div>
     </div>
     
     <!-- Auth Container (Full Screen) -->
@@ -231,6 +484,9 @@
     
     <!-- Main App Container -->
     <div id="app-container" class="app-container">
+        <!-- Status Bar for standalone mode -->
+        <div class="status-bar"></div>
+        
         <!-- Content Area -->
         <div class="content-area">
             <!-- Page Loading Indicators -->
@@ -307,17 +563,68 @@
         let currentPage = 'home';
         let loadedPages = new Set();
 
-        // Auth state listener
-        auth.onAuthStateChanged(async (user) => {
-            if (user) {
-                currentUser = user;
-                await loadUserProfile();
-                showApp();
-                loadCurrentPage();
+        // Mobile and standalone detection
+        function isMobile() {
+            return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+                   (window.innerWidth <= 768 && window.innerHeight <= 1024);
+        }
+
+        function isStandalone() {
+            return window.matchMedia('(display-mode: standalone)').matches ||
+                   window.navigator.standalone ||
+                   document.referrer.includes('android-app://');
+        }
+
+        // Set viewport height for mobile
+        function setVH() {
+            let vh = window.innerHeight * 0.01;
+            document.documentElement.style.setProperty('--vh', `${vh}px`);
+        }
+
+        // Initialize app
+        function initializeApp() {
+            setVH();
+            
+            if (isMobile() && !isStandalone() && !localStorage.getItem('continueInBrowser')) {
+                showMobileInstallScreen();
             } else {
-                showAuth();
+                hideInstallScreen();
+                initializeFirebase();
             }
-        });
+        }
+
+        // Show mobile install screen
+        function showMobileInstallScreen() {
+            document.getElementById('mobile-install-screen').classList.add('show');
+            document.getElementById('app-loading-screen').style.display = 'none';
+        }
+
+        // Hide install screen and start app
+        function hideInstallScreen() {
+            document.getElementById('mobile-install-screen').classList.remove('show');
+            document.getElementById('app-loading-screen').style.display = 'flex';
+        }
+
+        // Continue in browser
+        function continueInBrowser() {
+            localStorage.setItem('continueInBrowser', 'true');
+            hideInstallScreen();
+            initializeFirebase();
+        }
+
+        // Initialize Firebase auth
+        function initializeFirebase() {
+            auth.onAuthStateChanged(async (user) => {
+                if (user) {
+                    currentUser = user;
+                    await loadUserProfile();
+                    showApp();
+                    loadCurrentPage();
+                } else {
+                    showAuth();
+                }
+            });
+        }
 
         // Load user profile
         async function loadUserProfile() {
@@ -346,7 +653,6 @@
                         const g = parseInt(hex.substr(2, 2), 16);
                         const b = parseInt(hex.substr(4, 2), 16);
                         
-                        // Create lighter and darker versions
                         const lighterR = Math.min(255, r + 30);
                         const lighterG = Math.min(255, g + 30);
                         const lighterB = Math.min(255, b + 30);
@@ -374,20 +680,25 @@
 
         // Show authentication page
         function showAuth() {
-            document.getElementById('loading-screen').style.display = 'none';
+            document.getElementById('app-loading-screen').style.display = 'none';
             document.getElementById('auth-container').classList.add('show');
             document.getElementById('app-container').classList.remove('show');
         }
 
         // Show main app
         function showApp() {
-            document.getElementById('loading-screen').style.display = 'none';
+            document.getElementById('app-loading-screen').style.display = 'none';
             document.getElementById('auth-container').classList.remove('show');
             document.getElementById('app-container').classList.add('show');
         }
 
-        // Switch between pages
+        // Switch between pages with haptic feedback simulation
         function switchPage(pageName) {
+            // Haptic feedback simulation
+            if (navigator.vibrate) {
+                navigator.vibrate(10);
+            }
+            
             // Update active nav item
             document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
             event.currentTarget.classList.add('active');
@@ -408,7 +719,7 @@
         // Load page iframe
         function loadPage(pageName) {
             if (loadedPages.has(pageName)) {
-                return; // Already loaded
+                return;
             }
             
             const iframe = document.getElementById(`${pageName}-iframe`);
@@ -420,19 +731,14 @@
                 return;
             }
             
-            // Show loading indicator
             loading.classList.add('show');
-            
-            // Set iframe source
             iframe.src = dataSrc;
             
-            // Handle iframe load
             iframe.onload = function() {
                 loading.classList.remove('show');
                 loadedPages.add(pageName);
             };
             
-            // Handle iframe error
             iframe.onerror = function() {
                 loading.classList.remove('show');
                 loading.innerHTML = `<p style="color: #dc3545;">Failed to load ${pageName}</p>`;
@@ -448,10 +754,8 @@
         window.addEventListener('message', function(event) {
             if (event.origin === 'https://polor.org' || event.origin === window.location.origin) {
                 if (event.data === 'authSuccess' || event.data === 'loginSuccess') {
-                    // User successfully authenticated, Firebase auth will handle the rest
                     console.log('Authentication successful');
                 } else if (event.data === 'signOut' || event.data === 'logout') {
-                    // Sign out user
                     auth.signOut();
                 }
             }
@@ -483,7 +787,6 @@
             if (['home', 'following', 'search', 'profile'].includes(hash)) {
                 currentPage = hash;
                 
-                // Update nav on load
                 setTimeout(() => {
                     const navItems = document.querySelectorAll('.nav-item');
                     const pages = ['home', 'following', 'search', 'profile'];
@@ -503,14 +806,13 @@
         // Preload pages after initial load
         setTimeout(() => {
             if (currentUser) {
-                // Preload other pages after a delay
                 setTimeout(() => loadPage('search'), 2000);
                 setTimeout(() => loadPage('following'), 3000);
                 setTimeout(() => loadPage('profile'), 4000);
             }
         }, 1000);
 
-        // Add PWA support
+        // PWA Service Worker
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function() {
                 navigator.serviceWorker.register('/sw.js').then(function(registration) {
@@ -521,16 +823,44 @@
             });
         }
 
-        // Add to home screen prompt
+        // Install prompt handling
         let deferredPrompt;
         window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
             deferredPrompt = e;
+        });
+
+        // Prevent zoom and context menus
+        document.addEventListener('gesturestart', function(e) {
+            e.preventDefault();
+        });
+
+        document.addEventListener('gesturechange', function(e) {
+            e.preventDefault();
+        });
+
+        document.addEventListener('gestureend', function(e) {
+            e.preventDefault();
+        });
+
+        // Prevent double-tap zoom
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function(event) {
+            const now = (new Date()).getTime();
+            if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
+
+        // Prevent context menu
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
         });
 
         // Handle keyboard navigation for accessibility
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Tab') {
-                // Allow normal tab navigation
                 return;
             }
             
@@ -545,6 +875,103 @@
                 }
             }
         });
+
+        // Handle viewport changes for mobile
+        window.addEventListener('resize', setVH);
+        window.addEventListener('orientationchange', function() {
+            setTimeout(setVH, 100);
+        });
+
+        // Initialize app on load
+        window.addEventListener('load', initializeApp);
+        
+        // Also initialize immediately if DOM is already loaded
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeApp);
+        } else {
+            initializeApp();
+        }
+
+        // Hide splash screen after load
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                const appLoading = document.getElementById('app-loading-screen');
+                if (appLoading) {
+                    appLoading.style.opacity = '0';
+                    appLoading.style.transition = 'opacity 0.5s ease';
+                    setTimeout(() => {
+                        appLoading.style.display = 'none';
+                    }, 500);
+                }
+            }, 1500);
+        });
+
+        // Prevent text selection on long press
+        document.addEventListener('selectstart', function(e) {
+            e.preventDefault();
+        });
+
+        // Handle orientation changes
+        screen.orientation?.addEventListener('change', () => {
+            setTimeout(setVH, 100);
+        });
+
+        // Performance optimization: Intersection Observer for iframe loading
+        if ('IntersectionObserver' in window) {
+            const iframeObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const iframe = entry.target;
+                        const src = iframe.getAttribute('data-src');
+                        if (src && !iframe.src) {
+                            iframe.src = src;
+                            iframeObserver.unobserve(iframe);
+                        }
+                    }
+                });
+            });
+
+            document.querySelectorAll('.page-iframe[data-src]').forEach(iframe => {
+                iframeObserver.observe(iframe);
+            });
+        }
+    </script>
+
+    <!-- PWA Manifest -->
+    <script>
+        // Create manifest dynamically
+        const manifest = {
+            "name": "Polor",
+            "short_name": "Polor",
+            "description": "Anonymous Q&A Social Platform",
+            "start_url": "/",
+            "display": "standalone",
+            "orientation": "portrait",
+            "theme_color": "#667eea",
+            "background_color": "#000000",
+            "icons": [
+                {
+                    "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDE5MiAxOTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIiByeD0iNDgiIGZpbGw9InVybCgjZ3JhZGllbnQwX2xpbmVhcl8xXzEpIi8+CjxkZWZzPgo8bGluZWFyR3JhZGllbnQgaWQ9ImdyYWRpZW50MF9saW5lYXJfMV8xIiB4MT0iMCIgeTE9IjAiIHgyPSIxOTIiIHkyPSIxOTIiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj4KPHN0b3Agc3RvcC1jb2xvcj0iIzY2N2VlYSIvPgo8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3NjRiYTIiLz4KPC9saW5lYXJHcmFkaWVudD4KPC9kZWZzPgo8L3N2Zz4K",
+                    "sizes": "192x192",
+                    "type": "image/svg+xml",
+                    "purpose": "any maskable"
+                },
+                {
+                    "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDUxMiA1MTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiByeD0iMTI4IiBmaWxsPSJ1cmwoI2dyYWRpZW50MF9saW5lYXJfMV8xKSIvPgo8ZGVmcz4KPGxpbmVhckdyYWRpZW50IGlkPSJncmFkaWVudDBfbGluZWFyXzFfMSIgeDE9IjAiIHkxPSIwIiB4Mj0iNTEyIiB5Mj0iNTEyIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+CjxzdG9wIHN0b3AtY29sb3I9IiM2NjdlZWEiLz4KPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjNzY0YmEyIi8+CjwvbGluZWFyR3JhZGllbnQ+CjwvZGVmcz4KPC9zdmc+Cg==",
+                    "sizes": "512x512",
+                    "type": "image/svg+xml",
+                    "purpose": "any maskable"
+                }
+            ]
+        };
+
+        // Add manifest to page
+        const manifestBlob = new Blob([JSON.stringify(manifest)], {type: 'application/json'});
+        const manifestURL = URL.createObjectURL(manifestBlob);
+        const manifestLink = document.createElement('link');
+        manifestLink.rel = 'manifest';
+        manifestLink.href = manifestURL;
+        document.head.appendChild(manifestLink);
     </script>
 </body>
 </html>
