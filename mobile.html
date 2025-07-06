@@ -1,18 +1,4 @@
-// Update navbar gradient based on user's avatar background
-        function updateNavbarGradient() {
-            if (userProfile && userProfile.avatarURL) {
-                try {
-                    const urlParams = new URLSearchParams(userProfile.avatarURL.split('?')[1]);
-                    const bgColor = urlParams.get('backgroundsColor');
-                    
-                    if (bgColor) {
-                        const hex = bgColor.replace('#', '');
-                        const r = parseInt(hex.substr(0, 2), 16);
-                        const g = parseInt(hex.substr(2, 2), 16);
-                        const b = parseInt(hex.substr(4, 2), 16);
-                        
-                        const lighterR = Math.min(255, r + 30);
-                        const lighterG = Math.min(255, g + 30);<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
