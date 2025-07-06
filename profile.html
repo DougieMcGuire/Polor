@@ -67,33 +67,76 @@
             justify-content: center;
             gap: 15px;
             margin-bottom: 30px;
+            flex-wrap: wrap;
         }
         
         .social-link {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.2);
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
             text-decoration: none;
             color: white;
-            font-size: 18px;
+            font-size: 20px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .social-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255,255,255,0.2);
             transition: all 0.3s ease;
         }
         
-        .social-link:hover {
+        .social-link:hover::before {
             background: rgba(255,255,255,0.3);
-            transform: translateY(-2px);
         }
         
-        .social-link.twitter { background: rgba(29, 161, 242, 0.8); }
-        .social-link.instagram { background: rgba(225, 48, 108, 0.8); }
-        .social-link.tiktok { background: rgba(0, 0, 0, 0.8); }
-        .social-link.snapchat { background: rgba(255, 252, 0, 0.8); color: black; }
-        .social-link.youtube { background: rgba(255, 0, 0, 0.8); }
-        .social-link.discord { background: rgba(114, 137, 218, 0.8); }
+        .social-link:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+        
+        /* Social platform specific colors */
+        .social-link.instagram { 
+            background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); 
+        }
+        .social-link.tiktok { 
+            background: #000; 
+        }
+        .social-link.facebook { 
+            background: #1877f2; 
+        }
+        .social-link.x { 
+            background: #000; 
+        }
+        .social-link.discord { 
+            background: #5865f2; 
+        }
+        .social-link.reddit { 
+            background: #ff4500; 
+        }
+        .social-link.snapchat { 
+            background: #fffc00; 
+            color: #000; 
+        }
+        .social-link.github { 
+            background: #333; 
+        }
+        .social-link.bluesky { 
+            background: #0085ff; 
+        }
+        .social-link.custom { 
+            background: #667eea; 
+        }
         
         .profile-stats {
             display: flex;
@@ -394,12 +437,16 @@
             flex-shrink: 0;
         }
         
-        .social-icon.twitter { background: #1da1f2; }
-        .social-icon.instagram { background: #e1306c; }
-        .social-icon.tiktok { background: #000000; }
-        .social-icon.snapchat { background: #fffc00; color: black; }
-        .social-icon.youtube { background: #ff0000; }
-        .social-icon.discord { background: #7289da; }
+        .social-icon.instagram { background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); }
+        .social-icon.tiktok { background: #000; }
+        .social-icon.facebook { background: #1877f2; }
+        .social-icon.x { background: #000; }
+        .social-icon.discord { background: #5865f2; }
+        .social-icon.reddit { background: #ff4500; }
+        .social-icon.snapchat { background: #fffc00; color: #000; }
+        .social-icon.github { background: #333; }
+        .social-icon.bluesky { background: #0085ff; }
+        .social-icon.custom { background: #667eea; }
         
         .social-input {
             flex: 1;
@@ -641,6 +688,16 @@
             .social-input {
                 width: 100%;
             }
+            
+            .social-links {
+                gap: 10px;
+            }
+            
+            .social-link {
+                width: 40px;
+                height: 40px;
+                font-size: 18px;
+            }
         }
         
         /* Toast notification */
@@ -759,13 +816,8 @@
                     <h3>🔗 Social Links</h3>
                     <div class="social-grid">
                         <div class="social-input-group">
-                            <div class="social-icon twitter">🐦</div>
-                            <input type="text" class="social-input" id="edit-twitter" placeholder="@username">
-                        </div>
-                        
-                        <div class="social-input-group">
                             <div class="social-icon instagram">📷</div>
-                            <input type="text" class="social-input" id="edit-instagram" placeholder="@username">
+                            <input type="text" class="social-input" id="edit-instagram" placeholder="username">
                         </div>
                         
                         <div class="social-input-group">
@@ -774,18 +826,43 @@
                         </div>
                         
                         <div class="social-input-group">
-                            <div class="social-icon snapchat">👻</div>
-                            <input type="text" class="social-input" id="edit-snapchat" placeholder="@username">
+                            <div class="social-icon facebook">👥</div>
+                            <input type="text" class="social-input" id="edit-facebook" placeholder="username">
                         </div>
                         
                         <div class="social-input-group">
-                            <div class="social-icon youtube">📺</div>
-                            <input type="text" class="social-input" id="edit-youtube" placeholder="@channel">
+                            <div class="social-icon x">🐦</div>
+                            <input type="text" class="social-input" id="edit-x" placeholder="@username">
                         </div>
                         
                         <div class="social-input-group">
                             <div class="social-icon discord">🎮</div>
                             <input type="text" class="social-input" id="edit-discord" placeholder="username#1234">
+                        </div>
+                        
+                        <div class="social-input-group">
+                            <div class="social-icon reddit">🤖</div>
+                            <input type="text" class="social-input" id="edit-reddit" placeholder="u/username">
+                        </div>
+                        
+                        <div class="social-input-group">
+                            <div class="social-icon snapchat">👻</div>
+                            <input type="text" class="social-input" id="edit-snapchat" placeholder="username">
+                        </div>
+                        
+                        <div class="social-input-group">
+                            <div class="social-icon github">💻</div>
+                            <input type="text" class="social-input" id="edit-github" placeholder="username">
+                        </div>
+                        
+                        <div class="social-input-group">
+                            <div class="social-icon bluesky">☁️</div>
+                            <input type="text" class="social-input" id="edit-bluesky" placeholder="username.bsky.social">
+                        </div>
+                        
+                        <div class="social-input-group">
+                            <div class="social-icon custom">🌐</div>
+                            <input type="url" class="social-input" id="edit-custom" placeholder="https://yourwebsite.com">
                         </div>
                     </div>
                 </div>
@@ -1005,13 +1082,18 @@
             const socialLinksContainer = document.getElementById('social-links');
             const socialLinks = currentProfile.socialLinks || {};
             
+            // All supported social platforms in order of popularity
             const socialPlatforms = [
-                { key: 'twitter', icon: '🐦', baseUrl: 'https://twitter.com/' },
                 { key: 'instagram', icon: '📷', baseUrl: 'https://instagram.com/' },
                 { key: 'tiktok', icon: '🎵', baseUrl: 'https://tiktok.com/@' },
+                { key: 'facebook', icon: '👥', baseUrl: 'https://facebook.com/' },
+                { key: 'x', icon: '🐦', baseUrl: 'https://x.com/' },
+                { key: 'discord', icon: '🎮', baseUrl: 'https://discord.com/users/' },
+                { key: 'reddit', icon: '🤖', baseUrl: 'https://reddit.com/user/' },
                 { key: 'snapchat', icon: '👻', baseUrl: 'https://snapchat.com/add/' },
-                { key: 'youtube', icon: '📺', baseUrl: 'https://youtube.com/@' },
-                { key: 'discord', icon: '🎮', baseUrl: 'https://discord.com/users/' }
+                { key: 'github', icon: '💻', baseUrl: 'https://github.com/' },
+                { key: 'bluesky', icon: '☁️', baseUrl: 'https://bsky.app/profile/' },
+                { key: 'custom', icon: '🌐', baseUrl: '' } // Custom link uses full URL
             ];
 
             let hasLinks = false;
@@ -1022,11 +1104,25 @@
                 if (username && username.trim()) {
                     hasLinks = true;
                     const link = document.createElement('a');
-                    link.href = platform.baseUrl + username.replace('@', '');
+                    
+                    // Handle custom links differently
+                    if (platform.key === 'custom') {
+                        // Custom links should be full URLs
+                        link.href = username.startsWith('http') ? username : `https://${username}`;
+                    } else {
+                        // Clean username and build URL
+                        let cleanUsername = username.replace('@', '').replace('u/', '');
+                        if (platform.key === 'reddit' && !cleanUsername.startsWith('u/')) {
+                            cleanUsername = cleanUsername;
+                        }
+                        link.href = platform.baseUrl + cleanUsername;
+                    }
+                    
                     link.target = '_blank';
                     link.className = `social-link ${platform.key}`;
                     link.textContent = platform.icon;
                     link.title = `${platform.key}: ${username}`;
+                    link.rel = 'noopener noreferrer';
                     socialLinksContainer.appendChild(link);
                 }
             });
@@ -1342,12 +1438,16 @@
             document.getElementById('edit-display-name').value = currentUserProfile.displayName || '';
             
             const socialLinks = currentUserProfile.socialLinks || {};
-            document.getElementById('edit-twitter').value = socialLinks.twitter || '';
             document.getElementById('edit-instagram').value = socialLinks.instagram || '';
             document.getElementById('edit-tiktok').value = socialLinks.tiktok || '';
-            document.getElementById('edit-snapchat').value = socialLinks.snapchat || '';
-            document.getElementById('edit-youtube').value = socialLinks.youtube || '';
+            document.getElementById('edit-facebook').value = socialLinks.facebook || '';
+            document.getElementById('edit-x').value = socialLinks.x || '';
             document.getElementById('edit-discord').value = socialLinks.discord || '';
+            document.getElementById('edit-reddit').value = socialLinks.reddit || '';
+            document.getElementById('edit-snapchat').value = socialLinks.snapchat || '';
+            document.getElementById('edit-github').value = socialLinks.github || '';
+            document.getElementById('edit-bluesky').value = socialLinks.bluesky || '';
+            document.getElementById('edit-custom').value = socialLinks.custom || '';
 
             document.getElementById('edit-modal').classList.add('show');
         }
@@ -1366,12 +1466,16 @@
             try {
                 const displayName = document.getElementById('edit-display-name').value.trim();
                 const socialLinks = {
-                    twitter: document.getElementById('edit-twitter').value.trim(),
                     instagram: document.getElementById('edit-instagram').value.trim(),
                     tiktok: document.getElementById('edit-tiktok').value.trim(),
+                    facebook: document.getElementById('edit-facebook').value.trim(),
+                    x: document.getElementById('edit-x').value.trim(),
+                    discord: document.getElementById('edit-discord').value.trim(),
+                    reddit: document.getElementById('edit-reddit').value.trim(),
                     snapchat: document.getElementById('edit-snapchat').value.trim(),
-                    youtube: document.getElementById('edit-youtube').value.trim(),
-                    discord: document.getElementById('edit-discord').value.trim()
+                    github: document.getElementById('edit-github').value.trim(),
+                    bluesky: document.getElementById('edit-bluesky').value.trim(),
+                    custom: document.getElementById('edit-custom').value.trim()
                 };
 
                 // Remove empty social links
