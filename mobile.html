@@ -239,10 +239,14 @@
         
         /* Status Bar (for standalone mode) */
         .status-bar {
-            height: calc(env(safe-area-inset-top) * 0.7);
-            min-height: 20px;
+            height: env(safe-area-inset-top);
             background: var(--nav-bg, linear-gradient(135deg, #4A90E2, #357ABD));
             display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
         }
         
         @media (display-mode: standalone) {
@@ -257,6 +261,14 @@
             position: relative;
             overflow: hidden;
             background: #f8f9fa;
+            margin-top: env(safe-area-inset-top);
+            margin-bottom: 90px;
+        }
+        
+        @media (display-mode: standalone) {
+            .content-area {
+                margin-top: env(safe-area-inset-top);
+            }
         }
         
         .page-iframe {
@@ -295,16 +307,19 @@
         
         /* Bottom Navigation - Completely Redesigned */
         .bottom-nav {
-            height: 85px;
+            height: 90px;
             background: var(--nav-bg, linear-gradient(135deg, #4A90E2, #357ABD));
             display: flex;
             align-items: center;
             justify-content: space-around;
-            padding: 12px 20px;
-            padding-bottom: calc(12px + env(safe-area-inset-bottom));
+            padding: 15px 20px;
+            padding-bottom: calc(15px + env(safe-area-inset-bottom));
             border-top: 1px solid rgba(255,255,255,0.2);
             backdrop-filter: blur(30px);
-            position: relative;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
             z-index: 100;
             box-shadow: 0 -8px 32px rgba(0,0,0,0.15);
         }
@@ -317,9 +332,9 @@
             color: rgba(255,255,255,0.6);
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             cursor: pointer;
-            padding: 12px 20px;
-            border-radius: 20px;
-            min-width: 80px;
+            padding: 15px 25px;
+            border-radius: 25px;
+            min-width: 70px;
             position: relative;
             overflow: hidden;
         }
@@ -332,7 +347,7 @@
             width: 100%;
             height: 100%;
             background: rgba(255,255,255,0.15);
-            border-radius: 20px;
+            border-radius: 25px;
             transform: scale(0);
             transition: transform 0.3s ease;
         }
@@ -343,16 +358,15 @@
         
         .nav-item.active {
             color: white;
-            transform: translateY(-6px);
+            transform: translateY(-8px);
         }
         
         .nav-item:active {
-            transform: scale(0.95) translateY(-3px);
+            transform: scale(0.95) translateY(-4px);
         }
         
         .nav-icon {
-            font-size: 26px;
-            margin-bottom: 6px;
+            font-size: 32px;
             transition: all 0.3s ease;
             position: relative;
             z-index: 1;
@@ -360,15 +374,11 @@
         }
         
         .nav-item.active .nav-icon {
-            font-size: 28px;
+            font-size: 36px;
         }
         
         .nav-label {
-            font-size: 12px;
-            font-weight: 600;
-            position: relative;
-            z-index: 1;
-            line-height: 1;
+            display: none;
         }
         
         /* Page Loading States */
@@ -508,19 +518,15 @@
         <nav class="bottom-nav">
             <div class="nav-item active" onclick="switchPage('home')">
                 <div class="nav-icon">🏠</div>
-                <div class="nav-label">Home</div>
             </div>
             <div class="nav-item" onclick="switchPage('following')">
                 <div class="nav-icon">👥</div>
-                <div class="nav-label">Following</div>
             </div>
             <div class="nav-item" onclick="switchPage('search')">
                 <div class="nav-icon">🔍</div>
-                <div class="nav-label">Search</div>
             </div>
             <div class="nav-item" onclick="switchPage('profile')">
                 <div class="nav-icon">👤</div>
-                <div class="nav-label">Profile</div>
             </div>
         </nav>
     </div>
