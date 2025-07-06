@@ -871,6 +871,20 @@
                 } else if (event.data === 'editAvatar') {
                     closeSettings();
                     editAvatar();
+                } else if (event.data === 'getUserData') {
+                    // Send user data to settings iframe
+                    const settingsIframe = document.getElementById('settings-iframe');
+                    if (settingsIframe && settingsIframe.contentWindow) {
+                        settingsIframe.contentWindow.postMessage({
+                            type: 'userData',
+                            user: {
+                                uid: currentUser?.uid,
+                                email: currentUser?.email,
+                                displayName: currentUser?.displayName
+                            },
+                            profile: userProfile
+                        }, '*');
+                    }
                 }
             }
         });
