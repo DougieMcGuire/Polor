@@ -4,58 +4,24 @@
   <meta charset="UTF-8">
   <title>AI Blog Post</title>
   <style>
-    body {
-      font-family: sans-serif;
-      margin: 0;
-      padding: 20px;
-      background: #fafafa;
-    }
-    .container {
-      max-width: 800px;
-      margin: auto;
-      background: white;
-      padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.05);
-    }
-    h1 { margin-bottom: 10px; }
-    h2 { color: #777; margin-top: 0; }
-    .author {
-      display: flex;
-      align-items: center;
-      margin-bottom: 25px;
-    }
-    .author img {
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      margin-right: 15px;
-    }
-    .section {
-      margin: 25px 0;
-    }
-    .section img {
-      max-width: 100%;
-      border-radius: 8px;
-      margin-top: 10px;
-    }
-    .tags span {
-      display: inline-block;
-      background: #eee;
-      padding: 6px 12px;
-      border-radius: 5px;
-      margin-right: 8px;
-      font-size: 0.9em;
-    }
+    body { font-family: sans-serif; margin:0; padding:20px; background:#f9f9f9 }
+    .container { max-width:800px; margin:auto; background:white; padding:30px; border-radius:12px; box-shadow:0 0 20px rgba(0,0,0,0.05) }
+    h1 { margin-bottom:5px }
+    h2 { color:#555; font-weight:normal }
+    .author { display:flex; align-items:center; margin:20px 0 }
+    .author img { width:60px; height:60px; border-radius:50%; margin-right:15px }
+    .section { margin:25px 0 }
+    .section img { max-width:100%; border-radius:8px; margin-top:10px }
+    .tags span { display:inline-block; background:#eef; color:#336; padding:6px 12px; border-radius:5px; margin:5px 5px 0 0; font-size:0.9em }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1 id="title">Loading...</h1>
+    <h1 id="title">Loading…</h1>
     <h2 id="subtitle"></h2>
 
     <div class="author">
-      <img id="author-avatar" src="" alt="Author Avatar">
+      <img id="author-avatar" src="" alt="">
       <div>
         <strong id="author-name"></strong><br>
         <small id="author-title"></small>
@@ -63,66 +29,57 @@
     </div>
 
     <p id="intro"></p>
-
     <div id="sections"></div>
-
     <div id="images"></div>
-
     <p id="conclusion"></p>
-
     <div class="tags" id="tags"></div>
   </div>
 
   <script>
-    function getJSONFromURL() {
-      const params = new URLSearchParams(window.location.search);
-      const encoded = params.get("data");
-      if (!encoded) return null;
-      try {
-        const jsonStr = decodeURIComponent(encoded);
-        return JSON.parse(jsonStr);
-      } catch (err) {
-        alert("Invalid JSON format in URL");
-        return null;
-      }
+    function getData() {
+      const p = new URLSearchParams(location.search).get("data");
+      if(!p) return null;
+      try { return JSON.parse(decodeURIComponent(p)) }
+      catch(e) { alert("Invalid JSON"); return null }
     }
 
-    function fillTemplate(data) {
+    function render(data) {
       document.getElementById('title').textContent = data.title || "";
       document.getElementById('subtitle').textContent = data.subtitle || "";
-      document.getElementById('author-avatar').src = data.author?.avatar_url || "";
+      const avatar = document.getElementById('author-avatar');
+      if(data.author?.avatar_url) avatar.src = data.author.avatar_url + "&nologo=true";
       document.getElementById('author-name').textContent = data.author?.name || "";
       document.getElementById('author-title').textContent = data.author?.title || "";
       document.getElementById('intro').textContent = data.intro || "";
 
-      const sectionsDiv = document.getElementById('sections');
-      data.sections?.forEach(sec => {
-        const div = document.createElement('div');
-        div.className = 'section';
-        div.innerHTML = `<h3>${sec.heading}</h3><p>${sec.body}</p>`;
-        sectionsDiv.appendChild(div);
+      const secC = document.getElementById('sections');
+      (data.sections||[]).forEach(s => {
+        const d = document.createElement('div'); d.className = 'section';
+        d.innerHTML = `<h3>${s.heading}</h3><p>${s.body}</p>`;
+        secC.appendChild(d);
       });
 
-      const imagesDiv = document.getElementById('images');
-      data.images?.forEach(img => {
-        const div = document.createElement('div');
-        div.className = 'section';
-        div.innerHTML = `<img src="${img.url}" alt="${img.caption}"><p><em>${img.caption}</em></p>`;
-        imagesDiv.appendChild(div);
+      const imgC = document.getElementById('images');
+      (data.images||[]).forEach(im => {
+        const d = document.createElement('div'); d.className='section';
+        let url = im.url;
+        const glue = url.includes('?') ? '&' : '?';
+        url += glue + "nologo=true";
+        d.innerHTML = `<img src="${url}" alt=""><p><em>${im.caption}</em></p>`;
+        imgC.appendChild(d);
       });
 
       document.getElementById('conclusion').textContent = data.conclusion || "";
-
-      const tagsDiv = document.getElementById('tags');
-      data.tags?.forEach(tag => {
-        const span = document.createElement('span');
-        span.textContent = tag;
-        tagsDiv.appendChild(span);
+      const tagC = document.getElementById('tags');
+      (data.tags||[]).forEach(t => {
+        const sp = document.createElement('span');
+        sp.textContent = t;
+        tagC.appendChild(sp);
       });
     }
 
-    const blogData = getJSONFromURL();
-    if (blogData) fillTemplate(blogData);
+    const d = getData();
+    if(d) render(d);
   </script>
 </body>
 </html>
