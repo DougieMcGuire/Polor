@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>AI Blog Post</title>
   <style>
     body { font-family: sans-serif; margin:0; padding:20px; background:#f9f9f9 }
@@ -21,9 +21,9 @@
     <h2 id="subtitle"></h2>
 
     <div class="author">
-      <img id="author-avatar" src="" alt="">
+      <img id="author-avatar" src="" alt="Author Avatar" />
       <div>
-        <strong id="author-name"></strong><br>
+        <strong id="author-name"></strong><br />
         <small id="author-title"></small>
       </div>
     </div>
@@ -38,48 +38,54 @@
   <script>
     function getData() {
       const p = new URLSearchParams(location.search).get("data");
-      if(!p) return null;
-      try { return JSON.parse(decodeURIComponent(p)) }
-      catch(e) { alert("Invalid JSON"); return null }
+      if (!p) return null;
+      try {
+        return JSON.parse(decodeURIComponent(p));
+      } catch (e) {
+        alert("Invalid JSON");
+        return null;
+      }
     }
 
     function render(data) {
-      document.getElementById('title').textContent = data.title || "";
-      document.getElementById('subtitle').textContent = data.subtitle || "";
-      const avatar = document.getElementById('author-avatar');
-      if(data.author?.avatar_url) avatar.src = data.author.avatar_url + "&nologo=true";
-      document.getElementById('author-name').textContent = data.author?.name || "";
-      document.getElementById('author-title').textContent = data.author?.title || "";
-      document.getElementById('intro').textContent = data.intro || "";
+      document.getElementById("title").textContent = data.title || "";
+      document.getElementById("subtitle").textContent = data.subtitle || "";
+      const avatar = document.getElementById("author-avatar");
+      if (data.author?.avatar_url) avatar.src = data.author.avatar_url + "&nologo=true";
+      document.getElementById("author-name").textContent = data.author?.name || "";
+      document.getElementById("author-title").textContent = data.author?.title || "";
+      document.getElementById("intro").textContent = data.intro || "";
 
-      const secC = document.getElementById('sections');
-      (data.sections||[]).forEach(s => {
-        const d = document.createElement('div'); d.className = 'section';
-        d.innerHTML = `<h3>${s.heading}</h3><p>${s.body}</p>`;
+      const secC = document.getElementById("sections");
+      (data.sections || []).forEach((s) => {
+        const d = document.createElement("div");
+        d.className = "section";
+        d.innerHTML = `<h3>${s.heading}</h3><p>${s.body || s.content || ""}</p>`;
         secC.appendChild(d);
       });
 
-      const imgC = document.getElementById('images');
-      (data.images||[]).forEach(im => {
-        const d = document.createElement('div'); d.className='section';
+      const imgC = document.getElementById("images");
+      (data.images || []).forEach((im) => {
+        const d = document.createElement("div");
+        d.className = "section";
         let url = im.url;
-        const glue = url.includes('?') ? '&' : '?';
+        const glue = url.includes("?") ? "&" : "?";
         url += glue + "nologo=true";
-        d.innerHTML = `<img src="${url}" alt=""><p><em>${im.caption}</em></p>`;
+        d.innerHTML = `<img src="${url}" alt="" /><p><em>${im.caption}</em></p>`;
         imgC.appendChild(d);
       });
 
-      document.getElementById('conclusion').textContent = data.conclusion || "";
-      const tagC = document.getElementById('tags');
-      (data.tags||[]).forEach(t => {
-        const sp = document.createElement('span');
+      document.getElementById("conclusion").textContent = data.conclusion || "";
+      const tagC = document.getElementById("tags");
+      (data.tags || []).forEach((t) => {
+        const sp = document.createElement("span");
         sp.textContent = t;
         tagC.appendChild(sp);
       });
     }
 
     const d = getData();
-    if(d) render(d);
+    if (d) render(d);
   </script>
 </body>
 </html>
