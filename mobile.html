@@ -10,130 +10,181 @@
             padding: 0;
             box-sizing: border-box;
         }
-
+        
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: #000;
-            color: #fff;
             height: 100vh;
             overflow: hidden;
+            position: relative;
         }
-
-        .app-container {
+        
+        /* Loading Screen */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
             flex-direction: column;
-            height: 100vh;
+            color: white;
         }
-
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top: 3px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .loading-text {
+            font-size: 1.2rem;
+            font-weight: 500;
+        }
+        
+        /* App Container */
+        .app-container {
+            display: none;
+            height: 100vh;
+            flex-direction: column;
+        }
+        
+        .app-container.show {
+            display: flex;
+        }
+        
+        /* Content Area */
         .content-area {
             flex: 1;
             position: relative;
             overflow: hidden;
         }
-
+        
         .page-iframe {
             width: 100%;
             height: 100%;
             border: none;
-            background: #fff;
+            background: #f8f9fa;
             display: none;
         }
-
+        
         .page-iframe.active {
             display: block;
         }
-
-        .loading {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
+        
+        /* Auth Page (Full Screen) */
+        .auth-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 8888;
+            display: none;
         }
-
-        .loading-spinner {
-            width: 40px;
-            height: 40px;
-            border: 3px solid #333;
-            border-top: 3px solid #007AFF;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 16px;
+        
+        .auth-container.show {
+            display: block;
         }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        
+        .auth-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
         }
-
+        
+        /* Bottom Navigation */
         .bottom-nav {
-            background: #1C1C1E;
-            border-top: 1px solid #333;
-            padding: 8px 0 safe-area-inset-bottom;
+            height: 80px;
+            background: var(--nav-bg, linear-gradient(135deg, #667eea, #764ba2));
             display: flex;
-            justify-content: space-around;
             align-items: center;
-            height: 70px;
+            justify-content: space-around;
+            padding: 0 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(20px);
+            position: relative;
+            z-index: 100;
         }
-
+        
         .nav-item {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 4px;
-            padding: 8px 12px;
-            border-radius: 8px;
+            justify-content: center;
+            color: rgba(255,255,255,0.7);
+            transition: all 0.3s ease;
             cursor: pointer;
-            transition: all 0.2s ease;
-            color: #8E8E93;
-            text-decoration: none;
+            padding: 8px 12px;
+            border-radius: 12px;
             min-width: 60px;
         }
-
+        
         .nav-item.active {
-            color: #007AFF;
-            background: rgba(0, 122, 255, 0.1);
+            color: white;
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
         }
-
+        
         .nav-item:hover {
-            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            background: rgba(255,255,255,0.1);
         }
-
+        
         .nav-icon {
-            width: 24px;
-            height: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 4px;
         }
-
+        
         .nav-label {
-            font-size: 10px;
+            font-size: 12px;
             font-weight: 500;
-            text-align: center;
         }
-
-        .auth-container {
+        
+        /* Page Loading States */
+        .page-loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #666;
             display: none;
-            width: 100%;
-            height: 100%;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
         }
-
-        .auth-container.active {
-            display: block;
+        
+        .page-loading.show {
+            display: flex;
         }
-
-        /* Icons using CSS */
-        .icon-home::before { content: "🏠"; }
-        .icon-following::before { content: "👥"; }
-        .icon-search::before { content: "🔍"; }
-        .icon-profile::before { content: "👤"; }
-
-        /* Mobile optimizations */
+        
+        .page-spinner {
+            width: 30px;
+            height: 30px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        /* Mobile Optimizations */
         @media (max-width: 768px) {
             .bottom-nav {
-                height: 65px;
-                padding: 6px 0 env(safe-area-inset-bottom);
+                height: 70px;
+                padding: 0 10px;
             }
             
             .nav-item {
@@ -142,71 +193,99 @@
             }
             
             .nav-icon {
-                width: 20px;
-                height: 20px;
+                font-size: 20px;
+                margin-bottom: 2px;
             }
             
             .nav-label {
-                font-size: 9px;
+                font-size: 10px;
             }
         }
-
-        /* PWA support */
+        
+        /* iPhone Safe Area */
+        @supports (padding-bottom: env(safe-area-inset-bottom)) {
+            .bottom-nav {
+                padding-bottom: calc(10px + env(safe-area-inset-bottom));
+            }
+        }
+        
+        /* Status Bar Style */
         @media (display-mode: standalone) {
-            .app-container {
+            body {
                 padding-top: env(safe-area-inset-top);
             }
         }
     </style>
 </head>
 <body>
-    <div class="app-container">
-        <!-- Auth Container -->
-        <div class="auth-container" id="authContainer">
-            <iframe id="authFrame" src="https://polor.org/auth" class="page-iframe"></iframe>
-        </div>
-
-        <!-- Main App Content -->
-        <div class="content-area" id="contentArea" style="display: none;">
-            <div class="loading" id="loading">
-                <div class="loading-spinner"></div>
-                <div>Loading...</div>
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="loading-screen">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Loading Polor...</div>
+    </div>
+    
+    <!-- Auth Container (Full Screen) -->
+    <div id="auth-container" class="auth-container">
+        <iframe id="auth-iframe" class="auth-iframe" src="https://polor.org/auth"></iframe>
+    </div>
+    
+    <!-- Main App Container -->
+    <div id="app-container" class="app-container">
+        <!-- Content Area -->
+        <div class="content-area">
+            <!-- Page Loading Indicators -->
+            <div id="home-loading" class="page-loading">
+                <div class="page-spinner"></div>
+                <p>Loading Home...</p>
             </div>
-
-            <iframe id="homeFrame" src="https://polor.org/home" class="page-iframe"></iframe>
-            <iframe id="followingFrame" src="https://polor.org/following" class="page-iframe"></iframe>
-            <iframe id="searchFrame" src="https://polor.org/search" class="page-iframe"></iframe>
-            <iframe id="profileFrame" src="" class="page-iframe"></iframe>
+            <div id="following-loading" class="page-loading">
+                <div class="page-spinner"></div>
+                <p>Loading Following...</p>
+            </div>
+            <div id="search-loading" class="page-loading">
+                <div class="page-spinner"></div>
+                <p>Loading Search...</p>
+            </div>
+            <div id="profile-loading" class="page-loading">
+                <div class="page-spinner"></div>
+                <p>Loading Profile...</p>
+            </div>
+            
+            <!-- Page iFrames -->
+            <iframe id="home-iframe" class="page-iframe active" data-src="https://polor.org/home"></iframe>
+            <iframe id="following-iframe" class="page-iframe" data-src="https://polor.org/following"></iframe>
+            <iframe id="search-iframe" class="page-iframe" data-src="https://polor.org/search"></iframe>
+            <iframe id="profile-iframe" class="page-iframe" data-src=""></iframe>
         </div>
-
+        
         <!-- Bottom Navigation -->
-        <nav class="bottom-nav" id="bottomNav" style="display: none;">
-            <a href="#" class="nav-item active" data-page="home">
-                <div class="nav-icon icon-home"></div>
+        <nav class="bottom-nav">
+            <div class="nav-item active" onclick="switchPage('home')">
+                <div class="nav-icon">🏠</div>
                 <div class="nav-label">Home</div>
-            </a>
-            <a href="#" class="nav-item" data-page="following">
-                <div class="nav-icon icon-following"></div>
+            </div>
+            <div class="nav-item" onclick="switchPage('following')">
+                <div class="nav-icon">👥</div>
                 <div class="nav-label">Following</div>
-            </a>
-            <a href="#" class="nav-item" data-page="search">
-                <div class="nav-icon icon-search"></div>
+            </div>
+            <div class="nav-item" onclick="switchPage('search')">
+                <div class="nav-icon">🔍</div>
                 <div class="nav-label">Search</div>
-            </a>
-            <a href="#" class="nav-item" data-page="profile">
-                <div class="nav-icon icon-profile"></div>
+            </div>
+            <div class="nav-item" onclick="switchPage('profile')">
+                <div class="nav-icon">👤</div>
                 <div class="nav-label">Profile</div>
-            </a>
+            </div>
         </nav>
     </div>
 
     <!-- Firebase SDK -->
-    <script type="module">
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js';
-        import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js';
-        import { getDatabase } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js';
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 
-        // Firebase configuration
+    <script>
+        // Firebase config
         const firebaseConfig = {
             apiKey: "AIzaSyA8HcTDiCQtJHRiMES2p1iUlA30AkZPx1Y",
             authDomain: "polor-62c29.firebaseapp.com",
@@ -219,124 +298,253 @@
         };
 
         // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const database = getDatabase(app);
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const firestore = firebase.firestore();
 
-        // App state
         let currentUser = null;
+        let userProfile = null;
         let currentPage = 'home';
+        let loadedPages = new Set();
 
-        // DOM elements
-        const authContainer = document.getElementById('authContainer');
-        const contentArea = document.getElementById('contentArea');
-        const bottomNav = document.getElementById('bottomNav');
-        const loading = document.getElementById('loading');
-        const navItems = document.querySelectorAll('.nav-item');
-        const iframes = document.querySelectorAll('.page-iframe');
+        // Auth state listener
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                currentUser = user;
+                await loadUserProfile();
+                showApp();
+                loadCurrentPage();
+            } else {
+                showAuth();
+            }
+        });
 
-        // Initialize app
-        function initApp() {
-            // Auth state listener
-            onAuthStateChanged(auth, (user) => {
-                if (user) {
-                    currentUser = user;
-                    showMainApp();
-                    updateProfileUrl();
-                } else {
-                    currentUser = null;
-                    showAuth();
+        // Load user profile
+        async function loadUserProfile() {
+            try {
+                const doc = await firestore.collection('users').doc(currentUser.uid).get();
+                if (doc.exists) {
+                    userProfile = doc.data();
+                    updateNavbarGradient();
+                    updateProfilePageUrl();
                 }
-            });
+            } catch (error) {
+                console.error('Error loading user profile:', error);
+            }
+        }
 
-            // Navigation event listeners
-            navItems.forEach(item => {
-                item.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    const page = item.dataset.page;
-                    if (page !== currentPage) {
-                        navigateToPage(page);
+        // Update navbar gradient based on user's avatar background
+        function updateNavbarGradient() {
+            if (userProfile && userProfile.avatarURL) {
+                try {
+                    const urlParams = new URLSearchParams(userProfile.avatarURL.split('?')[1]);
+                    const bgColor = urlParams.get('backgroundsColor');
+                    
+                    if (bgColor) {
+                        const hex = bgColor.replace('#', '');
+                        const r = parseInt(hex.substr(0, 2), 16);
+                        const g = parseInt(hex.substr(2, 2), 16);
+                        const b = parseInt(hex.substr(4, 2), 16);
+                        
+                        // Create lighter and darker versions
+                        const lighterR = Math.min(255, r + 30);
+                        const lighterG = Math.min(255, g + 30);
+                        const lighterB = Math.min(255, b + 30);
+                        
+                        const darkerR = Math.max(0, r - 40);
+                        const darkerG = Math.max(0, g - 40);
+                        const darkerB = Math.max(0, b - 40);
+                        
+                        const gradient = `linear-gradient(135deg, rgb(${lighterR}, ${lighterG}, ${lighterB}) 0%, rgb(${r}, ${g}, ${b}) 50%, rgb(${darkerR}, ${darkerG}, ${darkerB}) 100%)`;
+                        document.documentElement.style.setProperty('--nav-bg', gradient);
                     }
-                });
-            });
-
-            // Handle iframe load events
-            document.getElementById('homeFrame').onload = hideLoading;
-            document.getElementById('followingFrame').onload = hideLoading;
-            document.getElementById('searchFrame').onload = hideLoading;
-            document.getElementById('profileFrame').onload = hideLoading;
+                } catch (error) {
+                    console.log('Could not extract background color, using default');
+                }
+            }
         }
 
+        // Update profile page URL with user's username
+        function updateProfilePageUrl() {
+            if (userProfile && userProfile.username) {
+                const profileIframe = document.getElementById('profile-iframe');
+                profileIframe.setAttribute('data-src', `https://polor.org/profile?@${userProfile.username}`);
+            }
+        }
+
+        // Show authentication page
         function showAuth() {
-            authContainer.classList.add('active');
-            contentArea.style.display = 'none';
-            bottomNav.style.display = 'none';
+            document.getElementById('loading-screen').style.display = 'none';
+            document.getElementById('auth-container').classList.add('show');
+            document.getElementById('app-container').classList.remove('show');
         }
 
-        function showMainApp() {
-            authContainer.classList.remove('active');
-            contentArea.style.display = 'block';
-            bottomNav.style.display = 'flex';
-            navigateToPage('home');
+        // Show main app
+        function showApp() {
+            document.getElementById('loading-screen').style.display = 'none';
+            document.getElementById('auth-container').classList.remove('show');
+            document.getElementById('app-container').classList.add('show');
         }
 
-        function navigateToPage(page) {
-            showLoading();
+        // Switch between pages
+        function switchPage(pageName) {
+            // Update active nav item
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            event.currentTarget.classList.add('active');
             
-            // Update navigation
-            navItems.forEach(item => {
-                item.classList.toggle('active', item.dataset.page === page);
-            });
+            // Hide all page iframes
+            document.querySelectorAll('.page-iframe').forEach(iframe => iframe.classList.remove('active'));
+            
+            // Show target page
+            const targetIframe = document.getElementById(`${pageName}-iframe`);
+            targetIframe.classList.add('active');
+            
+            // Load page if not already loaded
+            loadPage(pageName);
+            
+            currentPage = pageName;
+        }
 
-            // Show correct iframe
-            iframes.forEach(iframe => {
-                iframe.classList.remove('active');
-            });
-
-            const targetFrame = document.getElementById(page + 'Frame');
-            if (targetFrame) {
-                targetFrame.classList.add('active');
+        // Load page iframe
+        function loadPage(pageName) {
+            if (loadedPages.has(pageName)) {
+                return; // Already loaded
             }
-
-            currentPage = page;
-        }
-
-        function updateProfileUrl() {
-            if (currentUser && currentUser.email) {
-                // Extract username from email or use uid
-                const username = currentUser.email.split('@')[0] || currentUser.uid;
-                const profileFrame = document.getElementById('profileFrame');
-                profileFrame.src = `https://polor.org/profile?${username}`;
+            
+            const iframe = document.getElementById(`${pageName}-iframe`);
+            const loading = document.getElementById(`${pageName}-loading`);
+            const dataSrc = iframe.getAttribute('data-src');
+            
+            if (!dataSrc) {
+                console.error(`No data-src found for ${pageName}`);
+                return;
             }
+            
+            // Show loading indicator
+            loading.classList.add('show');
+            
+            // Set iframe source
+            iframe.src = dataSrc;
+            
+            // Handle iframe load
+            iframe.onload = function() {
+                loading.classList.remove('show');
+                loadedPages.add(pageName);
+            };
+            
+            // Handle iframe error
+            iframe.onerror = function() {
+                loading.classList.remove('show');
+                loading.innerHTML = `<p style="color: #dc3545;">Failed to load ${pageName}</p>`;
+            };
         }
 
-        function showLoading() {
-            loading.style.display = 'block';
+        // Load current page on app start
+        function loadCurrentPage() {
+            loadPage(currentPage);
         }
 
-        function hideLoading() {
-            loading.style.display = 'none';
-        }
-
-        // Handle messages from auth iframe
-        window.addEventListener('message', (event) => {
-            if (event.origin === 'https://polor.org') {
-                if (event.data.type === 'AUTH_SUCCESS') {
-                    // Auth iframe will trigger onAuthStateChanged
+        // Listen for messages from auth iframe
+        window.addEventListener('message', function(event) {
+            if (event.origin === 'https://polor.org' || event.origin === window.location.origin) {
+                if (event.data === 'authSuccess' || event.data === 'loginSuccess') {
+                    // User successfully authenticated, Firebase auth will handle the rest
                     console.log('Authentication successful');
+                } else if (event.data === 'signOut' || event.data === 'logout') {
+                    // Sign out user
+                    auth.signOut();
                 }
             }
         });
 
-        // Initialize the app
-        initApp();
+        // Handle browser back/forward buttons
+        window.addEventListener('popstate', function(event) {
+            if (event.state && event.state.page) {
+                const navItems = document.querySelectorAll('.nav-item');
+                const pages = ['home', 'following', 'search', 'profile'];
+                const pageIndex = pages.indexOf(event.state.page);
+                
+                if (pageIndex !== -1 && navItems[pageIndex]) {
+                    navItems[pageIndex].click();
+                }
+            }
+        });
 
-        // Expose functions globally for debugging
-        window.polor = {
-            navigateToPage,
-            getCurrentUser: () => currentUser,
-            getCurrentPage: () => currentPage
+        // Add page to browser history when switching
+        const originalSwitchPage = switchPage;
+        switchPage = function(pageName) {
+            originalSwitchPage.call(this, pageName);
+            history.pushState({ page: pageName }, '', `#${pageName}`);
         };
+
+        // Handle initial page load from URL hash
+        window.addEventListener('load', function() {
+            const hash = window.location.hash.substring(1);
+            if (['home', 'following', 'search', 'profile'].includes(hash)) {
+                currentPage = hash;
+                
+                // Update nav on load
+                setTimeout(() => {
+                    const navItems = document.querySelectorAll('.nav-item');
+                    const pages = ['home', 'following', 'search', 'profile'];
+                    const pageIndex = pages.indexOf(hash);
+                    
+                    if (pageIndex !== -1 && navItems[pageIndex]) {
+                        document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+                        navItems[pageIndex].classList.add('active');
+                        
+                        document.querySelectorAll('.page-iframe').forEach(iframe => iframe.classList.remove('active'));
+                        document.getElementById(`${hash}-iframe`).classList.add('active');
+                    }
+                }, 100);
+            }
+        });
+
+        // Preload pages after initial load
+        setTimeout(() => {
+            if (currentUser) {
+                // Preload other pages after a delay
+                setTimeout(() => loadPage('search'), 2000);
+                setTimeout(() => loadPage('following'), 3000);
+                setTimeout(() => loadPage('profile'), 4000);
+            }
+        }, 1000);
+
+        // Add PWA support
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js').then(function(registration) {
+                    console.log('ServiceWorker registration successful');
+                }, function(err) {
+                    console.log('ServiceWorker registration failed: ', err);
+                });
+            });
+        }
+
+        // Add to home screen prompt
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            deferredPrompt = e;
+        });
+
+        // Handle keyboard navigation for accessibility
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Tab') {
+                // Allow normal tab navigation
+                return;
+            }
+            
+            if (e.key >= '1' && e.key <= '4') {
+                e.preventDefault();
+                const pages = ['home', 'following', 'search', 'profile'];
+                const pageIndex = parseInt(e.key) - 1;
+                const navItems = document.querySelectorAll('.nav-item');
+                
+                if (navItems[pageIndex]) {
+                    navItems[pageIndex].click();
+                }
+            }
+        });
     </script>
 </body>
 </html>
