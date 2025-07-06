@@ -564,17 +564,24 @@
 
         // Initialize from parent window (when used as iframe)
         function initializeFromParent() {
-            // Request user data from parent
-            window.parent.postMessage('getUserData', '*');
-            
-            // Listen for user data from parent
+            // Listen for user data from parent first
             window.addEventListener('message', function(event) {
                 if (event.data && event.data.type === 'userData') {
                     currentUser = event.data.user;
                     userProfile = event.data.profile;
                     initializeSettings();
+                } else if (event.origin === window.location.origin || event.origin.includes('polor.org')) {
+                    // Handle other messages from parent
+                    console.log('Message from parent:', event.data);
                 }
             });
+            
+            // Request user data from parent after listener is set up
+            setTimeout(() => {
+                if (window.parent !== window) {
+                    window.parent.postMessage('getUserData', '*');
+                }
+            }, 100);
         }
 
         // Load user data (for standalone usage)
@@ -595,7 +602,19 @@
 
         // Initialize settings interface
         function initializeSettings() {
-            if (!currentUser || !userProfile) return;
+            // Add safety checks
+            if (!currentUser) {
+                console.error('No current user found');
+                return;
+            }
+            
+            if (!userProfile) {
+                console.error('No user profile found');
+                return;
+            }
+            
+            console.log('Initializing settings with user:', currentUser.uid);
+            console.log('User profile:', userProfile);
             
             // Update form fields
             updateProfileForm();
@@ -605,21 +624,50 @@
 
         // Update profile form with current data
         function updateProfileForm() {
-            document.getElementById('display-name').value = userProfile.displayName || '';
-            document.getElementById('username-input').value = userProfile.username || '';
-            document.getElementById('email-input').value = currentUser.email || '';
+            if (!userProfile || !currentUser) {
+                console.error('Missing user data in updateProfileForm');
+                return;
+            }
+            
+            console.log('Updating profile form with:', userProfile);
+            
+            const displayNameInput = document.getElementById('display-name');
+            const usernameInput = document.getElementById('username-input');
+            const emailInput = document.getElementById('email-input');
+            
+            if (displayNameInput) displayNameInput.value = userProfile.displayName || '';
+            if (usernameInput) usernameInput.value = userProfile.username || '';
+            if (emailInput) emailInput.value = currentUser.email || '';
         }
 
         // Update avatar display
         function updateAvatarDisplay() {
-            const avatarContainer = document.getElementById('settings-avatar');
+            if (!userProfile) {
+                console.error('No user profile for avatar display');
+                return;
+            }
             
-            if (userProfile.avatarIMG) {
+            const avatarContainer = document.getElementById('settings-avatar');
+            if (!avatarContainer) {
+                console.error('Avatar container not found');
+                return;
+            }
+            
+            console.log('Updating avatar display. Profile data:', {
+                avatarIMG: userProfile.avatarIMG,
+                avatarURL: userProfile.avatarURL
+            });
+            
+            // Priority: avatarIMG > avatarURL > default
+            if (userProfile.avatarIMG && userProfile.avatarIMG.trim()) {
+                console.log('Using avatarIMG:', userProfile.avatarIMG);
                 avatarContainer.innerHTML = `<img src="${userProfile.avatarIMG}" alt="Avatar">`;
-            } else if (userProfile.avatarURL) {
+            } else if (userProfile.avatarURL && userProfile.avatarURL.trim()) {
                 const imageUrl = userProfile.avatarURL + '&I=1';
+                console.log('Using avatarURL:', imageUrl);
                 avatarContainer.innerHTML = `<img src="${imageUrl}" alt="Avatar">`;
             } else {
+                console.log('Using default avatar');
                 const defaultImageUrl = 'https://polor.org/Avatars/?backgrounds=bg1.png&bases=base.png&hair=&eyes=BasicMale.png&brows=Basic.png&mouths=Basic.png&noses=basic.png&neck=&tops=16.png&glasses=&hats=editme.png&backgroundsColor=808080&basesColor=FFF8F5&hairColor=F4C2A1&eyesColor=F4C2A1&browsColor=654321&mouthsColor=000000&nosesColor=FFA07A&neckColor=FFB6C1&topsColor=676767&glassesColor=6B4423&hatsColor=FF4500&I=1';
                 avatarContainer.innerHTML = `<img src="${defaultImageUrl}" alt="Avatar">`;
             }
