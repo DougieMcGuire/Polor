@@ -1,4 +1,18 @@
-<!DOCTYPE html>
+// Update navbar gradient based on user's avatar background
+        function updateNavbarGradient() {
+            if (userProfile && userProfile.avatarURL) {
+                try {
+                    const urlParams = new URLSearchParams(userProfile.avatarURL.split('?')[1]);
+                    const bgColor = urlParams.get('backgroundsColor');
+                    
+                    if (bgColor) {
+                        const hex = bgColor.replace('#', '');
+                        const r = parseInt(hex.substr(0, 2), 16);
+                        const g = parseInt(hex.substr(2, 2), 16);
+                        const b = parseInt(hex.substr(4, 2), 16);
+                        
+                        const lighterR = Math.min(255, r + 30);
+                        const lighterG = Math.min(255, g + 30);<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -11,8 +25,8 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Polor">
     <meta name="mobile-web-app-capable" content="yes">
-    <meta name="theme-color" content="#667eea">
-    <meta name="msapplication-TileColor" content="#667eea">
+    <meta name="theme-color" content="#4A90E2">
+    <meta name="msapplication-TileColor" content="#4A90E2">
     
     <!-- Prevent text selection and context menus -->
     <meta name="format-detection" content="telephone=no">
@@ -20,8 +34,8 @@
     <meta name="format-detection" content="address=no">
     
     <!-- PWA Icons -->
-    <link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgdmlld0JveD0iMCAwIDE4MCAxODAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxODAiIGhlaWdodD0iMTgwIiByeD0iNDAiIGZpbGw9InVybCgjZ3JhZGllbnQwX2xpbmVhcl8xXzEpIi8+CjxkZWZzPgo8bGluZWFyR3JhZGllbnQgaWQ9ImdyYWRpZW50MF9saW5lYXJfMV8xIiB4MT0iMCIgeTE9IjAiIHgyPSIxODAiIHkyPSIxODAiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj4KPHN0b3Agc3RvcC1jb2xvcj0iIzY2N2VlYSIvPgo8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3NjRiYTIiLz4KPC9saW5lYXJHcmFkaWVudD4KPC9kZWZzPgo8L3N2Zz4K">
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iOCIgZmlsbD0idXJsKCNncmFkaWVudDBfbGluZWFyXzFfMSkiLz4KPGRlZnM+CjxsaW5lYXJHcmFkaWVudCBpZD0iZ3JhZGllbnQwX2xpbmVhcl8xXzEiIHgxPSIwIiB5MT0iMCIgeDI9IjMyIiB5Mj0iMzIiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj4KPHN0b3Agc3RvcC1jb2xvcj0iIzY2N2VlYSIvPgo8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3NjRiYTIiLz4KPC9saW5lYXJHcmFkaWVudD4KPC9kZWZzPgo8L3N2Zz4K">
+    <link rel="apple-touch-icon" sizes="180x180" href="https://polor.org/assets/polorapp.png">
+    <link rel="icon" type="image/png" href="https://polor.org/assets/polorapp.png">
     
     <style>
         * {
@@ -73,7 +87,7 @@
             width: 100%;
             height: 100%;
             height: 100dvh;
-            background: #000;
+            background: linear-gradient(135deg, #4A90E2 0%, #357ABD 50%, #2E6BA8 100%);
             color: white;
             display: none;
             flex-direction: column;
@@ -91,29 +105,34 @@
         .install-logo {
             width: 120px;
             height: 120px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: rgba(255, 255, 255, 0.15);
             border-radius: 28px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 48px;
             margin-bottom: 30px;
-            box-shadow: 0 20px 40px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            overflow: hidden;
+        }
+        
+        .install-logo img {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
         }
         
         .install-title {
             font-size: 28px;
             font-weight: 700;
             margin-bottom: 10px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: white;
         }
         
         .install-subtitle {
             font-size: 16px;
-            color: #999;
+            color: rgba(255, 255, 255, 0.8);
             margin-bottom: 40px;
             line-height: 1.4;
         }
@@ -133,7 +152,7 @@
         .step-number {
             width: 32px;
             height: 32px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: rgba(255, 255, 255, 0.2);
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -142,6 +161,8 @@
             font-size: 14px;
             margin-right: 15px;
             flex-shrink: 0;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
         
         .step-text {
@@ -159,19 +180,21 @@
         
         .continue-browser-btn {
             background: transparent;
-            border: 1px solid #333;
-            color: #666;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: rgba(255, 255, 255, 0.7);
             padding: 12px 24px;
             border-radius: 12px;
             font-size: 14px;
             cursor: pointer;
             transition: all 0.3s ease;
             margin-top: 20px;
+            backdrop-filter: blur(10px);
         }
         
         .continue-browser-btn:hover {
-            border-color: #555;
-            color: #999;
+            border-color: rgba(255, 255, 255, 0.5);
+            color: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.1);
         }
         
         /* App Loading Screen */
@@ -182,32 +205,13 @@
             width: 100%;
             height: 100%;
             height: 100dvh;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #4A90E2 0%, #357ABD 50%, #2E6BA8 100%);
             display: flex;
             align-items: center;
             justify-content: center;
             z-index: 9999;
             flex-direction: column;
             color: white;
-        }
-        
-        .app-loading-logo {
-            width: 80px;
-            height: 80px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 32px;
-            margin-bottom: 30px;
-            animation: logoFloat 2s ease-in-out infinite;
-            backdrop-filter: blur(20px);
-        }
-        
-        @keyframes logoFloat {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
         }
         
         .app-loading-spinner {
@@ -252,7 +256,7 @@
         /* Status Bar (for standalone mode) */
         .status-bar {
             height: env(safe-area-inset-top);
-            background: var(--nav-bg, linear-gradient(135deg, #667eea, #764ba2));
+            background: var(--nav-bg, linear-gradient(135deg, #4A90E2, #357ABD));
             display: none;
         }
         
@@ -304,20 +308,20 @@
             border: none;
         }
         
-        /* Bottom Navigation */
+        /* Bottom Navigation - Completely Redesigned */
         .bottom-nav {
-            height: 70px;
-            background: var(--nav-bg, linear-gradient(135deg, #667eea, #764ba2));
+            height: 85px;
+            background: var(--nav-bg, linear-gradient(135deg, #4A90E2, #357ABD));
             display: flex;
             align-items: center;
             justify-content: space-around;
-            padding: 8px 20px;
-            padding-bottom: calc(8px + env(safe-area-inset-bottom));
-            border-top: 1px solid rgba(255,255,255,0.15);
+            padding: 12px 20px;
+            padding-bottom: calc(12px + env(safe-area-inset-bottom));
+            border-top: 1px solid rgba(255,255,255,0.2);
             backdrop-filter: blur(30px);
             position: relative;
             z-index: 100;
-            box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
+            box-shadow: 0 -8px 32px rgba(0,0,0,0.15);
         }
         
         .nav-item {
@@ -328,9 +332,9 @@
             color: rgba(255,255,255,0.6);
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             cursor: pointer;
-            padding: 8px 16px;
-            border-radius: 16px;
-            min-width: 70px;
+            padding: 12px 20px;
+            border-radius: 20px;
+            min-width: 80px;
             position: relative;
             overflow: hidden;
         }
@@ -342,8 +346,8 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(255,255,255,0.1);
-            border-radius: 16px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 20px;
             transform: scale(0);
             transition: transform 0.3s ease;
         }
@@ -354,30 +358,32 @@
         
         .nav-item.active {
             color: white;
-            transform: translateY(-4px);
+            transform: translateY(-6px);
         }
         
         .nav-item:active {
-            transform: scale(0.95) translateY(-2px);
+            transform: scale(0.95) translateY(-3px);
         }
         
         .nav-icon {
-            font-size: 22px;
-            margin-bottom: 4px;
+            font-size: 26px;
+            margin-bottom: 6px;
             transition: all 0.3s ease;
             position: relative;
             z-index: 1;
+            line-height: 1;
         }
         
         .nav-item.active .nav-icon {
-            font-size: 24px;
+            font-size: 28px;
         }
         
         .nav-label {
-            font-size: 11px;
+            font-size: 12px;
             font-weight: 600;
             position: relative;
             z-index: 1;
+            line-height: 1;
         }
         
         /* Page Loading States */
@@ -439,7 +445,9 @@
 <body>
     <!-- Mobile Install Screen -->
     <div id="mobile-install-screen" class="mobile-install-screen">
-        <div class="install-logo">📱</div>
+        <div class="install-logo">
+            <img src="https://polor.org/assets/polorapp.png" alt="Polor">
+        </div>
         <h1 class="install-title">Download Polor App?</h1>
         <p class="install-subtitle">Get the best experience with our mobile app</p>
         
@@ -471,7 +479,9 @@
     
     <!-- App Loading Screen -->
     <div id="app-loading-screen" class="app-loading-screen">
-        <div class="app-loading-logo">📱</div>
+        <div class="app-loading-logo">
+            <img src="https://polor.org/assets/polorapp.png" alt="Polor">
+        </div>
         <div class="app-loading-spinner"></div>
         <div class="app-loading-text">Loading Polor</div>
         <div class="app-loading-subtitle">Setting up your experience...</div>
