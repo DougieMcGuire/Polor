@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - Polor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8f9fa;
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .profile-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        
+        .profile-header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            overflow: hidden;
+            border: 4px solid rgba(255,255,255,0.3);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+        
+        .profile-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .profile-name {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .profile-username {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+        
+        .profile-stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 20px;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: bold;
+            display: block;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        .ask-button {
+            background: rgba(255,255,255,0.2);
+            border: 2px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .ask-button:hover {
+            background: rgba(255,255,255,0.3);
+            border-color: rgba(255,255,255,0.5);
+            transform: translateY(-2px);
+        }
+        
+        .qa-section {
+            padding: 30px;
+        }
+        
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #333;
+            text-align: center;
+        }
+        
+        .qa-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .qa-item {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            border-left: 4px solid #667eea;
+            transition: all 0.3s ease;
+        }
+        
+        .qa-item:hover {
+            background: #e9ecef;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .question {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+        
+        .question::before {
+            content: "Q: ";
+            color: #667eea;
+            font-weight: bold;
+        }
+        
+        .answer {
+            color: #555;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+        
+        .answer::before {
+            content: "A: ";
+            color: #667eea;
+            font-weight: bold;
+        }
+        
+        .qa-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+            color: #999;
+            border-top: 1px solid #e9ecef;
+            padding-top: 10px;
+        }
+        
+        .qa-date {
+            font-style: italic;
+        }
+        
+        .qa-source {
+            font-weight: 500;
+        }
+        
+        .share-qa {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+        
+        .share-qa:hover {
+            background: #5a6fd8;
+        }
+        
+        .no-qas {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+        
+        .no-qas-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.6;
+        }
+        
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #e9ecef;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .error-page {
+            text-align: center;
+            padding: 100px 20px;
+            color: #666;
+        }
+        
+        .error-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.6;
+        }
+        
+        .error-title {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .back-link {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+            margin-top: 20px;
+            display: inline-block;
+        }
+        
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        
+        @media (max-width: 768px) {
+            .profile-container {
+                margin: 0;
+                box-shadow: none;
+            }
+            
+            .profile-header {
+                padding: 30px 20px;
+            }
+            
+            .profile-avatar {
+                width: 100px;
+                height: 100px;
+            }
+            
+            .profile-name {
+                font-size: 1.5rem;
+            }
+            
+            .profile-stats {
+                gap: 20px;
+            }
+            
+            .qa-section {
+                padding: 20px;
+            }
+            
+            .qa-item {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="loading-screen">
+        <div style="text-align: center;">
+            <div class="loading-spinner"></div>
+            <h2>Loading Profile...</h2>
+        </div>
+    </div>
+
+    <!-- Profile Container -->
+    <div id="profile-container" class="profile-container" style="display: none;">
+        <!-- Profile Header -->
+        <div class="profile-header">
+            <div class="profile-avatar">
+                <img id="profile-avatar" src="https://polor.org/Avatars/default.png" alt="Profile Avatar">
+            </div>
+            <div class="profile-name" id="profile-name">Loading...</div>
+            <div class="profile-username" id="profile-username">@username</div>
+            <div class="profile-stats">
+                <div class="stat-item">
+                    <span class="stat-number" id="qa-count">0</span>
+                    <span class="stat-label">Q&As</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="join-date">2025</span>
+                    <span class="stat-label">Joined</span>
+                </div>
+            </div>
+            <a href="#" id="ask-button" class="ask-button">Ask Me Anything</a>
+        </div>
+
+        <!-- Q&A Section -->
+        <div class="qa-section">
+            <h2 class="section-title">Recent Q&As</h2>
+            <div id="qa-list" class="qa-list">
+                <!-- Q&As will be loaded here -->
+            </div>
+            
+            <!-- No Q&As State -->
+            <div id="no-qas" class="no-qas" style="display: none;">
+                <div class="no-qas-icon">💬</div>
+                <h3>No Q&As yet</h3>
+                <p>This user hasn't answered any questions yet.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error Page -->
+    <div id="error-page" class="error-page" style="display: none;">
+        <div class="error-icon">😕</div>
+        <div class="error-title">User Not Found</div>
+        <p>This profile doesn't exist or has been deleted.</p>
+        <a href="/" class="back-link">← Back to Home</a>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        // Firebase config
+        const firebaseConfig = {
+            apiKey: "AIzaSyA8HcTDiCQtJHRiMES2p1iUlA30AkZPx1Y",
+            authDomain: "polor-62c29.firebaseapp.com",
+            databaseURL: "https://polor-62c29-default-rtdb.firebaseio.com",
+            projectId: "polor-62c29",
+            storageBucket: "polor-62c29.firebasestorage.app",
+            messagingSenderId: "232986823513",
+            appId: "1:232986823513:web:a6ee6bef6b0609ace3da48",
+            measurementId: "G-KRT42D5TQK"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const firestore = firebase.firestore();
+
+        let currentProfile = null;
+
+        // Get username from URL
+        function getUsernameFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            let username = urlParams.get('user') || urlParams.get('@') || '';
+            
+            // Handle @username format
+            if (username.startsWith('@')) {
+                username = username.substring(1);
+            }
+            
+            // Extract from path if not in query
+            if (!username) {
+                const pathMatch = window.location.search.match(/[?&]@([^&]+)/);
+                if (pathMatch) {
+                    username = pathMatch[1];
+                }
+            }
+            
+            return username;
+        }
+
+        // Load user profile
+        async function loadUserProfile() {
+            const username = getUsernameFromURL();
+            
+            if (!username) {
+                showError();
+                return;
+            }
+
+            try {
+                // Find user by username
+                const usersQuery = await firestore.collection('users')
+                    .where('username', '==', username)
+                    .limit(1)
+                    .get();
+
+                if (usersQuery.empty) {
+                    showError();
+                    return;
+                }
+
+                currentProfile = usersQuery.docs[0].data();
+                displayProfile();
+                loadQAs();
+
+            } catch (error) {
+                console.error('Error loading profile:', error);
+                showError();
+            }
+        }
+
+        // Display profile information
+        function displayProfile() {
+            if (!currentProfile) return;
+
+            // Update profile info
+            document.getElementById('profile-name').textContent = currentProfile.displayName || currentProfile.username;
+            document.getElementById('profile-username').textContent = `@${currentProfile.username}`;
+            
+            // Update avatar
+            const avatarImg = document.getElementById('profile-avatar');
+            if (currentProfile.avatarIMG) {
+                avatarImg.src = currentProfile.avatarIMG;
+            } else if (currentProfile.avatarURL) {
+                avatarImg.src = currentProfile.avatarURL + '&I=1';
+            }
+
+            // Update ask button
+            document.getElementById('ask-button').href = `/ask?@${currentProfile.username}`;
+
+            // Update background gradient if available
+            updateBackgroundGradient();
+
+            // Show profile container
+            document.getElementById('profile-container').style.display = 'block';
+            hideLoading();
+        }
+
+        // Update background gradient based on avatar
+        function updateBackgroundGradient() {
+            if (currentProfile.avatarURL) {
+                try {
+                    const urlParams = new URLSearchParams(currentProfile.avatarURL.split('?')[1]);
+                    const bgColor = urlParams.get('backgroundsColor');
+                    
+                    if (bgColor) {
+                        const hex = bgColor.replace('#', '');
+                        const r = parseInt(hex.substr(0, 2), 16);
+                        const g = parseInt(hex.substr(2, 2), 16);
+                        const b = parseInt(hex.substr(4, 2), 16);
+                        
+                        const lighterR = Math.min(255, r + 30);
+                        const lighterG = Math.min(255, g + 30);
+                        const lighterB = Math.min(255, b + 30);
+                        
+                        const darkerR = Math.max(0, r - 40);
+                        const darkerG = Math.max(0, g - 40);
+                        const darkerB = Math.max(0, b - 40);
+                        
+                        const gradient = `linear-gradient(135deg, rgb(${lighterR}, ${lighterG}, ${lighterB}) 0%, rgb(${r}, ${g}, ${b}) 50%, rgb(${darkerR}, ${darkerG}, ${darkerB}) 100%)`;
+                        document.querySelector('.profile-header').style.background = gradient;
+                    }
+                } catch (error) {
+                    console.log('Could not extract background color');
+                }
+            }
+        }
+
+        // Load Q&As
+        function loadQAs() {
+            if (!currentProfile || !currentProfile.answeredQAs) {
+                showNoQAs();
+                return;
+            }
+
+            const qas = currentProfile.answeredQAs;
+            const qaList = document.getElementById('qa-list');
+            
+            if (qas.length === 0) {
+                showNoQAs();
+                return;
+            }
+
+            // Update Q&A count
+            document.getElementById('qa-count').textContent = qas.length;
+
+            // Clear existing Q&As
+            qaList.innerHTML = '';
+
+            // Display Q&As
+            qas.forEach((qa, index) => {
+                const qaItem = createQAItem(qa, index);
+                qaList.appendChild(qaItem);
+            });
+        }
+
+        // Create Q&A item element
+        function createQAItem(qa, index) {
+            const qaItem = document.createElement('div');
+            qaItem.className = 'qa-item';
+
+            const question = document.createElement('div');
+            question.className = 'question';
+            question.textContent = qa.question;
+
+            const answer = document.createElement('div');
+            answer.className = 'answer';
+            answer.textContent = qa.answer;
+
+            const meta = document.createElement('div');
+            meta.className = 'qa-meta';
+
+            const date = document.createElement('span');
+            date.className = 'qa-date';
+            if (qa.timestamp) {
+                const qaDate = new Date(qa.timestamp);
+                date.textContent = qaDate.toLocaleDateString();
+            } else {
+                date.textContent = 'Recently';
+            }
+
+            const source = document.createElement('span');
+            source.className = 'qa-source';
+            source.textContent = qa.isAnonymous ? 'Anonymous' : 'Public';
+
+            const shareBtn = document.createElement('button');
+            shareBtn.className = 'share-qa';
+            shareBtn.textContent = 'Share';
+            shareBtn.onclick = () => shareQA(qa);
+
+            meta.appendChild(date);
+            meta.appendChild(source);
+            meta.appendChild(shareBtn);
+
+            qaItem.appendChild(question);
+            qaItem.appendChild(answer);
+            qaItem.appendChild(meta);
+
+            return qaItem;
+        }
+
+        // Share individual Q&A
+        function shareQA(qa) {
+            const shareText = `Q: ${qa.question}
+A: ${qa.answer}
+
+Asked by: ${qa.isAnonymous ? 'Anonymous' : 'Someone'}
+
+Ask me anything 👇
+https://polor.org/profile?@${currentProfile.username}
+
+#AnonymousQA #Polor`;
+
+            const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`;
+            window.open(twitterUrl, '_blank');
+        }
+
+        // Show no Q&As state
+        function showNoQAs() {
+            document.getElementById('qa-list').style.display = 'none';
+            document.getElementById('no-qas').style.display = 'block';
+            document.getElementById('qa-count').textContent = '0';
+        }
+
+        // Show error page
+        function showError() {
+            hideLoading();
+            document.getElementById('error-page').style.display = 'block';
+        }
+
+        // Hide loading screen
+        function hideLoading() {
+            document.getElementById('loading-screen').style.display = 'none';
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', () => {
+            loadUserProfile();
+        });
+    </script>
+</body>
+</html>
