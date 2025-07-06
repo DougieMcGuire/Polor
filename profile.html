@@ -356,6 +356,65 @@
             border-color: #667eea;
         }
         
+        .social-links-section {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .social-links-section h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+            text-align: center;
+        }
+        
+        .social-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+        }
+        
+        .social-input-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .social-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: white;
+            flex-shrink: 0;
+        }
+        
+        .social-icon.twitter { background: #1da1f2; }
+        .social-icon.instagram { background: #e1306c; }
+        .social-icon.tiktok { background: #000000; }
+        .social-icon.snapchat { background: #fffc00; color: black; }
+        .social-icon.youtube { background: #ff0000; }
+        .social-icon.discord { background: #7289da; }
+        
+        .social-input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.2s ease;
+        }
+        
+        .social-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
         .edit-actions {
             display: flex;
             gap: 15px;
@@ -568,6 +627,20 @@
             .question, .answer {
                 font-size: 0.95rem;
             }
+            
+            .social-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+            
+            .social-input-group {
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .social-input {
+                width: 100%;
+            }
         }
         
         /* Toast notification */
@@ -682,34 +755,39 @@
                     <input type="text" id="edit-display-name" placeholder="Your display name">
                 </div>
                 
-                <div class="edit-form-group">
-                    <label>Twitter:</label>
-                    <input type="text" id="edit-twitter" placeholder="@username">
-                </div>
-                
-                <div class="edit-form-group">
-                    <label>Instagram:</label>
-                    <input type="text" id="edit-instagram" placeholder="@username">
-                </div>
-                
-                <div class="edit-form-group">
-                    <label>TikTok:</label>
-                    <input type="text" id="edit-tiktok" placeholder="@username">
-                </div>
-                
-                <div class="edit-form-group">
-                    <label>Snapchat:</label>
-                    <input type="text" id="edit-snapchat" placeholder="@username">
-                </div>
-                
-                <div class="edit-form-group">
-                    <label>YouTube:</label>
-                    <input type="text" id="edit-youtube" placeholder="@channel">
-                </div>
-                
-                <div class="edit-form-group">
-                    <label>Discord:</label>
-                    <input type="text" id="edit-discord" placeholder="username#1234">
+                <div class="social-links-section">
+                    <h3>🔗 Social Links</h3>
+                    <div class="social-grid">
+                        <div class="social-input-group">
+                            <div class="social-icon twitter">🐦</div>
+                            <input type="text" class="social-input" id="edit-twitter" placeholder="@username">
+                        </div>
+                        
+                        <div class="social-input-group">
+                            <div class="social-icon instagram">📷</div>
+                            <input type="text" class="social-input" id="edit-instagram" placeholder="@username">
+                        </div>
+                        
+                        <div class="social-input-group">
+                            <div class="social-icon tiktok">🎵</div>
+                            <input type="text" class="social-input" id="edit-tiktok" placeholder="@username">
+                        </div>
+                        
+                        <div class="social-input-group">
+                            <div class="social-icon snapchat">👻</div>
+                            <input type="text" class="social-input" id="edit-snapchat" placeholder="@username">
+                        </div>
+                        
+                        <div class="social-input-group">
+                            <div class="social-icon youtube">📺</div>
+                            <input type="text" class="social-input" id="edit-youtube" placeholder="@channel">
+                        </div>
+                        
+                        <div class="social-input-group">
+                            <div class="social-icon discord">🎮</div>
+                            <input type="text" class="social-input" id="edit-discord" placeholder="username#1234">
+                        </div>
+                    </div>
                 </div>
                 
                 <div class="edit-actions">
