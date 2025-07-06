@@ -239,7 +239,8 @@
         
         /* Status Bar (for standalone mode) */
         .status-bar {
-            height: env(safe-area-inset-top);
+            height: calc(env(safe-area-inset-top) * 0.7);
+            min-height: 20px;
             background: var(--nav-bg, linear-gradient(135deg, #4A90E2, #357ABD));
             display: none;
         }
