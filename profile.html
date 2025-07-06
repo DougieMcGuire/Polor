@@ -84,23 +84,72 @@
             opacity: 0.8;
         }
         
+        .profile-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+        
         .ask-button {
             background: rgba(255,255,255,0.2);
             border: 2px solid rgba(255,255,255,0.3);
             color: white;
-            padding: 12px 30px;
+            padding: 12px 24px;
             border-radius: 25px;
             font-weight: 600;
             text-decoration: none;
-            display: inline-block;
-            margin-top: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
             transition: all 0.3s ease;
+            min-width: 140px;
+            justify-content: center;
         }
         
         .ask-button:hover {
             background: rgba(255,255,255,0.3);
             border-color: rgba(255,255,255,0.5);
             transform: translateY(-2px);
+        }
+        
+        .follow-button {
+            background: rgba(255,255,255,0.9);
+            border: 2px solid rgba(255,255,255,0.9);
+            color: #667eea;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            min-width: 140px;
+            justify-content: center;
+        }
+        
+        .follow-button:hover {
+            background: white;
+            transform: translateY(-2px);
+        }
+        
+        .follow-button.following {
+            background: rgba(40, 167, 69, 0.9);
+            border-color: rgba(40, 167, 69, 0.9);
+            color: white;
+        }
+        
+        .follow-button.following:hover {
+            background: rgba(220, 53, 69, 0.9);
+            border-color: rgba(220, 53, 69, 0.9);
+        }
+        
+        .follow-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
         }
         
         .qa-section {
@@ -286,6 +335,16 @@
                 gap: 20px;
             }
             
+            .profile-actions {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .ask-button, .follow-button {
+                width: 100%;
+                max-width: 280px;
+            }
+            
             .qa-section {
                 padding: 20px;
             }
@@ -293,6 +352,80 @@
             .qa-item {
                 padding: 15px;
             }
+            
+            .qa-meta {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+            }
+            
+            .share-qa {
+                align-self: flex-end;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .profile-header {
+                padding: 25px 15px;
+            }
+            
+            .profile-name {
+                font-size: 1.3rem;
+            }
+            
+            .profile-username {
+                font-size: 1rem;
+            }
+            
+            .stat-number {
+                font-size: 1.3rem;
+            }
+            
+            .stat-label {
+                font-size: 0.8rem;
+            }
+            
+            .profile-stats {
+                gap: 15px;
+            }
+            
+            .qa-section {
+                padding: 15px;
+            }
+            
+            .section-title {
+                font-size: 1.1rem;
+            }
+            
+            .question, .answer {
+                font-size: 0.95rem;
+            }
+        }
+        
+        /* Toast notification */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #28a745;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            z-index: 9999;
+            animation: slideUp 0.3s ease;
+            max-width: 90%;
+            text-align: center;
+        }
+        
+        .toast.error {
+            background: #dc3545;
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateX(-50%) translateY(100px); opacity: 0; }
+            to { transform: translateX(-50%) translateY(0); opacity: 1; }
         }
     </style>
 </head>
@@ -320,11 +453,23 @@
                     <span class="stat-label">Q&As</span>
                 </div>
                 <div class="stat-item">
+                    <span class="stat-number" id="followers-count">0</span>
+                    <span class="stat-label">Followers</span>
+                </div>
+                <div class="stat-item">
                     <span class="stat-number" id="join-date">2025</span>
                     <span class="stat-label">Joined</span>
                 </div>
             </div>
-            <a href="#" id="ask-button" class="ask-button">Ask Me Anything</a>
+            <div class="profile-actions">
+                <a href="#" id="ask-button" class="ask-button">
+                    💬 Ask Me Anything
+                </a>
+                <button id="follow-button" class="follow-button" onclick="toggleFollow()" style="display: none;">
+                    <span id="follow-icon">👤</span>
+                    <span id="follow-text">Follow</span>
+                </button>
+            </div>
         </div>
 
         <!-- Q&A Section -->
@@ -353,6 +498,7 @@
 
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 
     <script>
@@ -370,9 +516,29 @@
 
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
         const firestore = firebase.firestore();
 
         let currentProfile = null;
+        let currentUser = null;
+        let currentUserProfile = null;
+        let isFollowing = false;
+
+        // Auth state listener
+        auth.onAuthStateChanged(async (user) => {
+            currentUser = user;
+            if (user) {
+                try {
+                    const userDoc = await firestore.collection('users').doc(user.uid).get();
+                    if (userDoc.exists) {
+                        currentUserProfile = userDoc.data();
+                    }
+                } catch (error) {
+                    console.error('Error loading current user profile:', error);
+                }
+            }
+            updateFollowButton();
+        });
 
         // Get username from URL
         function getUsernameFromURL() {
@@ -442,15 +608,153 @@
                 avatarImg.src = currentProfile.avatarURL + '&I=1';
             }
 
+            // Update followers count
+            document.getElementById('followers-count').textContent = currentProfile.followers?.length || 0;
+
             // Update ask button
             document.getElementById('ask-button').href = `/ask?@${currentProfile.username}`;
 
             // Update background gradient if available
             updateBackgroundGradient();
 
+            // Check if user is following this profile
+            checkFollowStatus();
+
             // Show profile container
             document.getElementById('profile-container').style.display = 'block';
             hideLoading();
+        }
+
+        // Check if current user is following this profile
+        function checkFollowStatus() {
+            if (!currentUser || !currentProfile) return;
+
+            isFollowing = currentProfile.followers?.includes(currentUser.uid) || false;
+            updateFollowButton();
+        }
+
+        // Update follow button based on auth and follow status
+        function updateFollowButton() {
+            const followButton = document.getElementById('follow-button');
+            const followIcon = document.getElementById('follow-icon');
+            const followText = document.getElementById('follow-text');
+
+            // Don't show follow button for own profile or if not logged in
+            if (!currentUser || (currentUserProfile && currentUserProfile.username === currentProfile?.username)) {
+                followButton.style.display = 'none';
+                return;
+            }
+
+            followButton.style.display = 'inline-flex';
+
+            if (isFollowing) {
+                followButton.classList.add('following');
+                followIcon.textContent = '✓';
+                followText.textContent = 'Following';
+                followButton.addEventListener('mouseenter', () => {
+                    followIcon.textContent = '✕';
+                    followText.textContent = 'Unfollow';
+                });
+                followButton.addEventListener('mouseleave', () => {
+                    followIcon.textContent = '✓';
+                    followText.textContent = 'Following';
+                });
+            } else {
+                followButton.classList.remove('following');
+                followIcon.textContent = '👤';
+                followText.textContent = 'Follow';
+            }
+        }
+
+        // Toggle follow status
+        async function toggleFollow() {
+            if (!currentUser) {
+                showToast('Please sign in to follow users', 'error');
+                return;
+            }
+
+            if (!currentProfile) return;
+
+            const followButton = document.getElementById('follow-button');
+            followButton.disabled = true;
+
+            try {
+                const userRef = firestore.collection('users').doc(currentProfile.uid);
+                const currentFollowers = currentProfile.followers || [];
+
+                if (isFollowing) {
+                    // Unfollow
+                    const updatedFollowers = currentFollowers.filter(uid => uid !== currentUser.uid);
+                    await userRef.update({ followers: updatedFollowers });
+                    currentProfile.followers = updatedFollowers;
+                    isFollowing = false;
+                    showToast(`Unfollowed @${currentProfile.username}`, 'success');
+                } else {
+                    // Follow
+                    const updatedFollowers = [...currentFollowers, currentUser.uid];
+                    await userRef.update({ followers: updatedFollowers });
+                    currentProfile.followers = updatedFollowers;
+                    isFollowing = true;
+                    showToast(`Following @${currentProfile.username}!`, 'success');
+
+                    // Send notification to the user being followed
+                    await sendFollowNotification();
+                }
+
+                // Update UI
+                document.getElementById('followers-count').textContent = currentProfile.followers.length;
+                updateFollowButton();
+
+            } catch (error) {
+                console.error('Error toggling follow:', error);
+                showToast('Failed to update follow status', 'error');
+            } finally {
+                followButton.disabled = false;
+            }
+        }
+
+        // Send follow notification
+        async function sendFollowNotification() {
+            if (!currentUser || !currentUserProfile || !currentProfile) return;
+
+            try {
+                await firestore.collection('notifications').add({
+                    type: 'follow',
+                    toUserId: currentProfile.uid,
+                    fromUserId: currentUser.uid,
+                    fromUserProfile: {
+                        username: currentUserProfile.username,
+                        displayName: currentUserProfile.displayName,
+                        avatarIMG: currentUserProfile.avatarIMG
+                    },
+                    message: `${currentUserProfile.displayName || currentUserProfile.username} started following you!`,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    read: false
+                });
+            } catch (error) {
+                console.error('Error sending follow notification:', error);
+            }
+        }
+
+        // Show toast notification
+        function showToast(message, type = 'success') {
+            // Remove existing toast
+            const existingToast = document.querySelector('.toast');
+            if (existingToast) {
+                existingToast.remove();
+            }
+
+            // Create toast
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+
+            document.body.appendChild(toast);
+
+            // Remove after 3 seconds
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
         }
 
         // Update background gradient based on avatar
