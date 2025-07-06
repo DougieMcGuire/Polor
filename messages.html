@@ -1,4 +1,56 @@
-<!DOCTYPE html>
+// Share to app
+        async function shareToApp(app) {
+            if (!currentMessage) return;
+
+            try {
+                const sharedTo = currentMessage.sharedTo || [];
+                
+                if (!sharedTo.includes(app)) {
+                    sharedTo.push(app);
+                    
+                    await firestore.collection('askMessages').doc(currentMessage.id).update({
+                        sharedTo: sharedTo,
+                        lastSharedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    
+                    currentMessage.sharedTo = sharedTo;
+                    updateShareButtons(        // Share to app
+        async function shareToApp(app) {
+            if (!currentMessage) return;
+
+            try {
+                const sharedTo = currentMessage.sharedTo || [];
+                
+                if (!sharedTo.includes(app)) {
+                    sharedTo.push(app);
+                    
+                    await firestore.collection('askMessages').doc(currentMessage.id).update({
+                        sharedTo: sharedTo,
+                        lastSharedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    
+                    currentMessage.sharedTo = sharedTo;
+                    updateShareButtons(currentMessage);
+                    renderMessages(); // Update the grid to show checkmarks
+                }
+
+                // Handle different sharing methods
+                if (app === 'snapchat') {
+                    shareToSnapchat(currentMessage);
+                } else if (app === 'instagram') {
+                    shareToInstagram(currentMessage);
+                } else if (app === 'tiktok') {
+                    shareToTikTok(currentMessage);
+                } else if (app === 'twitter') {
+                    shareToTwitter(currentMessage);
+                } else if (app === 'facebook') {
+                    shareToFacebook(currentMessage);
+                } else if (app === 'discord') {
+                    shareToDiscord(currentMessage);
+                }
+
+            } catch (error) {
+                console<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -319,6 +371,107 @@
             display: block;
         }
         
+        .answer-section {
+            margin: 20px 0;
+        }
+        
+        .answer-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+        
+        .answer-input {
+            width: 100%;
+            min-height: 100px;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            font-size: 16px;
+            font-family: inherit;
+            resize: vertical;
+            transition: border-color 0.2s ease;
+            background: #f8f9fa;
+        }
+        
+        .answer-input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+        }
+        
+        .answer-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+        }
+        
+        .answer-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+        
+        .answer-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+        }
+        
+        .answer-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .character-count {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .character-count.warning {
+            color: #dc3545;
+        }
+        
+        .answer-display {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 12px;
+            border: 2px solid #e9ecef;
+            margin-bottom: 15px;
+        }
+        
+        .edit-answer-btn, .delete-answer-btn {
+            background: none;
+            border: 2px solid #6c757d;
+            color: #6c757d;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            margin-right: 10px;
+        }
+        
+        .edit-answer-btn:hover {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .delete-answer-btn {
+            border-color: #dc3545;
+            color: #dc3545;
+        }
+        
+        .delete-answer-btn:hover {
+            background: #dc3545;
+            color: white;
+        }
+        
         .loading-screen {
             position: fixed;
             top: 0;
@@ -475,6 +628,27 @@
                 <!-- Message Text -->
                 <div class="message-text" id="message-text"></div>
                 
+                <!-- Answer Section -->
+                <div id="answer-section" class="answer-section">
+                    <div id="no-answer" class="no-answer">
+                        <h3>Answer this question:</h3>
+                        <textarea id="answer-input" class="answer-input" placeholder="Type your answer here..." maxlength="500"></textarea>
+                        <div class="answer-actions">
+                            <button id="answer-btn" class="answer-btn" onclick="submitAnswer()">Post Answer</button>
+                            <span class="character-count">500 characters remaining</span>
+                        </div>
+                    </div>
+                    
+                    <div id="has-answer" class="has-answer" style="display: none;">
+                        <h3>Your Answer:</h3>
+                        <div class="answer-display" id="answer-display"></div>
+                        <div class="answer-actions">
+                            <button class="edit-answer-btn" onclick="editAnswer()">Edit Answer</button>
+                            <button class="delete-answer-btn" onclick="deleteAnswer()">Delete Answer</button>
+                        </div>
+                    </div>
+                </div>
+                
                 <!-- Message Meta -->
                 <div class="message-meta">
                     <span id="message-date"></span>
@@ -577,21 +751,15 @@
         // Load messages from Firestore
         async function loadMessages() {
             if (!currentUser || !currentUserProfile) {
-                console.log('Cannot load messages - missing user or profile:', {
-                    currentUser: !!currentUser,
-                    currentUserProfile: !!currentUserProfile,
-                    username: currentUserProfile?.username
-                });
+                console.log('Cannot load messages - missing user or profile');
                 return;
             }
-
-            console.log('Loading messages for username:', currentUserProfile.username);
 
             try {
                 // Clean up expired messages first
                 await cleanupExpiredMessages();
                 
-                // Load messages using toUser (username) instead of toUserId
+                // Load messages using toUser (username) with orderBy
                 const messagesQuery = await firestore.collection('askMessages')
                     .where('toUser', '==', currentUserProfile.username)
                     .orderBy('timestamp', 'desc')
@@ -603,7 +771,6 @@
                 }));
 
                 console.log('Loaded messages count:', messages.length);
-                console.log('Messages data:', messages);
                 renderMessages();
             } catch (error) {
                 console.error('Error loading messages:', error);
@@ -763,6 +930,9 @@
             // Message text
             document.getElementById('message-text').textContent = message.message;
 
+            // Answer section
+            updateAnswerSection(message);
+
             // Message meta
             const messageDate = document.getElementById('message-date');
             const messageStatus = document.getElementById('message-status');
@@ -778,6 +948,146 @@
             // Update share buttons
             updateShareButtons(message);
         }
+
+        // Update answer section based on message state
+        function updateAnswerSection(message) {
+            const noAnswerSection = document.getElementById('no-answer');
+            const hasAnswerSection = document.getElementById('has-answer');
+            const answerDisplay = document.getElementById('answer-display');
+
+            if (message.hasAnswer && message.answer) {
+                // Show existing answer
+                noAnswerSection.style.display = 'none';
+                hasAnswerSection.style.display = 'block';
+                answerDisplay.textContent = message.answer;
+            } else {
+                // Show answer input
+                noAnswerSection.style.display = 'block';
+                hasAnswerSection.style.display = 'none';
+                document.getElementById('answer-input').value = '';
+                updateCharacterCount();
+            }
+        }
+
+        // Submit answer
+        async function submitAnswer() {
+            const answerInput = document.getElementById('answer-input');
+            const answerBtn = document.getElementById('answer-btn');
+            const answer = answerInput.value.trim();
+
+            if (!answer) {
+                alert('Please write an answer first!');
+                return;
+            }
+
+            if (!currentMessage) return;
+
+            try {
+                answerBtn.disabled = true;
+                answerBtn.textContent = 'Posting...';
+
+                // Update message in Firebase
+                await firestore.collection('askMessages').doc(currentMessage.id).update({
+                    answer: answer,
+                    hasAnswer: true,
+                    answeredAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                // Update local message object
+                currentMessage.answer = answer;
+                currentMessage.hasAnswer = true;
+                currentMessage.answeredAt = new Date();
+
+                // Update UI
+                updateAnswerSection(currentMessage);
+                renderMessages(); // Update the grid
+
+                showShareToast('Answer posted! You can now share it.');
+
+            } catch (error) {
+                console.error('Error posting answer:', error);
+                alert('Failed to post answer. Please try again.');
+            } finally {
+                answerBtn.disabled = false;
+                answerBtn.textContent = 'Post Answer';
+            }
+        }
+
+        // Edit existing answer
+        function editAnswer() {
+            const noAnswerSection = document.getElementById('no-answer');
+            const hasAnswerSection = document.getElementById('has-answer');
+            const answerInput = document.getElementById('answer-input');
+
+            // Switch to edit mode
+            hasAnswerSection.style.display = 'none';
+            noAnswerSection.style.display = 'block';
+
+            // Pre-fill with existing answer
+            answerInput.value = currentMessage.answer || '';
+            updateCharacterCount();
+
+            // Change button text
+            document.getElementById('answer-btn').textContent = 'Update Answer';
+        }
+
+        // Delete answer
+        async function deleteAnswer() {
+            if (!confirm('Are you sure you want to delete this answer?')) return;
+
+            try {
+                await firestore.collection('askMessages').doc(currentMessage.id).update({
+                    answer: '',
+                    hasAnswer: false,
+                    answeredAt: null,
+                    sharedTo: [] // Reset shared status
+                });
+
+                // Update local message
+                currentMessage.answer = '';
+                currentMessage.hasAnswer = false;
+                currentMessage.answeredAt = null;
+                currentMessage.sharedTo = [];
+
+                // Update UI
+                updateAnswerSection(currentMessage);
+                updateShareButtons(currentMessage);
+                renderMessages();
+
+                showShareToast('Answer deleted.');
+
+            } catch (error) {
+                console.error('Error deleting answer:', error);
+                alert('Failed to delete answer. Please try again.');
+            }
+        }
+
+        // Update character count
+        function updateCharacterCount() {
+            const answerInput = document.getElementById('answer-input');
+            const characterCount = document.querySelector('.character-count');
+            
+            if (answerInput && characterCount) {
+                const remaining = 500 - answerInput.value.length;
+                characterCount.textContent = `${remaining} characters remaining`;
+                
+                if (remaining < 50) {
+                    characterCount.classList.add('warning');
+                } else {
+                    characterCount.classList.remove('warning');
+                }
+            }
+        }
+
+        // Add event listener for character counting
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                const answerInput = document.getElementById('answer-input');
+                if (answerInput) {
+                    answerInput.addEventListener('input', updateCharacterCount);
+                }
+            }, 1000);
+        });
 
         // Update share buttons based on message sharing status
         function updateShareButtons(message) {
@@ -814,26 +1124,140 @@
                     renderMessages(); // Update the grid to show checkmarks
                 }
 
-                // Generate sharing text
-                const shareText = generateShareText(currentMessage, app);
-                
-                // Attempt to share using native sharing if available
-                if (navigator.share && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-                    try {
-                        await navigator.share({
-                            text: shareText
-                        });
-                    } catch (error) {
-                        // Fallback to copying to clipboard
-                        copyToClipboard(shareText);
-                    }
-                } else {
-                    // Copy to clipboard for desktop
-                    copyToClipboard(shareText);
+                // Handle different sharing methods
+                if (app === 'twitter') {
+                    shareToTwitter(currentMessage);
+                } else if (app === 'snapchat') {
+                    shareToSnapchat(currentMessage);
+                } else if (app === 'instagram') {
+                    shareToInstagram(currentMessage);
+                } else if (app === 'tiktok') {
+                    shareToTikTok(currentMessage);
+                } else if (app === 'facebook') {
+                    shareToFacebook(currentMessage);
+                } else if (app === 'discord') {
+                    shareToDiscord(currentMessage);
                 }
 
             } catch (error) {
                 console.error('Error sharing to app:', error);
+            }
+        }
+
+        // Twitter Intent URL Sharing
+        function shareToTwitter(message) {
+            const shareText = generateTwitterText(message);
+            const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`;
+            
+            // Open Twitter compose window
+            window.open(twitterUrl, '_blank', 'width=600,height=400');
+        }
+
+        // Generate Twitter-optimized text
+        function generateTwitterText(message) {
+            let text = '';
+            
+            // Add question prompt if exists
+            if (message.questionPrompt) {
+                text += `Q: ${message.questionPrompt}\n`;
+                text += `A: ${message.message}\n\n`;
+            } else {
+                text += `"${message.message}"\n\n`;
+            }
+            
+            // Add attribution
+            if (!message.isAnonymous && message.fromUserProfile) {
+                text += `- ${message.fromUserProfile.displayName || message.fromUserProfile.username}\n\n`;
+            } else {
+                text += `- Anonymous\n\n`;
+            }
+            
+            // Add call to action
+            if (currentUserProfile) {
+                text += `Ask me anything anonymously 👇\n`;
+                text += `https://polor.org/ask?@${currentUserProfile.username}\n\n`;
+            }
+            
+            // Add hashtags
+            text += `#AnonymousQA #Polor`;
+            
+            return text;
+        }
+
+        // Snapchat sharing (placeholder for when approved)
+        function shareToSnapchat(message) {
+            const shareText = generateShareText(message, 'snapchat');
+            
+            // Try Snapchat deep link (will work once approved)
+            const snapUrl = 'snapchat://';
+            
+            // Copy text and open Snapchat
+            copyToClipboard(shareText);
+            
+            try {
+                window.open(snapUrl, '_blank');
+                showShareToast('Copied! Add this to your Snapchat Story');
+            } catch (error) {
+                // Fallback: just copy to clipboard
+                showShareToast('Copied! Paste this in Snapchat');
+            }
+        }
+
+        // Instagram sharing (copy + open)
+        function shareToInstagram(message) {
+            const shareText = generateShareText(message, 'instagram');
+            
+            // Copy text and try to open Instagram
+            copyToClipboard(shareText);
+            
+            try {
+                window.open('instagram://camera', '_blank');
+                showShareToast('Copied! Add this to your Instagram Story');
+            } catch (error) {
+                showShareToast('Copied! Paste this in Instagram');
+            }
+        }
+
+        // TikTok sharing (copy + open)
+        function shareToTikTok(message) {
+            const shareText = generateShareText(message, 'tiktok');
+            
+            copyToClipboard(shareText);
+            
+            try {
+                window.open('tiktok://story', '_blank');
+                showShareToast('Copied! Add this to your TikTok Story');
+            } catch (error) {
+                showShareToast('Copied! Paste this in TikTok');
+            }
+        }
+
+        // Facebook sharing (URL + copy text)
+        function shareToFacebook(message) {
+            const shareText = generateShareText(message, 'facebook');
+            const askUrl = currentUserProfile ? `https://polor.org/ask?@${currentUserProfile.username}` : 'https://polor.org';
+            
+            // Copy text to clipboard
+            copyToClipboard(shareText);
+            
+            // Open Facebook share dialog with URL
+            const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(askUrl)}`;
+            window.open(facebookUrl, '_blank', 'width=600,height=400');
+            
+            showShareToast('Text copied! Paste it in your Facebook post');
+        }
+
+        // Discord sharing (copy only)
+        function shareToDiscord(message) {
+            const shareText = generateShareText(message, 'discord');
+            
+            copyToClipboard(shareText);
+            
+            try {
+                window.open('discord://', '_blank');
+                showShareToast('Copied! Paste this in Discord');
+            } catch (error) {
+                showShareToast('Copied! Paste this in Discord');
             }
         }
 
@@ -861,10 +1285,62 @@
         async function copyToClipboard(text) {
             try {
                 await navigator.clipboard.writeText(text);
-                // You could show a toast notification here
+                console.log('Text copied to clipboard');
             } catch (error) {
                 console.error('Failed to copy to clipboard:', error);
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
             }
+        }
+
+        // Show sharing toast notification
+        function showShareToast(message) {
+            // Remove existing toast
+            const existingToast = document.getElementById('share-toast');
+            if (existingToast) {
+                existingToast.remove();
+            }
+
+            // Create toast
+            const toast = document.createElement('div');
+            toast.id = 'share-toast';
+            toast.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: #28a745;
+                color: white;
+                padding: 12px 20px;
+                border-radius: 25px;
+                font-weight: 600;
+                z-index: 9999;
+                animation: slideUp 0.3s ease;
+            `;
+            toast.textContent = message;
+
+            // Add animation
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideUp {
+                    from { transform: translateX(-50%) translateY(100px); opacity: 0; }
+                    to { transform: translateX(-50%) translateY(0); opacity: 1; }
+                }
+            `;
+            document.head.appendChild(style);
+
+            document.body.appendChild(toast);
+
+            // Remove after 3 seconds
+            setTimeout(() => {
+                toast.remove();
+                style.remove();
+            }, 3000);
         }
 
         // Close modal
