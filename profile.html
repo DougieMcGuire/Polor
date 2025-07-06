@@ -59,8 +59,41 @@
         .profile-username {
             font-size: 1.5rem;
             opacity: 0.9;
-            margin-bottom: 40px;
+            margin-bottom: 20px;
         }
+        
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .social-link {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: white;
+            font-size: 18px;
+            transition: all 0.3s ease;
+        }
+        
+        .social-link:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+        
+        .social-link.twitter { background: rgba(29, 161, 242, 0.8); }
+        .social-link.instagram { background: rgba(225, 48, 108, 0.8); }
+        .social-link.tiktok { background: rgba(0, 0, 0, 0.8); }
+        .social-link.snapchat { background: rgba(255, 252, 0, 0.8); color: black; }
+        .social-link.youtube { background: rgba(255, 0, 0, 0.8); }
+        .social-link.discord { background: rgba(114, 137, 218, 0.8); }
         
         .profile-stats {
             display: flex;
@@ -210,19 +243,150 @@
             font-weight: 500;
         }
         
-        .share-qa {
-            background: #667eea;
-            color: white;
+        .qa-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .share-qa, .delete-qa {
             border: none;
             padding: 6px 12px;
             border-radius: 15px;
             font-size: 0.8rem;
             cursor: pointer;
-            transition: background 0.2s ease;
+            transition: all 0.2s ease;
+        }
+        
+        .share-qa {
+            background: #667eea;
+            color: white;
         }
         
         .share-qa:hover {
             background: #5a6fd8;
+        }
+        
+        .delete-qa {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .delete-qa:hover {
+            background: #c82333;
+        }
+        
+        .edit-profile-btn {
+            background: rgba(255,255,255,0.2);
+            border: 2px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            min-width: 160px;
+            justify-content: center;
+            font-size: 16px;
+        }
+        
+        .edit-profile-btn:hover {
+            background: rgba(255,255,255,0.3);
+            border-color: rgba(255,255,255,0.5);
+            transform: translateY(-2px);
+        }
+        
+        /* Edit Profile Modal */
+        .edit-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            padding: 20px;
+        }
+        
+        .edit-modal.show {
+            display: flex;
+        }
+        
+        .edit-modal-content {
+            background: white;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            padding: 30px;
+        }
+        
+        .edit-modal h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+        
+        .edit-form-group {
+            margin-bottom: 20px;
+        }
+        
+        .edit-form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        
+        .edit-form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        
+        .edit-form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .edit-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+        }
+        
+        .edit-save-btn, .edit-cancel-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .edit-save-btn {
+            background: #667eea;
+            color: white;
+        }
+        
+        .edit-save-btn:hover {
+            background: #5a6fd8;
+        }
+        
+        .edit-cancel-btn {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .edit-cancel-btn:hover {
+            background: #5a6268;
         }
         
         .no-qas {
@@ -451,6 +615,11 @@
             </div>
             <div class="profile-name" id="profile-name">Loading...</div>
             <div class="profile-username" id="profile-username">@username</div>
+            
+            <!-- Social Links -->
+            <div class="social-links" id="social-links" style="display: none;">
+                <!-- Social links will be populated here -->
+            </div>
             <div class="profile-stats">
                 <div class="stat-item">
                     <span class="stat-number" id="qa-count">0</span>
@@ -472,6 +641,9 @@
                 <button id="follow-button" class="follow-button" onclick="toggleFollow()">
                     <span id="follow-icon">👤</span>
                     <span id="follow-text">Follow</span>
+                </button>
+                <button id="edit-profile-btn" class="edit-profile-btn" onclick="openEditModal()" style="display: none;">
+                    ⚙️ Edit Profile
                 </button>
             </div>
         </div>
@@ -499,11 +671,60 @@
         <p>This profile doesn't exist or has been deleted.</p>
         <a href="/" class="back-link">← Back to Home</a>
     </div>
+    
+    <!-- Edit Profile Modal -->
+    <div id="edit-modal" class="edit-modal">
+        <div class="edit-modal-content">
+            <h2>Edit Profile</h2>
+            <form id="edit-profile-form">
+                <div class="edit-form-group">
+                    <label>Display Name:</label>
+                    <input type="text" id="edit-display-name" placeholder="Your display name">
+                </div>
+                
+                <div class="edit-form-group">
+                    <label>Twitter:</label>
+                    <input type="text" id="edit-twitter" placeholder="@username">
+                </div>
+                
+                <div class="edit-form-group">
+                    <label>Instagram:</label>
+                    <input type="text" id="edit-instagram" placeholder="@username">
+                </div>
+                
+                <div class="edit-form-group">
+                    <label>TikTok:</label>
+                    <input type="text" id="edit-tiktok" placeholder="@username">
+                </div>
+                
+                <div class="edit-form-group">
+                    <label>Snapchat:</label>
+                    <input type="text" id="edit-snapchat" placeholder="@username">
+                </div>
+                
+                <div class="edit-form-group">
+                    <label>YouTube:</label>
+                    <input type="text" id="edit-youtube" placeholder="@channel">
+                </div>
+                
+                <div class="edit-form-group">
+                    <label>Discord:</label>
+                    <input type="text" id="edit-discord" placeholder="username#1234">
+                </div>
+                
+                <div class="edit-actions">
+                    <button type="button" class="edit-cancel-btn" onclick="closeEditModal()">Cancel</button>
+                    <button type="submit" class="edit-save-btn">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-messaging-compat.js"></script>
 
     <script>
         // Firebase config
@@ -522,11 +743,68 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const firestore = firebase.firestore();
+        const messaging = firebase.messaging();
 
         let currentProfile = null;
         let currentUser = null;
         let currentUserProfile = null;
         let isFollowing = false;
+        let userFCMToken = null;
+
+        // Request notification permission and get FCM token
+        async function requestNotificationPermission() {
+            try {
+                const permission = await Notification.requestPermission();
+                if (permission === 'granted') {
+                    console.log('Notification permission granted');
+                    
+                    // Get FCM token
+                    const token = await messaging.getToken({
+                        vapidKey: 'YOUR_VAPID_KEY_HERE' // You'll need to generate this in Firebase Console
+                    });
+                    
+                    if (token) {
+                        userFCMToken = token;
+                        console.log('FCM Token:', token);
+                        
+                        // Save token to user profile
+                        if (currentUser) {
+                            await firestore.collection('users').doc(currentUser.uid).update({
+                                fcmToken: token,
+                                notificationsEnabled: true
+                            });
+                        }
+                    }
+                } else {
+                    console.log('Notification permission denied');
+                }
+            } catch (error) {
+                console.error('Error getting notification permission:', error);
+            }
+        }
+
+        // Listen for foreground messages
+        messaging.onMessage((payload) => {
+            console.log('Message received in foreground:', payload);
+            
+            // Show browser notification
+            if (payload.notification) {
+                showBrowserNotification(payload.notification);
+            }
+        });
+
+        // Show browser notification
+        function showBrowserNotification(notification) {
+            if (Notification.permission === 'granted') {
+                new Notification(notification.title, {
+                    body: notification.body,
+                    icon: '/icon-192x192.png', // Add your app icon
+                    badge: '/badge-72x72.png',
+                    tag: 'polor-notification',
+                    requireInteraction: true
+                });
+            }
+        }
 
         // Auth state listener
         auth.onAuthStateChanged(async (user) => {
@@ -536,6 +814,11 @@
                     const userDoc = await firestore.collection('users').doc(user.uid).get();
                     if (userDoc.exists) {
                         currentUserProfile = userDoc.data();
+                    }
+                    
+                    // Request notification permission for logged-in users
+                    if (!currentUserProfile?.fcmToken) {
+                        await requestNotificationPermission();
                     }
                 } catch (error) {
                     console.error('Error loading current user profile:', error);
@@ -620,6 +903,14 @@
             // Update ask button
             document.getElementById('ask-button').href = `/ask?@${currentProfile.username}`;
 
+            // Show social links
+            displaySocialLinks();
+
+            // Show edit button if own profile
+            if (currentUserProfile && currentUserProfile.username === currentProfile.username) {
+                document.getElementById('edit-profile-btn').style.display = 'inline-flex';
+            }
+
             // Update background gradient if available
             updateBackgroundGradient();
 
@@ -629,6 +920,40 @@
             // Show profile container
             document.getElementById('profile-container').style.display = 'block';
             hideLoading();
+        }
+
+        // Display social links
+        function displaySocialLinks() {
+            const socialLinksContainer = document.getElementById('social-links');
+            const socialLinks = currentProfile.socialLinks || {};
+            
+            const socialPlatforms = [
+                { key: 'twitter', icon: '🐦', baseUrl: 'https://twitter.com/' },
+                { key: 'instagram', icon: '📷', baseUrl: 'https://instagram.com/' },
+                { key: 'tiktok', icon: '🎵', baseUrl: 'https://tiktok.com/@' },
+                { key: 'snapchat', icon: '👻', baseUrl: 'https://snapchat.com/add/' },
+                { key: 'youtube', icon: '📺', baseUrl: 'https://youtube.com/@' },
+                { key: 'discord', icon: '🎮', baseUrl: 'https://discord.com/users/' }
+            ];
+
+            let hasLinks = false;
+            socialLinksContainer.innerHTML = '';
+
+            socialPlatforms.forEach(platform => {
+                const username = socialLinks[platform.key];
+                if (username && username.trim()) {
+                    hasLinks = true;
+                    const link = document.createElement('a');
+                    link.href = platform.baseUrl + username.replace('@', '');
+                    link.target = '_blank';
+                    link.className = `social-link ${platform.key}`;
+                    link.textContent = platform.icon;
+                    link.title = `${platform.key}: ${username}`;
+                    socialLinksContainer.appendChild(link);
+                }
+            });
+
+            socialLinksContainer.style.display = hasLinks ? 'flex' : 'none';
         }
 
         // Check if current user is following this profile
@@ -851,6 +1176,8 @@
             const meta = document.createElement('div');
             meta.className = 'qa-meta';
 
+            const leftMeta = document.createElement('div');
+
             const date = document.createElement('span');
             date.className = 'qa-date';
             if (qa.timestamp) {
@@ -862,16 +1189,32 @@
 
             const source = document.createElement('span');
             source.className = 'qa-source';
-            source.textContent = qa.isAnonymous ? 'Anonymous' : 'Public';
+            source.textContent = qa.isAnonymous ? ' • Anonymous' : ' • Public';
+
+            leftMeta.appendChild(date);
+            leftMeta.appendChild(source);
+
+            const actions = document.createElement('div');
+            actions.className = 'qa-actions';
 
             const shareBtn = document.createElement('button');
             shareBtn.className = 'share-qa';
             shareBtn.textContent = 'Share';
             shareBtn.onclick = () => shareQA(qa);
 
-            meta.appendChild(date);
-            meta.appendChild(source);
-            meta.appendChild(shareBtn);
+            actions.appendChild(shareBtn);
+
+            // Show delete button if it's user's own profile
+            if (currentUserProfile && currentProfile && currentUserProfile.username === currentProfile.username) {
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'delete-qa';
+                deleteBtn.textContent = 'Delete';
+                deleteBtn.onclick = () => deleteQA(qa, index);
+                actions.appendChild(deleteBtn);
+            }
+
+            meta.appendChild(leftMeta);
+            meta.appendChild(actions);
 
             qaItem.appendChild(question);
             qaItem.appendChild(answer);
@@ -879,6 +1222,110 @@
 
             return qaItem;
         }
+
+        // Delete Q&A
+        async function deleteQA(qa, index) {
+            if (!confirm('Are you sure you want to delete this Q&A?')) return;
+
+            try {
+                // Remove from user's answeredQAs array
+                const userRef = firestore.collection('users').doc(currentUser.uid);
+                const userDoc = await userRef.get();
+                const userData = userDoc.data();
+                const currentQAs = userData.answeredQAs || [];
+                
+                // Remove the Q&A at the specified index
+                currentQAs.splice(index, 1);
+                
+                // Update user profile
+                await userRef.update({
+                    answeredQAs: currentQAs
+                });
+
+                // Update local profile
+                currentProfile.answeredQAs = currentQAs;
+
+                // Reload Q&As display
+                loadQAs();
+
+                showToast('Q&A deleted successfully!');
+
+            } catch (error) {
+                console.error('Error deleting Q&A:', error);
+                showToast('Failed to delete Q&A', 'error');
+            }
+        }
+
+        // Open edit profile modal
+        function openEditModal() {
+            if (!currentUserProfile) return;
+
+            // Populate form with current data
+            document.getElementById('edit-display-name').value = currentUserProfile.displayName || '';
+            
+            const socialLinks = currentUserProfile.socialLinks || {};
+            document.getElementById('edit-twitter').value = socialLinks.twitter || '';
+            document.getElementById('edit-instagram').value = socialLinks.instagram || '';
+            document.getElementById('edit-tiktok').value = socialLinks.tiktok || '';
+            document.getElementById('edit-snapchat').value = socialLinks.snapchat || '';
+            document.getElementById('edit-youtube').value = socialLinks.youtube || '';
+            document.getElementById('edit-discord').value = socialLinks.discord || '';
+
+            document.getElementById('edit-modal').classList.add('show');
+        }
+
+        // Close edit profile modal
+        function closeEditModal() {
+            document.getElementById('edit-modal').classList.remove('show');
+        }
+
+        // Handle edit profile form submission
+        document.getElementById('edit-profile-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if (!currentUser) return;
+
+            try {
+                const displayName = document.getElementById('edit-display-name').value.trim();
+                const socialLinks = {
+                    twitter: document.getElementById('edit-twitter').value.trim(),
+                    instagram: document.getElementById('edit-instagram').value.trim(),
+                    tiktok: document.getElementById('edit-tiktok').value.trim(),
+                    snapchat: document.getElementById('edit-snapchat').value.trim(),
+                    youtube: document.getElementById('edit-youtube').value.trim(),
+                    discord: document.getElementById('edit-discord').value.trim()
+                };
+
+                // Remove empty social links
+                Object.keys(socialLinks).forEach(key => {
+                    if (!socialLinks[key]) {
+                        delete socialLinks[key];
+                    }
+                });
+
+                // Update user profile
+                await firestore.collection('users').doc(currentUser.uid).update({
+                    displayName: displayName,
+                    socialLinks: socialLinks
+                });
+
+                // Update local profiles
+                currentUserProfile.displayName = displayName;
+                currentUserProfile.socialLinks = socialLinks;
+                currentProfile.displayName = displayName;
+                currentProfile.socialLinks = socialLinks;
+
+                // Refresh display
+                displayProfile();
+
+                closeEditModal();
+                showToast('Profile updated successfully!');
+
+            } catch (error) {
+                console.error('Error updating profile:', error);
+                showToast('Failed to update profile', 'error');
+            }
+        });
 
         // Share individual Q&A
         function shareQA(qa) {
@@ -913,6 +1360,13 @@ https://polor.org/profile?@${currentProfile.username}
         function hideLoading() {
             document.getElementById('loading-screen').style.display = 'none';
         }
+
+        // Close modal when clicking outside
+        document.getElementById('edit-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'edit-modal') {
+                closeEditModal();
+            }
+        });
 
         // Initialize page
         document.addEventListener('DOMContentLoaded', () => {
