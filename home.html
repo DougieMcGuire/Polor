@@ -308,181 +308,112 @@
             animation: spin 1s linear infinite;
         }
         
-        /* Settings Modal Styles */
+        /* Settings Modal Styles - Updated for iframe */
         .settings-modal {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
             display: none;
             align-items: center;
             justify-content: center;
-            z-index: 1000;
+            z-index: 2000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
         
         .settings-modal.show {
             display: flex;
+            opacity: 1;
         }
         
-        .settings-content {
+        .settings-container {
+            width: 95%;
+            max-width: 900px;
+            height: 90vh;
+            max-height: 800px;
             background: white;
-            border-radius: 16px;
-            padding: 40px;
-            width: 90%;
-            max-width: 500px;
-            max-height: 90vh;
-            overflow-y: auto;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+            position: relative;
         }
         
-        .avatar-edit-section {
-            background: #f8f9fa;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 30px;
-            text-align: center;
-        }
-        
-        .avatar-edit-section h3 {
-            color: #333;
-            margin-bottom: 15px;
-            font-size: 1.1rem;
-        }
-        
-        .edit-avatar-btn {
-            background: var(--bg-gradient, linear-gradient(135deg, #667eea, #764ba2));
-            color: white;
-            border: none;
-            border-radius: 12px;
-            padding: 12px 24px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin: 0 auto;
-        }
-        
-        .edit-avatar-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
-        }
-        
-        .signout-section {
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid #e9ecef;
-            text-align: center;
-        }
-        
-        .signout-btn {
-            background: #dc3545;
-            color: white;
-            border: none;
-            border-radius: 12px;
-            padding: 12px 24px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            width: 100%;
-        }
-        
-        .signout-btn:hover {
-            background: #c82333;
-            transform: translateY(-2px);
+        .settings-modal.show .settings-container {
+            transform: scale(1);
         }
         
         .settings-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
+            background: var(--bg-gradient, linear-gradient(135deg, #667eea, #764ba2));
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
         }
         
         .settings-header h2 {
-            color: #333;
+            margin: 0;
+            font-size: 1.5rem;
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 10px;
         }
         
-        .close-btn {
-            background: none;
+        .settings-close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(255, 255, 255, 0.2);
             border: none;
-            font-size: 24px;
-            color: #666;
-            cursor: pointer;
-            padding: 5px;
-        }
-        
-        .form-group {
-            margin-bottom: 25px;
-        }
-        
-        .form-label {
-            display: block;
-            margin-bottom: 8px;
-            color: #333;
-            font-weight: 600;
-        }
-        
-        .form-input {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid #e9ecef;
-            border-radius: 12px;
-            font-size: 16px;
-            transition: border-color 0.2s ease;
-            background: #f8f9fa;
-        }
-        
-        .form-input:focus {
-            outline: none;
-            border-color: #667eea;
-            background: white;
-        }
-        
-        .form-input.error {
-            border-color: #dc3545;
-            background: #fff5f5;
-        }
-        
-        .error-message {
-            color: #dc3545;
-            font-size: 14px;
-            margin-top: 6px;
-            display: none;
-        }
-        
-        .error-message.show {
-            display: block;
-        }
-        
-        .save-btn {
-            width: 100%;
-            padding: 15px;
-            background: var(--bg-gradient, linear-gradient(135deg, #667eea, #764ba2));
             color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 600;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
             cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             transition: all 0.2s ease;
         }
         
-        .save-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        .settings-close-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
         }
         
-        .save-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
+        .settings-iframe {
+            width: 100%;
+            height: calc(100% - 80px);
+            border: none;
+            background: #f8f9fa;
+        }
+        
+        .settings-loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #666;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .settings-spinner {
+            width: 30px;
+            height: 30px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
         }
         
         @media (max-width: 768px) {
@@ -503,17 +434,20 @@
                 height: 100px;
             }
             
-            .avatar-editor-container {
+            .avatar-editor-container,
+            .settings-container {
                 width: 95%;
                 height: 90vh;
                 max-height: none;
             }
             
-            .avatar-editor-header {
+            .avatar-editor-header,
+            .settings-header {
                 padding: 15px;
             }
             
-            .avatar-editor-header h2 {
+            .avatar-editor-header h2,
+            .settings-header h2 {
                 font-size: 1.3rem;
             }
             
@@ -581,13 +515,8 @@
                 height: 300px;
             }
             
-            .settings-content {
-                padding: 25px;
-                width: 95%;
-            }
-            
-            .avatar-edit-section {
-                padding: 15px;
+            .settings-container {
+                width: 98%;
             }
         }
     </style>
@@ -632,6 +561,7 @@
         <div class="avatar-editor-container">
             <div class="avatar-editor-header">
                 <h2>Edit Avatar</h2>
+                <button class="popup-close-btn" onclick="closeAvatarEditor()">&times;</button>
             </div>
             <div class="loading-iframe" id="iframe-loading">
                 <div class="iframe-spinner"></div>
@@ -643,46 +573,16 @@
 
     <!-- Settings Modal -->
     <div id="settings-modal" class="settings-modal">
-        <div class="settings-content">
+        <div class="settings-container">
             <div class="settings-header">
                 <h2>⚙️ Settings</h2>
-                <button class="close-btn" onclick="closeSettings()">&times;</button>
+                <button class="settings-close-btn" onclick="closeSettings()">&times;</button>
             </div>
-            
-            <div class="avatar-edit-section">
-                <h3>Your Avatar</h3>
-                <div class="avatar-container" id="settings-avatar" style="width: 80px; height: 80px; margin: 0 auto 15px;">
-                    <div class="avatar-placeholder">🎨</div>
-                </div>
-                <button class="edit-avatar-btn" onclick="editAvatarFromSettings()">
-                    ✏️ Edit Avatar
-                </button>
+            <div class="settings-loading" id="settings-loading">
+                <div class="settings-spinner"></div>
+                <p>Loading Settings...</p>
             </div>
-            
-            <form id="settings-form">
-                <div class="form-group">
-                    <label class="form-label">Display Name</label>
-                    <input type="text" class="form-input" id="display-name" placeholder="Your display name">
-                    <div class="error-message" id="name-error"></div>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label">Username</label>
-                    <input type="text" class="form-input" id="username-input" placeholder="username" maxlength="20">
-                    <div class="error-message" id="username-error"></div>
-                    <small style="color: #666; font-size: 12px;">This will be your @username</small>
-                </div>
-                
-                <button type="submit" class="save-btn" id="save-settings-btn">
-                    💾 Save Changes
-                </button>
-            </form>
-            
-            <div class="signout-section">
-                <button class="signout-btn" onclick="signOut()">
-                    🚪 Sign Out
-                </button>
-            </div>
+            <iframe id="settings-iframe" class="settings-iframe" style="display: none;"></iframe>
         </div>
     </div>
 
@@ -815,49 +715,20 @@
             }
         }
 
-        // Edit avatar from settings modal
-        function editAvatarFromSettings() {
-            closeSettings();
-            editAvatar();
-        }
-
-        // Sign out
-        async function signOut() {
-            if (confirm('Are you sure you want to sign out?')) {
-                try {
-                    await auth.signOut();
-                    // Redirect handled by auth state change
-                } catch (error) {
-                    console.error('Sign out error:', error);
-                    alert('❌ Sign out failed');
-                }
-            }
-        }
-
         // Update avatar display
         function updateAvatarDisplay() {
             const headerAvatar = document.getElementById('header-avatar');
-            const settingsAvatar = document.getElementById('settings-avatar');
             
             // Always try avatarIMG first, then avatarURL, then fallback to default
             if (userProfile.avatarIMG) {
                 headerAvatar.innerHTML = `<img src="${userProfile.avatarIMG}" alt="Avatar">`;
-                if (settingsAvatar) {
-                    settingsAvatar.innerHTML = `<img src="${userProfile.avatarIMG}" alt="Avatar">`;
-                }
             } else if (userProfile.avatarURL) {
                 const imageUrl = userProfile.avatarURL + '&I=1';
                 headerAvatar.innerHTML = `<img src="${imageUrl}" alt="Avatar">`;
-                if (settingsAvatar) {
-                    settingsAvatar.innerHTML = `<img src="${imageUrl}" alt="Avatar">`;
-                }
             } else {
                 // Fallback to default avatar if none exists
                 const defaultImageUrl = 'https://polor.org/Avatars/?backgrounds=bg1.png&bases=base.png&hair=&eyes=BasicMale.png&brows=Basic.png&mouths=Basic.png&noses=basic.png&neck=&tops=16.png&glasses=&hats=editme.png&backgroundsColor=808080&basesColor=FFF8F5&hairColor=F4C2A1&eyesColor=F4C2A1&browsColor=654321&mouthsColor=000000&nosesColor=FFA07A&neckColor=FFB6C1&topsColor=676767&glassesColor=6B4423&hatsColor=FF4500&I=1';
                 headerAvatar.innerHTML = `<img src="${defaultImageUrl}" alt="Avatar">`;
-                if (settingsAvatar) {
-                    settingsAvatar.innerHTML = `<img src="${defaultImageUrl}" alt="Avatar">`;
-                }
             }
         }
 
@@ -944,134 +815,77 @@
             }, 500);
         }
 
-        // Listen for messages from the iframe
-        window.addEventListener('message', function(event) {
-            // Check if message is from our avatar editor
-            if (event.origin === 'https://polor.org') {
-                if (event.data === 'avatarSaved' || event.data === 'closeEditor') {
-                    closeAvatarEditor();
-                }
-            }
-        });
-
-        // Open settings modal
+        // Open settings modal with iframe
         function openSettings() {
             const modal = document.getElementById('settings-modal');
-            const displayNameInput = document.getElementById('display-name');
-            const usernameInput = document.getElementById('username-input');
+            const iframe = document.getElementById('settings-iframe');
+            const loading = document.getElementById('settings-loading');
             
-            // Pre-fill current values
-            displayNameInput.value = userProfile.displayName || '';
-            usernameInput.value = userProfile.username || '';
-            
-            // Update settings avatar
-            updateAvatarDisplay();
-            
+            // Show modal
             modal.classList.add('show');
+            
+            // Reset iframe state
+            iframe.style.display = 'none';
+            loading.style.display = 'flex';
+            
+            // Set iframe source with cache busting
+            iframe.src = 'settings.html?v=' + Date.now();
+            
+            // Handle iframe load
+            iframe.onload = function() {
+                loading.style.display = 'none';
+                iframe.style.display = 'block';
+            };
         }
 
         // Close settings modal
         function closeSettings() {
             const modal = document.getElementById('settings-modal');
+            const iframe = document.getElementById('settings-iframe');
+            
             modal.classList.remove('show');
-            clearErrors();
+            
+            // Reset iframe after animation
+            setTimeout(() => {
+                iframe.src = '';
+                iframe.style.display = 'none';
+                document.getElementById('settings-loading').style.display = 'flex';
+            }, 300);
+            
+            // Refresh user data in case settings were changed
+            setTimeout(() => {
+                loadUserProfile();
+            }, 500);
         }
 
-        // Clear error messages
-        function clearErrors() {
-            document.querySelectorAll('.error-message').forEach(e => e.classList.remove('show'));
-            document.querySelectorAll('.form-input').forEach(i => i.classList.remove('error'));
-        }
-
-        // Show error message
-        function showError(inputId, message) {
-            const input = document.getElementById(inputId);
-            const errorDiv = document.getElementById(`${inputId.replace('-input', '')}-error`);
-            
-            input.classList.add('error');
-            errorDiv.textContent = message;
-            errorDiv.classList.add('show');
-        }
-
-        // Handle settings form submission
-        document.getElementById('settings-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            clearErrors();
-            
-            const displayName = document.getElementById('display-name').value.trim();
-            const username = document.getElementById('username-input').value.trim();
-            const saveBtn = document.getElementById('save-settings-btn');
-            
-            // Validation
-            if (!displayName) {
-                showError('display-name', 'Display name is required');
-                return;
-            }
-            
-            if (!username) {
-                showError('username-input', 'Username is required');
-                return;
-            }
-            
-            if (username.length < 3) {
-                showError('username-input', 'Username must be at least 3 characters');
-                return;
-            }
-            
-            if (!/^[a-zA-Z0-9_]+$/.test(username)) {
-                showError('username-input', 'Username can only contain letters, numbers, and underscores');
-                return;
-            }
-            
-            saveBtn.disabled = true;
-            saveBtn.textContent = '💾 Saving...';
-            
-            try {
-                // Check if username is taken (if changed)
-                if (username !== userProfile.username) {
-                    const usernameQuery = await firestore.collection('users')
-                        .where('username', '==', username)
-                        .get();
-                    
-                    if (!usernameQuery.empty && usernameQuery.docs[0].id !== currentUser.uid) {
-                        showError('username-input', 'Username is already taken');
-                        return;
-                    }
+        // Listen for messages from iframes
+        window.addEventListener('message', function(event) {
+            // Check if message is from our domain
+            if (event.origin === window.location.origin || event.origin === 'https://polor.org') {
+                if (event.data === 'avatarSaved' || event.data === 'closeEditor') {
+                    closeAvatarEditor();
+                } else if (event.data === 'settingsSaved' || event.data === 'closeSettings') {
+                    closeSettings();
+                } else if (event.data === 'signOut') {
+                    signOut();
+                } else if (event.data === 'editAvatar') {
+                    closeSettings();
+                    editAvatar();
                 }
-                
-                // Update Firestore
-                await firestore.collection('users').doc(currentUser.uid).update({
-                    displayName: displayName,
-                    username: username,
-                    lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                
-                // Update Auth displayName
-                await currentUser.updateProfile({
-                    displayName: displayName
-                });
-                
-                // Update local profile
-                userProfile.displayName = displayName;
-                userProfile.username = username;
-                
-                // Update UI
-                updateUserInterface();
-                closeSettings();
-                alert('✅ Settings saved successfully!');
-                
-            } catch (error) {
-                console.error('Save failed:', error);
-                alert('❌ Failed to save settings: ' + error.message);
-            } finally {
-                saveBtn.disabled = false;
-                saveBtn.textContent = '💾 Save Changes';
             }
         });
 
-        // Coming soon function
-        function comingSoon(feature) {
-            alert(`🚀 ${feature} is coming soon! Stay tuned for updates.`);
+        // Sign out
+        async function signOut() {
+            if (confirm('Are you sure you want to sign out?')) {
+                try {
+                    await auth.signOut();
+                    // Redirect handled by auth state change
+                } catch (error) {
+                    console.error('Sign out error:', error);
+                    alert('❌ Sign out failed');
+                }
+            }
         }
 
         // Close modals when clicking outside
