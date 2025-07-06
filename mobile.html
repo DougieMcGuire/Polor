@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Polor</title>
     
-    <!-- PWA Meta Tags -->
+    <!-- Enhanced PWA Meta Tags -->
     <meta name="application-name" content="Polor">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -13,17 +13,54 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#4A90E2">
     <meta name="msapplication-TileColor" content="#4A90E2">
+    <meta name="msapplication-navbutton-color" content="#4A90E2">
+    <meta name="apple-touch-fullscreen" content="yes">
     
     <!-- Prevent text selection and context menus -->
     <meta name="format-detection" content="telephone=no">
     <meta name="format-detection" content="email=no">
     <meta name="format-detection" content="address=no">
+    <meta name="format-detection" content="date=no">
+    
+    <!-- iOS specific enhancements -->
+    <meta name="apple-mobile-web-app-orientation" content="portrait">
+    <meta name="mobile-web-app-orientation" content="portrait">
+    
+    <!-- Disable automatic adjustments -->
+    <meta name="text-size-adjust" content="100%">
+    <meta name="webkit-text-size-adjust" content="100%">
+    <meta name="ms-text-size-adjust" content="100%">
     
     <!-- PWA Icons -->
+    <link rel="apple-touch-icon" sizes="57x57" href="https://polor.org/assets/polorapp.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="https://polor.org/assets/polorapp.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="https://polor.org/assets/polorapp.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="https://polor.org/assets/polorapp.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="https://polor.org/assets/polorapp.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="https://polor.org/assets/polorapp.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="https://polor.org/assets/polorapp.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="https://polor.org/assets/polorapp.png">
     <link rel="apple-touch-icon" sizes="180x180" href="https://polor.org/assets/polorapp.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="https://polor.org/assets/polorapp.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="https://polor.org/assets/polorapp.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="https://polor.org/assets/polorapp.png">
     <link rel="icon" type="image/png" href="https://polor.org/assets/polorapp.png">
     
+    <!-- iOS Splash Screens -->
+    <link rel="apple-touch-startup-image" href="https://polor.org/assets/polorapp.png" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+    <link rel="apple-touch-startup-image" href="https://polor.org/assets/polorapp.png" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+    <link rel="apple-touch-startup-image" href="https://polor.org/assets/polorapp.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+    <link rel="apple-touch-startup-image" href="https://polor.org/assets/polorapp.png" media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+    
     <style>
+        :root {
+            --safe-area-inset-top: env(safe-area-inset-top);
+            --safe-area-inset-right: env(safe-area-inset-right);
+            --safe-area-inset-bottom: env(safe-area-inset-bottom);
+            --safe-area-inset-left: env(safe-area-inset-left);
+            --nav-bg: linear-gradient(135deg, #4A90E2, #357ABD);
+        }
+        
         * {
             margin: 0;
             padding: 0;
@@ -34,6 +71,16 @@
             user-select: none;
             -webkit-touch-callout: none;
             -webkit-tap-highlight-color: transparent;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        /* Allow text selection where needed */
+        input, textarea, [contenteditable], .selectable {
+            -webkit-user-select: auto;
+            -moz-user-select: auto;
+            -ms-user-select: auto;
+            user-select: auto;
         }
         
         html {
@@ -41,6 +88,9 @@
             -ms-text-size-adjust: 100%;
             touch-action: manipulation;
             overscroll-behavior: none;
+            scroll-behavior: smooth;
+            height: 100%;
+            width: 100%;
         }
         
         body {
@@ -55,6 +105,10 @@
             left: 0;
             overscroll-behavior: none;
             -webkit-overflow-scrolling: touch;
+            padding-top: var(--safe-area-inset-top);
+            padding-bottom: var(--safe-area-inset-bottom);
+            padding-left: var(--safe-area-inset-left);
+            padding-right: var(--safe-area-inset-right);
         }
         
         /* Hide address bar on mobile */
@@ -63,6 +117,24 @@
                 height: 100vh;
                 height: calc(var(--vh, 1vh) * 100);
             }
+        }
+        
+        /* Prevent overscroll/bounce */
+        body {
+            overscroll-behavior-y: none;
+            -webkit-overscroll-behavior: none;
+        }
+        
+        /* Custom scrollbars */
+        ::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
+            display: none;
+        }
+        
+        * {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
         }
         
         /* Mobile Detection Screen */
@@ -82,6 +154,7 @@
             text-align: center;
             padding: 40px 30px;
             z-index: 10000;
+            backdrop-filter: blur(20px);
         }
         
         .mobile-install-screen.show {
@@ -97,14 +170,19 @@
             align-items: center;
             justify-content: center;
             margin-bottom: 30px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(30px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
             overflow: hidden;
             background-image: url('https://polor.org/assets/polorapp.png');
             background-size: 80px 80px;
             background-repeat: no-repeat;
             background-position: center;
+            transition: transform 0.3s ease;
+        }
+        
+        .install-logo:hover {
+            transform: scale(1.05);
         }
         
         .install-title {
@@ -112,17 +190,19 @@
             font-weight: 700;
             margin-bottom: 10px;
             color: white;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
         
         .install-subtitle {
             font-size: 16px;
-            color: rgba(255, 255, 255, 0.8);
+            color: rgba(255, 255, 255, 0.9);
             margin-bottom: 40px;
-            line-height: 1.4;
+            line-height: 1.5;
+            max-width: 300px;
         }
         
         .install-steps {
-            max-width: 300px;
+            max-width: 320px;
             margin-bottom: 40px;
         }
         
@@ -131,27 +211,34 @@
             align-items: center;
             margin-bottom: 20px;
             text-align: left;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
         
         .step-number {
-            width: 32px;
-            height: 32px;
-            background: rgba(255, 255, 255, 0.2);
+            width: 36px;
+            height: 36px;
+            background: rgba(255, 255, 255, 0.25);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 700;
-            font-size: 14px;
+            font-size: 16px;
             margin-right: 15px;
             flex-shrink: 0;
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
         
         .step-text {
             font-size: 14px;
             line-height: 1.4;
+            font-weight: 500;
         }
         
         .share-icon {
@@ -160,25 +247,35 @@
             height: 20px;
             margin: 0 4px;
             vertical-align: middle;
+            filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
         }
         
         .continue-browser-btn {
             background: transparent;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            color: rgba(255, 255, 255, 0.7);
-            padding: 12px 24px;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            color: rgba(255, 255, 255, 0.8);
+            padding: 14px 28px;
             border-radius: 12px;
             font-size: 14px;
+            font-weight: 500;
             cursor: pointer;
             transition: all 0.3s ease;
             margin-top: 20px;
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(20px);
+            touch-action: manipulation;
+            min-height: 48px;
         }
         
         .continue-browser-btn:hover {
-            border-color: rgba(255, 255, 255, 0.5);
-            color: rgba(255, 255, 255, 0.9);
-            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.6);
+            color: white;
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        .continue-browser-btn:active {
+            transform: translateY(0);
         }
         
         /* App Loading Screen */
@@ -199,13 +296,14 @@
         }
         
         .app-loading-spinner {
-            width: 50px;
-            height: 50px;
-            border: 3px solid rgba(255,255,255,0.2);
-            border-top: 3px solid white;
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(255,255,255,0.2);
+            border-top: 4px solid white;
             border-radius: 50%;
             animation: spin 1s linear infinite;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
         
         @keyframes spin {
@@ -214,30 +312,17 @@
         }
         
         .app-loading-text {
-            font-size: 18px;
+            font-size: 20px;
             font-weight: 600;
             margin-bottom: 8px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
         
         .app-loading-subtitle {
             font-size: 14px;
-            opacity: 0.8;
+            opacity: 0.9;
+            font-weight: 400;
         }
-        
-        /* App Container */
-        .app-container {
-            display: none;
-            height: 100vh;
-            height: 100dvh;
-            flex-direction: column;
-            background: #000;
-        }
-        
-        .app-container.show {
-            display: flex;
-        }
-        
-        /* Status Bar (for standalone mode) - removed, no header needed */
         
         /* App Container */
         .app-container {
@@ -294,7 +379,7 @@
             border: none;
         }
         
-        /* Bottom Navigation - Redesigned to fit icons properly */
+        /* Bottom Navigation - Enhanced with better touch targets */
         .bottom-nav {
             height: 100px;
             background: var(--nav-bg, linear-gradient(135deg, #4A90E2, #357ABD));
@@ -323,6 +408,9 @@
             height: 70px;
             position: relative;
             overflow: hidden;
+            touch-action: manipulation;
+            min-width: 44px;
+            min-height: 44px;
         }
         
         .nav-item::before {
@@ -357,6 +445,7 @@
             position: relative;
             z-index: 1;
             line-height: 1;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
         }
         
         .nav-item.active .nav-icon {
@@ -393,42 +482,138 @@
             animation: spin 1s linear infinite;
         }
         
-        /* Haptic feedback simulation */
+        /* Enhanced haptic feedback simulation */
         .nav-item:active {
-            animation: haptic 0.1s ease;
+            animation: haptic 0.15s ease;
         }
         
         @keyframes haptic {
             0% { transform: scale(1) translateY(-4px); }
-            50% { transform: scale(0.98) translateY(-2px); }
+            25% { transform: scale(0.95) translateY(-2px); }
+            75% { transform: scale(0.98) translateY(-6px); }
             100% { transform: scale(1) translateY(-4px); }
         }
         
-        /* iOS specific fixes */
+        /* iOS specific fixes and enhancements */
         @supports (-webkit-touch-callout: none) {
             .app-container {
                 padding-top: constant(safe-area-inset-top);
                 padding-top: env(safe-area-inset-top);
             }
+            
+            /* iOS status bar in standalone mode */
+            @media (display-mode: standalone) {
+                body {
+                    padding-top: 44px;
+                }
+            }
         }
         
-        /* Hide scrollbars */
-        ::-webkit-scrollbar {
-            display: none;
+        /* Prevent text adjustment on rotation */
+        @media screen and (orientation: landscape) {
+            html {
+                -webkit-text-size-adjust: 100%;
+            }
         }
         
-        * {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
+        /* Enhanced loading animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .app-container.show {
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        /* Prevent selection highlighting */
+        ::selection {
+            background: transparent;
+        }
+        
+        ::-moz-selection {
+            background: transparent;
+        }
+        
+        /* Enhanced button styling for better touch feedback */
+        button, .button, .nav-item {
+            outline: none;
+            border: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+        }
+        
+        /* Prevent zoom on inputs */
+        input, select, textarea {
+            font-size: 16px;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+        }
+        
+        /* Enhanced offline indicator */
+        .offline-indicator {
+            position: fixed;
+            top: var(--safe-area-inset-top, 0);
+            left: 0;
+            right: 0;
+            background: #dc3545;
+            color: white;
+            text-align: center;
+            padding: 8px;
+            font-size: 14px;
+            transform: translateY(-100%);
+            transition: transform 0.3s ease;
+            z-index: 10001;
+        }
+        
+        .offline-indicator.show {
+            transform: translateY(0);
+        }
+        
+        /* Performance optimizations */
+        .page-iframe {
+            will-change: transform;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+        
+        /* Enhanced accessibility */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+        
+        /* High contrast mode support */
+        @media (prefers-contrast: high) {
+            .nav-item {
+                border: 2px solid currentColor;
+            }
+        }
+        
+        /* Dark mode enhancements */
+        @media (prefers-color-scheme: dark) {
+            .content-area {
+                background: #000;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- Offline Indicator -->
+    <div id="offline-indicator" class="offline-indicator">
+        📡 You're offline - Some features may be limited
+    </div>
+    
     <!-- Mobile Install Screen -->
     <div id="mobile-install-screen" class="mobile-install-screen">
         <div class="install-logo"></div>
-        <h1 class="install-title">Download Polor App?</h1>
-        <p class="install-subtitle">Get the best experience with our mobile app</p>
+        <h1 class="install-title">Install Polor App</h1>
+        <p class="install-subtitle">Get the full native app experience with offline support and push notifications</p>
         
         <div class="install-steps">
             <div class="install-step">
@@ -452,7 +637,7 @@
         </div>
         
         <button class="continue-browser-btn" onclick="continueInBrowser()">
-            Continue in browser (not recommended)
+            Continue in browser (limited features)
         </button>
     </div>
     
@@ -460,7 +645,7 @@
     <div id="app-loading-screen" class="app-loading-screen">
         <div class="app-loading-spinner"></div>
         <div class="app-loading-text">Loading Polor</div>
-        <div class="app-loading-subtitle">Setting up your experience...</div>
+        <div class="app-loading-subtitle">Initializing your experience...</div>
     </div>
     
     <!-- Auth Container (Full Screen) -->
@@ -499,25 +684,16 @@
         
         <!-- Bottom Navigation -->
         <nav class="bottom-nav">
-            <div class="nav-item active" onclick="switchPage('home')">
+            <div class="nav-item active" onclick="switchPage('home')" role="button" tabindex="0" aria-label="Home">
                 <div class="nav-icon">🏠</div>
             </div>
-            <div class="nav-item" onclick="switchPage('following')">
+            <div class="nav-item" onclick="switchPage('following')" role="button" tabindex="0" aria-label="Following">
                 <div class="nav-icon">👥</div>
             </div>
-            <div class="nav-item" onclick="switchPage('search')">
+            <div class="nav-item" onclick="switchPage('search')" role="button" tabindex="0" aria-label="Search">
                 <div class="nav-icon">🔍</div>
             </div>
-            <div class="nav-item" onclick="switchPage('profile')">
-                <div class="nav-icon">👤</div>
-            </div>
-        </nav>
-    </div>-icon">👥</div>
-            </div>
-            <div class="nav-item" onclick="switchPage('search')">
-                <div class="nav-icon">🔍</div>
-            </div>
-            <div class="nav-item" onclick="switchPage('profile')">
+            <div class="nav-item" onclick="switchPage('profile')" role="button" tabindex="0" aria-label="Profile">
                 <div class="nav-icon">👤</div>
             </div>
         </nav>
@@ -529,6 +705,260 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 
     <script>
+        // Enhanced Service Worker inline implementation
+        const serviceWorkerCode = `
+            const CACHE_NAME = 'polor-app-v2.1';
+            const OFFLINE_URL = '/offline.html';
+            
+            const urlsToCache = [
+                '/',
+                '/offline.html',
+                'https://polor.org/assets/polorapp.png',
+                'https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js',
+                'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js',
+                'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js'
+            ];
+
+            // Install event - cache resources
+            self.addEventListener('install', event => {
+                console.log('Service Worker installing...');
+                event.waitUntil(
+                    caches.open(CACHE_NAME)
+                        .then(cache => {
+                            console.log('Caching app shell');
+                            return cache.addAll(urlsToCache);
+                        })
+                        .then(() => self.skipWaiting())
+                );
+            });
+
+            // Activate event - clean up old caches
+            self.addEventListener('activate', event => {
+                console.log('Service Worker activating...');
+                event.waitUntil(
+                    caches.keys().then(cacheNames => {
+                        return Promise.all(
+                            cacheNames.map(cacheName => {
+                                if (cacheName !== CACHE_NAME) {
+                                    console.log('Deleting old cache:', cacheName);
+                                    return caches.delete(cacheName);
+                                }
+                            })
+                        );
+                    }).then(() => self.clients.claim())
+                );
+            });
+
+            // Fetch event - serve from cache, fallback to network
+            self.addEventListener('fetch', event => {
+                // Skip cross-origin requests
+                if (!event.request.url.startsWith(self.location.origin) && 
+                    !event.request.url.startsWith('https://polor.org') &&
+                    !event.request.url.startsWith('https://www.gstatic.com')) {
+                    return;
+                }
+
+                event.respondWith(
+                    caches.match(event.request)
+                        .then(response => {
+                            // Return cached version or fetch from network
+                            return response || fetch(event.request).catch(() => {
+                                // If both cache and network fail, show offline page for navigation requests
+                                if (event.request.mode === 'navigate') {
+                                    return caches.match(OFFLINE_URL);
+                                }
+                                throw error;
+                            });
+                        })
+                );
+            });
+
+            // Background sync for offline actions
+            self.addEventListener('sync', event => {
+                if (event.tag === 'background-sync') {
+                    console.log('Background sync triggered');
+                    event.waitUntil(doBackgroundSync());
+                }
+            });
+
+            function doBackgroundSync() {
+                // Handle offline actions when back online
+                return Promise.resolve();
+            }
+
+            // Push notification handling
+            self.addEventListener('push', event => {
+                console.log('Push received');
+                
+                const options = {
+                    body: event.data ? event.data.text() : 'New update available!',
+                    icon: 'https://polor.org/assets/polorapp.png',
+                    badge: 'https://polor.org/assets/polorapp.png',
+                    vibrate: [200, 100, 200],
+                    tag: 'polor-notification',
+                    requireInteraction: true,
+                    actions: [
+                        { action: 'open', title: 'Open App' },
+                        { action: 'close', title: 'Close' }
+                    ]
+                };
+
+                event.waitUntil(
+                    self.registration.showNotification('Polor', options)
+                );
+            });
+
+            // Notification click handling
+            self.addEventListener('notificationclick', event => {
+                event.notification.close();
+
+                if (event.action === 'open' || !event.action) {
+                    event.waitUntil(
+                        clients.openWindow('/')
+                    );
+                }
+            });
+        `;
+
+        // Create and register service worker
+        function registerServiceWorker() {
+            if ('serviceWorker' in navigator) {
+                const swBlob = new Blob([serviceWorkerCode], { type: 'application/javascript' });
+                const swUrl = URL.createObjectURL(swBlob);
+                
+                navigator.serviceWorker.register(swUrl)
+                    .then(registration => {
+                        console.log('Service Worker registered successfully:', registration);
+                        
+                        // Check for updates
+                        registration.addEventListener('updatefound', () => {
+                            const newWorker = registration.installing;
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    showUpdateNotification();
+                                }
+                            });
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Service Worker registration failed:', error);
+                    });
+            }
+        }
+
+        // Show update notification
+        function showUpdateNotification() {
+            if (confirm('A new version of Polor is available. Update now?')) {
+                window.location.reload();
+            }
+        }
+
+        // Enhanced PWA Manifest inline implementation
+        const manifestData = {
+            "name": "Polor - Anonymous Q&A",
+            "short_name": "Polor",
+            "description": "Anonymous Q&A Social Platform with real-time interactions",
+            "start_url": "/",
+            "display": "standalone",
+            "orientation": "portrait-primary",
+            "theme_color": "#4A90E2",
+            "background_color": "#4A90E2",
+            "scope": "/",
+            "lang": "en-US",
+            "categories": ["social", "lifestyle", "entertainment"],
+            "icons": [
+                {
+                    "src": "https://polor.org/assets/polorapp.png",
+                    "sizes": "72x72",
+                    "type": "image/png",
+                    "purpose": "any"
+                },
+                {
+                    "src": "https://polor.org/assets/polorapp.png",
+                    "sizes": "96x96",
+                    "type": "image/png",
+                    "purpose": "any"
+                },
+                {
+                    "src": "https://polor.org/assets/polorapp.png",
+                    "sizes": "128x128",
+                    "type": "image/png",
+                    "purpose": "any"
+                },
+                {
+                    "src": "https://polor.org/assets/polorapp.png",
+                    "sizes": "144x144",
+                    "type": "image/png",
+                    "purpose": "any"
+                },
+                {
+                    "src": "https://polor.org/assets/polorapp.png",
+                    "sizes": "152x152",
+                    "type": "image/png",
+                    "purpose": "any"
+                },
+                {
+                    "src": "https://polor.org/assets/polorapp.png",
+                    "sizes": "192x192",
+                    "type": "image/png",
+                    "purpose": "any maskable"
+                },
+                {
+                    "src": "https://polor.org/assets/polorapp.png",
+                    "sizes": "384x384",
+                    "type": "image/png",
+                    "purpose": "any"
+                },
+                {
+                    "src": "https://polor.org/assets/polorapp.png",
+                    "sizes": "512x512",
+                    "type": "image/png",
+                    "purpose": "any maskable"
+                }
+            ],
+            "shortcuts": [
+                {
+                    "name": "Home Feed",
+                    "url": "/#home",
+                    "description": "View your home feed"
+                },
+                {
+                    "name": "Search",
+                    "url": "/#search",
+                    "description": "Search for content and users"
+                },
+                {
+                    "name": "Profile",
+                    "url": "/#profile",
+                    "description": "View your profile"
+                }
+            ],
+            "screenshots": [
+                {
+                    "src": "https://polor.org/assets/polorapp.png",
+                    "sizes": "640x1136",
+                    "type": "image/png"
+                }
+            ],
+            "prefer_related_applications": false,
+            "display_override": ["window-controls-overlay", "standalone"],
+            "edge_side_panel": {
+                "preferred_width": 400
+            }
+        };
+
+        // Add manifest to page
+        function addManifest() {
+            const manifestBlob = new Blob([JSON.stringify(manifestData, null, 2)], {
+                type: 'application/json'
+            });
+            const manifestURL = URL.createObjectURL(manifestBlob);
+            const manifestLink = document.createElement('link');
+            manifestLink.rel = 'manifest';
+            manifestLink.href = manifestURL;
+            document.head.appendChild(manifestLink);
+        }
+
         // Firebase config
         const firebaseConfig = {
             apiKey: "AIzaSyA8HcTDiCQtJHRiMES2p1iUlA30AkZPx1Y",
@@ -550,28 +980,73 @@
         let userProfile = null;
         let currentPage = 'home';
         let loadedPages = new Set();
+        let deferredPrompt = null;
 
-        // Mobile and standalone detection
+        // Enhanced mobile and standalone detection
         function isMobile() {
-            return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
-                   (window.innerWidth <= 768 && window.innerHeight <= 1024);
+            const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+            return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent) ||
+                   (window.innerWidth <= 768 && window.innerHeight <= 1024) ||
+                   ('ontouchstart' in window) ||
+                   (navigator.maxTouchPoints > 0);
         }
 
         function isStandalone() {
             return window.matchMedia('(display-mode: standalone)').matches ||
                    window.navigator.standalone ||
-                   document.referrer.includes('android-app://');
+                   document.referrer.includes('android-app://') ||
+                   window.matchMedia('(display-mode: window-controls-overlay)').matches;
         }
 
-        // Set viewport height for mobile
+        function isAndroid() {
+            return /Android/i.test(navigator.userAgent);
+        }
+
+        function isIOS() {
+            return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        }
+
+        // Enhanced viewport height management
         function setVH() {
-            let vh = window.innerHeight * 0.01;
+            const vh = window.innerHeight * 0.01;
             document.documentElement.style.setProperty('--vh', `${vh}px`);
+            
+            // Handle safe area insets
+            if (isIOS() && isStandalone()) {
+                document.documentElement.style.setProperty('--safe-area-inset-top', '44px');
+            }
         }
 
-        // Initialize app
+        // Enhanced offline detection
+        function handleOnlineStatus() {
+            const offlineIndicator = document.getElementById('offline-indicator');
+            
+            if (navigator.onLine) {
+                offlineIndicator.classList.remove('show');
+                document.body.classList.remove('offline');
+                // Retry failed requests
+                retryFailedRequests();
+            } else {
+                offlineIndicator.classList.add('show');
+                document.body.classList.add('offline');
+            }
+        }
+
+        function retryFailedRequests() {
+            // Implement retry logic for failed requests
+            console.log('Retrying failed requests...');
+        }
+
+        // Enhanced app initialization
         function initializeApp() {
             setVH();
+            addManifest();
+            registerServiceWorker();
+            
+            // Handle online/offline status
+            window.addEventListener('online', handleOnlineStatus);
+            window.addEventListener('offline', handleOnlineStatus);
+            handleOnlineStatus();
             
             if (isMobile() && !isStandalone()) {
                 showMobileInstallScreen();
@@ -581,7 +1056,7 @@
             }
         }
 
-        // Show mobile install screen
+        // Show mobile install screen with enhanced detection
         function showMobileInstallScreen() {
             document.getElementById('mobile-install-screen').classList.add('show');
             document.getElementById('app-loading-screen').style.display = 'none';
@@ -593,41 +1068,97 @@
             document.getElementById('app-loading-screen').style.display = 'flex';
         }
 
-        // Continue in browser
+        // Continue in browser with limited features warning
         function continueInBrowser() {
             hideInstallScreen();
             initializeFirebase();
+            
+            // Show toast about limited features
+            setTimeout(() => {
+                showToast('Some features may be limited in browser mode', 'warning');
+            }, 2000);
         }
 
-        // Initialize Firebase auth
+        // Enhanced toast notifications
+        function showToast(message, type = 'info', duration = 3000) {
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.textContent = message;
+            toast.style.cssText = `
+                position: fixed;
+                top: calc(var(--safe-area-inset-top, 0px) + 20px);
+                left: 20px;
+                right: 20px;
+                background: ${type === 'warning' ? '#f39c12' : type === 'error' ? '#e74c3c' : '#2ecc71'};
+                color: white;
+                padding: 12px 16px;
+                border-radius: 8px;
+                z-index: 10002;
+                transform: translateY(-100px);
+                transition: transform 0.3s ease;
+                font-size: 14px;
+                text-align: center;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            `;
+            
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.transform = 'translateY(0)';
+            }, 100);
+            
+            setTimeout(() => {
+                toast.style.transform = 'translateY(-100px)';
+                setTimeout(() => {
+                    document.body.removeChild(toast);
+                }, 300);
+            }, duration);
+        }
+
+        // Initialize Firebase auth with enhanced error handling
         function initializeFirebase() {
             auth.onAuthStateChanged(async (user) => {
-                if (user) {
-                    currentUser = user;
-                    await loadUserProfile();
-                    showApp();
-                    loadCurrentPage();
-                } else {
-                    showAuth();
+                try {
+                    if (user) {
+                        currentUser = user;
+                        await loadUserProfile();
+                        showApp();
+                        loadCurrentPage();
+                        
+                        // Request notification permission for logged-in users
+                        requestNotificationPermission();
+                    } else {
+                        showAuth();
+                    }
+                } catch (error) {
+                    console.error('Firebase initialization error:', error);
+                    showToast('Authentication error occurred', 'error');
                 }
             });
         }
 
-        // Load user profile
-        async function loadUserProfile() {
+        // Enhanced user profile loading with retry logic
+        async function loadUserProfile(retryCount = 0) {
             try {
                 const doc = await firestore.collection('users').doc(currentUser.uid).get();
                 if (doc.exists) {
                     userProfile = doc.data();
                     updateNavbarGradient();
                     updateProfilePageUrl();
+                } else {
+                    console.log('User profile not found');
                 }
             } catch (error) {
                 console.error('Error loading user profile:', error);
+                if (retryCount < 3) {
+                    setTimeout(() => loadUserProfile(retryCount + 1), 1000 * (retryCount + 1));
+                } else {
+                    showToast('Failed to load profile after multiple attempts', 'error');
+                }
             }
         }
 
-        // Update navbar gradient based on user's avatar background
+        // Enhanced navbar gradient with better color extraction
         function updateNavbarGradient() {
             if (userProfile && userProfile.avatarURL) {
                 try {
@@ -636,20 +1167,27 @@
                     
                     if (bgColor) {
                         const hex = bgColor.replace('#', '');
-                        const r = parseInt(hex.substr(0, 2), 16);
-                        const g = parseInt(hex.substr(2, 2), 16);
-                        const b = parseInt(hex.substr(4, 2), 16);
-                        
-                        const lighterR = Math.min(255, r + 30);
-                        const lighterG = Math.min(255, g + 30);
-                        const lighterB = Math.min(255, b + 30);
-                        
-                        const darkerR = Math.max(0, r - 40);
-                        const darkerG = Math.max(0, g - 40);
-                        const darkerB = Math.max(0, b - 40);
-                        
-                        const gradient = `linear-gradient(135deg, rgb(${lighterR}, ${lighterG}, ${lighterB}) 0%, rgb(${r}, ${g}, ${b}) 50%, rgb(${darkerR}, ${darkerG}, ${darkerB}) 100%)`;
-                        document.documentElement.style.setProperty('--nav-bg', gradient);
+                        if (hex.length === 6) {
+                            const r = parseInt(hex.substr(0, 2), 16);
+                            const g = parseInt(hex.substr(2, 2), 16);
+                            const b = parseInt(hex.substr(4, 2), 16);
+                            
+                            // Create more sophisticated gradient
+                            const lighterR = Math.min(255, r + 40);
+                            const lighterG = Math.min(255, g + 40);
+                            const lighterB = Math.min(255, b + 40);
+                            
+                            const darkerR = Math.max(0, r - 50);
+                            const darkerG = Math.max(0, g - 50);
+                            const darkerB = Math.max(0, b - 50);
+                            
+                            const gradient = `linear-gradient(135deg, 
+                                rgba(${lighterR}, ${lighterG}, ${lighterB}, 0.9) 0%, 
+                                rgba(${r}, ${g}, ${b}, 1) 50%, 
+                                rgba(${darkerR}, ${darkerG}, ${darkerB}, 1) 100%)`;
+                            
+                            document.documentElement.style.setProperty('--nav-bg', gradient);
+                        }
                     }
                 } catch (error) {
                     console.log('Could not extract background color, using default');
@@ -672,26 +1210,31 @@
             document.getElementById('app-container').classList.remove('show');
         }
 
-        // Show main app
+        // Show main app with fade in animation
         function showApp() {
             document.getElementById('app-loading-screen').style.display = 'none';
             document.getElementById('auth-container').classList.remove('show');
             document.getElementById('app-container').classList.add('show');
         }
 
-        // Switch between pages with haptic feedback simulation
+        // Enhanced page switching with haptic feedback and analytics
         function switchPage(pageName) {
-            // Haptic feedback simulation
+            // Enhanced haptic feedback
             if (navigator.vibrate) {
-                navigator.vibrate(10);
+                navigator.vibrate([10, 5, 10]);
             }
             
-            // Update active nav item
-            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            // Update active nav item with smooth transition
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+                item.style.transform = '';
+            });
             event.currentTarget.classList.add('active');
             
-            // Hide all page iframes
-            document.querySelectorAll('.page-iframe').forEach(iframe => iframe.classList.remove('active'));
+            // Hide all page iframes with fade effect
+            document.querySelectorAll('.page-iframe').forEach(iframe => {
+                iframe.classList.remove('active');
+            });
             
             // Show target page
             const targetIframe = document.getElementById(`${pageName}-iframe`);
@@ -701,10 +1244,22 @@
             loadPage(pageName);
             
             currentPage = pageName;
+            
+            // Update URL without page reload
+            const newUrl = `${window.location.origin}${window.location.pathname}#${pageName}`;
+            history.pushState({ page: pageName }, '', newUrl);
+            
+            // Analytics tracking (if needed)
+            if (typeof gtag !== 'undefined') {
+                gtag('config', 'GA_MEASUREMENT_ID', {
+                    page_title: `Polor - ${pageName}`,
+                    page_location: newUrl
+                });
+            }
         }
 
-        // Load page iframe
-        function loadPage(pageName) {
+        // Enhanced page loading with retry logic and error handling
+        function loadPage(pageName, retryCount = 0) {
             if (loadedPages.has(pageName)) {
                 return;
             }
@@ -715,21 +1270,69 @@
             
             if (!dataSrc) {
                 console.error(`No data-src found for ${pageName}`);
+                loading.innerHTML = `<p style="color: #dc3545;">Configuration error for ${pageName}</p>`;
                 return;
             }
             
             loading.classList.add('show');
+            
+            // Add loading timeout
+            const loadingTimeout = setTimeout(() => {
+                if (!loadedPages.has(pageName)) {
+                    loading.innerHTML = `<p style="color: #f39c12;">Taking longer than expected...</p>`;
+                }
+            }, 5000);
+            
             iframe.src = dataSrc;
             
             iframe.onload = function() {
+                clearTimeout(loadingTimeout);
                 loading.classList.remove('show');
                 loadedPages.add(pageName);
+                
+                // Preload next logical page
+                preloadNextPage(pageName);
             };
             
             iframe.onerror = function() {
+                clearTimeout(loadingTimeout);
                 loading.classList.remove('show');
-                loading.innerHTML = `<p style="color: #dc3545;">Failed to load ${pageName}</p>`;
+                
+                if (retryCount < 2) {
+                    // Retry loading
+                    setTimeout(() => {
+                        loadPage(pageName, retryCount + 1);
+                    }, 1000 * (retryCount + 1));
+                } else {
+                    loading.innerHTML = `
+                        <div style="color: #dc3545; text-align: center;">
+                            <p>Failed to load ${pageName}</p>
+                            <button onclick="loadPage('${pageName}')" style="margin-top: 10px; padding: 8px 16px; background: #4A90E2; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                                Retry
+                            </button>
+                        </div>
+                    `;
+                }
             };
+        }
+
+        // Smart preloading based on user behavior
+        function preloadNextPage(currentPageName) {
+            const preloadMap = {
+                'home': ['search', 'following'],
+                'search': ['home', 'profile'],
+                'following': ['home', 'profile'],
+                'profile': ['home', 'search']
+            };
+            
+            const nextPages = preloadMap[currentPageName] || [];
+            nextPages.forEach((pageName, index) => {
+                setTimeout(() => {
+                    if (!loadedPages.has(pageName)) {
+                        loadPage(pageName);
+                    }
+                }, (index + 1) * 2000);
+            });
         }
 
         // Load current page on app start
@@ -737,47 +1340,178 @@
             loadPage(currentPage);
         }
 
-        // Listen for messages from auth iframe
-        window.addEventListener('message', function(event) {
-            if (event.origin === 'https://polor.org' || event.origin === window.location.origin) {
-                if (event.data === 'authSuccess' || event.data === 'loginSuccess') {
-                    console.log('Authentication successful');
-                } else if (event.data === 'signOut' || event.data === 'logout') {
-                    auth.signOut();
-                }
+        // Enhanced install prompt handling
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            
+            // Show custom install button if user hasn't installed yet
+            if (!isStandalone()) {
+                showInstallButton();
             }
         });
 
-        // Handle browser back/forward buttons
+        function showInstallButton() {
+            // Create floating install button
+            const installBtn = document.createElement('button');
+            installBtn.innerHTML = '📱 Install App';
+            installBtn.style.cssText = `
+                position: fixed;
+                bottom: 120px;
+                right: 20px;
+                background: #4A90E2;
+                color: white;
+                border: none;
+                padding: 12px 16px;
+                border-radius: 25px;
+                font-size: 14px;
+                font-weight: 600;
+                box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
+                z-index: 1000;
+                cursor: pointer;
+                transition: all 0.3s ease;
+            `;
+            
+            installBtn.addEventListener('click', async () => {
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    const { outcome } = await deferredPrompt.userChoice;
+                    if (outcome === 'accepted') {
+                        console.log('User accepted the install prompt');
+                        showToast('App installed successfully!', 'success');
+                    }
+                    deferredPrompt = null;
+                    installBtn.remove();
+                }
+            });
+            
+            document.body.appendChild(installBtn);
+            
+            // Auto-hide after 10 seconds
+            setTimeout(() => {
+                if (installBtn.parentNode) {
+                    installBtn.remove();
+                }
+            }, 10000);
+        }
+
+        // Enhanced notification permission request
+        async function requestNotificationPermission() {
+            if ('Notification' in window && 'serviceWorker' in navigator) {
+                const permission = await Notification.requestPermission();
+                if (permission === 'granted') {
+                    console.log('Notification permission granted');
+                    // Subscribe to push notifications if needed
+                    subscribeToPush();
+                }
+            }
+        }
+
+        async function subscribeToPush() {
+            try {
+                const registration = await navigator.serviceWorker.ready;
+                const subscription = await registration.pushManager.subscribe({
+                    userVisibleOnly: true,
+                    applicationServerKey: urlBase64ToUint8Array('YOUR_VAPID_PUBLIC_KEY_HERE')
+                });
+                
+                // Send subscription to server
+                console.log('Push subscription:', subscription);
+            } catch (error) {
+                console.error('Failed to subscribe to push notifications:', error);
+            }
+        }
+
+        function urlBase64ToUint8Array(base64String) {
+            const padding = '='.repeat((4 - base64String.length % 4) % 4);
+            const base64 = (base64String + padding)
+                .replace(/\-/g, '+')
+                .replace(/_/g, '/');
+
+            const rawData = window.atob(base64);
+            const outputArray = new Uint8Array(rawData.length);
+
+            for (let i = 0; i < rawData.length; ++i) {
+                outputArray[i] = rawData.charCodeAt(i);
+            }
+            return outputArray;
+        }
+
+        // Enhanced message handling from iframes
+        window.addEventListener('message', function(event) {
+            // Validate origin for security
+            const allowedOrigins = ['https://polor.org', window.location.origin];
+            if (!allowedOrigins.includes(event.origin)) {
+                return;
+            }
+            
+            const { data } = event;
+            
+            switch (data) {
+                case 'authSuccess':
+                case 'loginSuccess':
+                    console.log('Authentication successful');
+                    showToast('Welcome to Polor!', 'success');
+                    break;
+                case 'signOut':
+                case 'logout':
+                    auth.signOut();
+                    showToast('Signed out successfully', 'info');
+                    break;
+                case 'refreshProfile':
+                    loadUserProfile();
+                    break;
+                default:
+                    // Handle other message types
+                    if (data && typeof data === 'object') {
+                        handleComplexMessage(data);
+                    }
+            }
+        });
+
+        function handleComplexMessage(messageData) {
+            // Handle complex message objects
+            if (messageData.type === 'navigation') {
+                switchPage(messageData.page);
+            } else if (messageData.type === 'notification') {
+                showToast(messageData.message, messageData.level || 'info');
+            }
+        }
+
+        // Enhanced browser navigation handling
         window.addEventListener('popstate', function(event) {
             if (event.state && event.state.page) {
-                const navItems = document.querySelectorAll('.nav-item');
                 const pages = ['home', 'following', 'search', 'profile'];
-                const pageIndex = pages.indexOf(event.state.page);
-                
-                if (pageIndex !== -1 && navItems[pageIndex]) {
-                    navItems[pageIndex].click();
+                if (pages.includes(event.state.page)) {
+                    currentPage = event.state.page;
+                    
+                    // Update UI without triggering switchPage
+                    document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+                    document.querySelectorAll('.page-iframe').forEach(iframe => iframe.classList.remove('active'));
+                    
+                    const pageIndex = pages.indexOf(event.state.page);
+                    const navItems = document.querySelectorAll('.nav-item');
+                    if (navItems[pageIndex]) {
+                        navItems[pageIndex].classList.add('active');
+                    }
+                    
+                    document.getElementById(`${event.state.page}-iframe`).classList.add('active');
+                    loadPage(event.state.page);
                 }
             }
         });
-
-        // Add page to browser history when switching
-        const originalSwitchPage = switchPage;
-        switchPage = function(pageName) {
-            originalSwitchPage.call(this, pageName);
-            history.pushState({ page: pageName }, '', `#${pageName}`);
-        };
 
         // Handle initial page load from URL hash
         window.addEventListener('load', function() {
             const hash = window.location.hash.substring(1);
-            if (['home', 'following', 'search', 'profile'].includes(hash)) {
+            const validPages = ['home', 'following', 'search', 'profile'];
+            
+            if (validPages.includes(hash)) {
                 currentPage = hash;
                 
                 setTimeout(() => {
+                    const pageIndex = validPages.indexOf(hash);
                     const navItems = document.querySelectorAll('.nav-item');
-                    const pages = ['home', 'following', 'search', 'profile'];
-                    const pageIndex = pages.indexOf(hash);
                     
                     if (pageIndex !== -1 && navItems[pageIndex]) {
                         document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
@@ -790,67 +1524,55 @@
             }
         });
 
-        // Preload pages after initial load
-        setTimeout(() => {
-            if (currentUser) {
-                setTimeout(() => loadPage('search'), 2000);
-                setTimeout(() => loadPage('following'), 3000);
-                setTimeout(() => loadPage('profile'), 4000);
-            }
-        }, 1000);
-
-        // PWA Service Worker
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', function() {
-                navigator.serviceWorker.register('/sw.js').then(function(registration) {
-                    console.log('ServiceWorker registration successful');
-                }, function(err) {
-                    console.log('ServiceWorker registration failed: ', err);
-                });
-            });
-        }
-
-        // Install prompt handling
-        let deferredPrompt;
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-        });
-
-        // Prevent zoom and context menus
+        // Enhanced gesture prevention
         document.addEventListener('gesturestart', function(e) {
             e.preventDefault();
+            document.body.style.zoom = 1;
         });
 
         document.addEventListener('gesturechange', function(e) {
             e.preventDefault();
+            document.body.style.zoom = 1;
         });
 
         document.addEventListener('gestureend', function(e) {
             e.preventDefault();
+            document.body.style.zoom = 1;
         });
 
-        // Prevent double-tap zoom
+        // Enhanced double-tap zoom prevention
         let lastTouchEnd = 0;
+        let lastTouchStart = 0;
+        
+        document.addEventListener('touchstart', function(event) {
+            lastTouchStart = Date.now();
+            if (event.touches.length > 1) {
+                event.preventDefault();
+            }
+        }, { passive: false });
+
         document.addEventListener('touchend', function(event) {
-            const now = (new Date()).getTime();
+            const now = Date.now();
             if (now - lastTouchEnd <= 300) {
                 event.preventDefault();
             }
             lastTouchEnd = now;
-        }, false);
+        }, { passive: false });
 
-        // Prevent context menu
+        // Prevent context menu with enhanced detection
         document.addEventListener('contextmenu', function(e) {
             e.preventDefault();
+            return false;
         });
 
-        // Handle keyboard navigation for accessibility
+        // Enhanced keyboard navigation for accessibility
         document.addEventListener('keydown', function(e) {
+            // Allow tab navigation
             if (e.key === 'Tab') {
                 return;
             }
             
+            // Number key navigation (1-4)
             if (e.key >= '1' && e.key <= '4') {
                 e.preventDefault();
                 const pages = ['home', 'following', 'search', 'profile'];
@@ -861,104 +1583,498 @@
                     navItems[pageIndex].click();
                 }
             }
+            
+            // Arrow key navigation
+            if (['ArrowLeft', 'ArrowRight'].includes(e.key)) {
+                e.preventDefault();
+                const pages = ['home', 'following', 'search', 'profile'];
+                const currentIndex = pages.indexOf(currentPage);
+                let newIndex;
+                
+                if (e.key === 'ArrowLeft') {
+                    newIndex = currentIndex > 0 ? currentIndex - 1 : pages.length - 1;
+                } else {
+                    newIndex = currentIndex < pages.length - 1 ? currentIndex + 1 : 0;
+                }
+                
+                const navItems = document.querySelectorAll('.nav-item');
+                if (navItems[newIndex]) {
+                    navItems[newIndex].click();
+                }
+            }
         });
 
-        // Handle viewport changes for mobile
-        window.addEventListener('resize', setVH);
-        window.addEventListener('orientationchange', function() {
-            setTimeout(setVH, 100);
+        // Enhanced viewport handling for mobile devices
+        window.addEventListener('resize', function() {
+            setVH();
+            handleViewportChange();
         });
-
-        // Initialize app on load
-        window.addEventListener('load', initializeApp);
         
-        // Also initialize immediately if DOM is already loaded
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initializeApp);
-        } else {
-            initializeApp();
+        window.addEventListener('orientationchange', function() {
+            setTimeout(() => {
+                setVH();
+                handleViewportChange();
+            }, 100);
+        });
+
+        function handleViewportChange() {
+            // Handle keyboard appearance on mobile
+            const viewportHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+            const windowHeight = window.innerHeight;
+            
+            if (viewportHeight < windowHeight * 0.75) {
+                document.body.classList.add('keyboard-open');
+            } else {
+                document.body.classList.remove('keyboard-open');
+            }
         }
 
-        // Hide splash screen after load
+        // Performance monitoring and optimization
+        function optimizePerformance() {
+            // Lazy load non-critical resources
+            if ('requestIdleCallback' in window) {
+                requestIdleCallback(() => {
+                    preloadCriticalAssets();
+                });
+            } else {
+                setTimeout(preloadCriticalAssets, 2000);
+            }
+        }
+
+        function preloadCriticalAssets() {
+            // Preload fonts
+            const fontLink = document.createElement('link');
+            fontLink.rel = 'preload';
+            fontLink.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap';
+            fontLink.as = 'style';
+            fontLink.onload = function() {
+                this.onload = null;
+                this.rel = 'stylesheet';
+            };
+            document.head.appendChild(fontLink);
+        }
+
+        // Battery and network optimization
+        function handleNetworkChange() {
+            if ('connection' in navigator) {
+                const connection = navigator.connection;
+                
+                // Adjust quality based on connection
+                if (connection.effectiveType === 'slow-2g' || connection.effectiveType === '2g') {
+                    document.body.classList.add('low-bandwidth');
+                    showToast('Optimizing for slow connection', 'info', 2000);
+                } else {
+                    document.body.classList.remove('low-bandwidth');
+                }
+                
+                connection.addEventListener('change', handleNetworkChange);
+            }
+        }
+
+        function handleBatteryChange() {
+            if ('getBattery' in navigator) {
+                navigator.getBattery().then(battery => {
+                    function updateBatteryStatus() {
+                        if (battery.level < 0.2 && !battery.charging) {
+                            document.body.classList.add('battery-saver');
+                            // Reduce animations and background processes
+                        } else {
+                            document.body.classList.remove('battery-saver');
+                        }
+                    }
+                    
+                    battery.addEventListener('levelchange', updateBatteryStatus);
+                    battery.addEventListener('chargingchange', updateBatteryStatus);
+                    updateBatteryStatus();
+                });
+            }
+        }
+
+        // Enhanced accessibility features
+        function setupAccessibility() {
+            // Add skip link for keyboard navigation
+            const skipLink = document.createElement('a');
+            skipLink.href = '#main-content';
+            skipLink.textContent = 'Skip to main content';
+            skipLink.style.cssText = `
+                position: absolute;
+                top: -40px;
+                left: 6px;
+                background: #000;
+                color: white;
+                padding: 8px;
+                text-decoration: none;
+                border-radius: 4px;
+                z-index: 10003;
+                transition: top 0.3s;
+            `;
+            skipLink.addEventListener('focus', () => {
+                skipLink.style.top = '6px';
+            });
+            skipLink.addEventListener('blur', () => {
+                skipLink.style.top = '-40px';
+            });
+            document.body.insertBefore(skipLink, document.body.firstChild);
+
+            // Add main content landmark
+            const contentArea = document.querySelector('.content-area');
+            if (contentArea) {
+                contentArea.id = 'main-content';
+                contentArea.setAttribute('role', 'main');
+                contentArea.setAttribute('aria-label', 'Main application content');
+            }
+
+            // Enhanced keyboard focus management
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    // Close any open modals or return to main navigation
+                    const activeElement = document.activeElement;
+                    if (activeElement && activeElement.blur) {
+                        activeElement.blur();
+                    }
+                }
+            });
+        }
+
+        // Advanced error handling and reporting
+        function setupErrorHandling() {
+            window.addEventListener('error', (event) => {
+                console.error('Global error:', event.error);
+                handleError(event.error, 'JavaScript Error');
+            });
+
+            window.addEventListener('unhandledrejection', (event) => {
+                console.error('Unhandled promise rejection:', event.reason);
+                handleError(event.reason, 'Promise Rejection');
+            });
+        }
+
+        function handleError(error, type) {
+            // Log error for debugging
+            console.error(`${type}:`, error);
+            
+            // Show user-friendly error message
+            if (error.name === 'NetworkError' || error.message.includes('fetch')) {
+                showToast('Connection issue. Please check your internet.', 'error');
+            } else if (error.name === 'QuotaExceededError') {
+                showToast('Storage full. Please clear some data.', 'warning');
+            } else {
+                showToast('Something went wrong. Please try again.', 'error');
+            }
+            
+            // Send error to analytics (if implemented)
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'exception', {
+                    description: `${type}: ${error.message}`,
+                    fatal: false
+                });
+            }
+        }
+
+        // Enhanced security measures
+        function setupSecurity() {
+            // Prevent iframe clickjacking
+            if (window.top !== window.self) {
+                window.top.location = window.self.location;
+            }
+
+            // Content Security Policy validation
+            if (!document.querySelector('meta[http-equiv="Content-Security-Policy"]')) {
+                console.warn('CSP header recommended for enhanced security');
+            }
+
+            // Validate message origins more strictly
+            const originalAddEventListener = window.addEventListener;
+            window.addEventListener = function(type, listener, options) {
+                if (type === 'message') {
+                    const wrappedListener = function(event) {
+                        // Additional origin validation
+                        const allowedOrigins = [
+                            'https://polor.org',
+                            window.location.origin,
+                            'https://firebaseapp.com',
+                            'https://firebase.com'
+                        ];
+                        
+                        if (!allowedOrigins.some(origin => event.origin.endsWith(origin))) {
+                            console.warn('Blocked message from unauthorized origin:', event.origin);
+                            return;
+                        }
+                        
+                        return listener.call(this, event);
+                    };
+                    return originalAddEventListener.call(this, type, wrappedListener, options);
+                }
+                return originalAddEventListener.call(this, type, listener, options);
+            };
+        }
+
+        // App lifecycle management
+        function setupLifecycleHandlers() {
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden) {
+                    // App went to background
+                    pauseNonEssentialProcesses();
+                } else {
+                    // App came to foreground
+                    resumeProcesses();
+                }
+            });
+
+            window.addEventListener('beforeunload', (event) => {
+                // Save any pending data
+                saveAppState();
+            });
+        }
+
+        function pauseNonEssentialProcesses() {
+            // Pause animations, reduce network requests, etc.
+            document.body.classList.add('app-paused');
+        }
+
+        function resumeProcesses() {
+            document.body.classList.remove('app-paused');
+            // Check for updates, refresh data if needed
+            if (currentUser) {
+                loadUserProfile(); // Refresh profile in case of changes
+            }
+        }
+
+        function saveAppState() {
+            // Save current state to sessionStorage for recovery
+            const appState = {
+                currentPage,
+                timestamp: Date.now(),
+                user: currentUser ? currentUser.uid : null
+            };
+            
+            try {
+                sessionStorage.setItem('polorAppState', JSON.stringify(appState));
+            } catch (error) {
+                console.warn('Failed to save app state:', error);
+            }
+        }
+
+        function restoreAppState() {
+            try {
+                const savedState = sessionStorage.getItem('polorAppState');
+                if (savedState) {
+                    const appState = JSON.parse(savedState);
+                    // Restore state if recent (within last hour)
+                    if (Date.now() - appState.timestamp < 3600000) {
+                        currentPage = appState.currentPage || 'home';
+                    }
+                }
+            } catch (error) {
+                console.warn('Failed to restore app state:', error);
+            }
+        }
+
+        // Initialize everything
+        function fullAppInitialization() {
+            // Restore any saved state first
+            restoreAppState();
+            
+            // Core initialization
+            initializeApp();
+            
+            // Setup advanced features
+            setupErrorHandling();
+            setupSecurity();
+            setupAccessibility();
+            setupLifecycleHandlers();
+            
+            // Performance optimizations
+            optimizePerformance();
+            handleNetworkChange();
+            handleBatteryChange();
+            
+            // Final setup
+            setTimeout(() => {
+                document.body.classList.add('app-ready');
+            }, 1000);
+        }
+
+        // Enhanced loading sequence
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', fullAppInitialization);
+        } else {
+            fullAppInitialization();
+        }
+
+        // Additional window load handler for complete initialization
         window.addEventListener('load', function() {
+            // Hide loading screen with smooth transition
             setTimeout(() => {
                 const appLoading = document.getElementById('app-loading-screen');
-                if (appLoading) {
+                if (appLoading && appLoading.style.display !== 'none') {
                     appLoading.style.opacity = '0';
-                    appLoading.style.transition = 'opacity 0.5s ease';
+                    appLoading.style.transition = 'opacity 0.8s ease';
                     setTimeout(() => {
                         appLoading.style.display = 'none';
-                    }, 500);
+                    }, 800);
+                }
+                
+                // Start preloading non-critical pages
+                if (currentUser) {
+                    setTimeout(() => preloadNextPage(currentPage), 3000);
                 }
             }, 1500);
         });
 
-        // Prevent text selection on long press
-        document.addEventListener('selectstart', function(e) {
-            e.preventDefault();
-        });
+        // Handle orientation changes with enhanced support
+        if (screen.orientation) {
+            screen.orientation.addEventListener('change', () => {
+                setTimeout(() => {
+                    setVH();
+                    // Refresh iframe content if needed due to orientation change
+                    const activeIframe = document.querySelector('.page-iframe.active');
+                    if (activeIframe && activeIframe.contentWindow) {
+                        try {
+                            activeIframe.contentWindow.postMessage('orientationchange', '*');
+                        } catch (error) {
+                            // Cross-origin iframe, can't send message
+                        }
+                    }
+                }, 200);
+            });
+        }
 
-        // Handle orientation changes
-        screen.orientation?.addEventListener('change', () => {
-            setTimeout(setVH, 100);
-        });
-
-        // Performance optimization: Intersection Observer for iframe loading
+        // Intersection Observer for performance optimization
         if ('IntersectionObserver' in window) {
             const iframeObserver = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
+                    const iframe = entry.target;
                     if (entry.isIntersecting) {
-                        const iframe = entry.target;
                         const src = iframe.getAttribute('data-src');
-                        if (src && !iframe.src) {
+                        if (src && !iframe.src && !loadedPages.has(iframe.id.replace('-iframe', ''))) {
                             iframe.src = src;
-                            iframeObserver.unobserve(iframe);
                         }
                     }
                 });
-            });
+            }, { threshold: 0.1 });
 
+            // Observe all page iframes
             document.querySelectorAll('.page-iframe[data-src]').forEach(iframe => {
                 iframeObserver.observe(iframe);
             });
         }
-    </script>
 
-    <!-- PWA Manifest -->
-    <script>
-        // Create manifest dynamically
-        const manifest = {
-            "name": "Polor",
-            "short_name": "Polor",
-            "description": "Anonymous Q&A Social Platform",
-            "start_url": "/",
-            "display": "standalone",
-            "orientation": "portrait",
-            "theme_color": "#4A90E2",
-            "background_color": "#4A90E2",
-            "icons": [
-                {
-                    "src": "https://polor.org/assets/polorapp.png",
-                    "sizes": "192x192",
-                    "type": "image/png",
-                    "purpose": "any maskable"
-                },
-                {
-                    "src": "https://polor.org/assets/polorapp.png",
-                    "sizes": "512x512",
-                    "type": "image/png",
-                    "purpose": "any maskable"
+        // Add CSS for enhanced features
+        const enhancementStyles = document.createElement('style');
+        enhancementStyles.textContent = `
+            /* Keyboard navigation indicators */
+            .nav-item:focus {
+                outline: 2px solid #fff;
+                outline-offset: 2px;
+            }
+
+            /* App states */
+            .app-paused .nav-icon {
+                opacity: 0.7;
+            }
+
+            .battery-saver * {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.1s !important;
+            }
+
+            .low-bandwidth .page-iframe {
+                filter: contrast(0.9) brightness(0.95);
+            }
+
+            .keyboard-open .bottom-nav {
+                transform: translateY(100%);
+                transition: transform 0.3s ease;
+            }
+
+            .offline .nav-item {
+                opacity: 0.6;
+            }
+
+            .offline .content-area::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0,0,0,0.1);
+                z-index: 1;
+                pointer-events: none;
+            }
+
+            /* Enhanced animations for app-ready state */
+            .app-ready .nav-item {
+                transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            }
+
+            .app-ready .page-iframe {
+                transition: opacity 0.3s ease;
+            }
+
+            /* Print styles for accessibility */
+            @media print {
+                .bottom-nav,
+                .mobile-install-screen,
+                .app-loading-screen {
+                    display: none !important;
                 }
-            ]
-        };
+                
+                .content-area {
+                    height: auto !important;
+                    overflow: visible !important;
+                }
+            }
 
-        // Add manifest to page
-        const manifestBlob = new Blob([JSON.stringify(manifest)], {type: 'application/json'});
-        const manifestURL = URL.createObjectURL(manifestBlob);
-        const manifestLink = document.createElement('link');
-        manifestLink.rel = 'manifest';
-        manifestLink.href = manifestURL;
-        document.head.appendChild(manifestLink);
+            /* High contrast mode */
+            @media (prefers-contrast: high) {
+                .nav-item {
+                    border: 2px solid currentColor;
+                    background: rgba(0,0,0,0.8);
+                }
+                
+                .install-step {
+                    border: 1px solid currentColor;
+                }
+            }
+
+            /* Reduced motion preferences */
+            @media (prefers-reduced-motion: reduce) {
+                .nav-item::before {
+                    transition: none;
+                }
+                
+                .app-loading-spinner {
+                    animation: none;
+                    border: 4px solid #ccc;
+                    border-top-color: #333;
+                }
+            }
+        `;
+        document.head.appendChild(enhancementStyles);
+
+        // Expose global functions for debugging (development only)
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            window.polorDebug = {
+                switchPage,
+                loadPage,
+                loadUserProfile,
+                currentUser: () => currentUser,
+                userProfile: () => userProfile,
+                loadedPages: () => Array.from(loadedPages),
+                clearCache: () => {
+                    if ('caches' in window) {
+                        caches.keys().then(names => {
+                            names.forEach(name => caches.delete(name));
+                        });
+                    }
+                    localStorage.clear();
+                    sessionStorage.clear();
+                    location.reload();
+                }
+            };
+        }
     </script>
 </body>
 </html>
