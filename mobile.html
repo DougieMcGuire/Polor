@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Polor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #000;
+            color: #fff;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        .content-area {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: #fff;
+            display: none;
+        }
+
+        .page-iframe.active {
+            display: block;
+        }
+
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #333;
+            border-top: 3px solid #007AFF;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .bottom-nav {
+            background: #1C1C1E;
+            border-top: 1px solid #333;
+            padding: 8px 0 safe-area-inset-bottom;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            height: 70px;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #8E8E93;
+            text-decoration: none;
+            min-width: 60px;
+        }
+
+        .nav-item.active {
+            color: #007AFF;
+            background: rgba(0, 122, 255, 0.1);
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-icon {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-label {
+            font-size: 10px;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        .auth-container {
+            display: none;
+            width: 100%;
+            height: 100%;
+        }
+
+        .auth-container.active {
+            display: block;
+        }
+
+        /* Icons using CSS */
+        .icon-home::before { content: "🏠"; }
+        .icon-following::before { content: "👥"; }
+        .icon-search::before { content: "🔍"; }
+        .icon-profile::before { content: "👤"; }
+
+        /* Mobile optimizations */
+        @media (max-width: 768px) {
+            .bottom-nav {
+                height: 65px;
+                padding: 6px 0 env(safe-area-inset-bottom);
+            }
+            
+            .nav-item {
+                padding: 6px 8px;
+                min-width: 50px;
+            }
+            
+            .nav-icon {
+                width: 20px;
+                height: 20px;
+            }
+            
+            .nav-label {
+                font-size: 9px;
+            }
+        }
+
+        /* PWA support */
+        @media (display-mode: standalone) {
+            .app-container {
+                padding-top: env(safe-area-inset-top);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Auth Container -->
+        <div class="auth-container" id="authContainer">
+            <iframe id="authFrame" src="https://polor.org/auth" class="page-iframe"></iframe>
+        </div>
+
+        <!-- Main App Content -->
+        <div class="content-area" id="contentArea" style="display: none;">
+            <div class="loading" id="loading">
+                <div class="loading-spinner"></div>
+                <div>Loading...</div>
+            </div>
+
+            <iframe id="homeFrame" src="https://polor.org/home" class="page-iframe"></iframe>
+            <iframe id="followingFrame" src="https://polor.org/following" class="page-iframe"></iframe>
+            <iframe id="searchFrame" src="https://polor.org/search" class="page-iframe"></iframe>
+            <iframe id="profileFrame" src="" class="page-iframe"></iframe>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav" id="bottomNav" style="display: none;">
+            <a href="#" class="nav-item active" data-page="home">
+                <div class="nav-icon icon-home"></div>
+                <div class="nav-label">Home</div>
+            </a>
+            <a href="#" class="nav-item" data-page="following">
+                <div class="nav-icon icon-following"></div>
+                <div class="nav-label">Following</div>
+            </a>
+            <a href="#" class="nav-item" data-page="search">
+                <div class="nav-icon icon-search"></div>
+                <div class="nav-label">Search</div>
+            </a>
+            <a href="#" class="nav-item" data-page="profile">
+                <div class="nav-icon icon-profile"></div>
+                <div class="nav-label">Profile</div>
+            </a>
+        </nav>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js';
+        import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js';
+        import { getDatabase } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js';
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyA8HcTDiCQtJHRiMES2p1iUlA30AkZPx1Y",
+            authDomain: "polor-62c29.firebaseapp.com",
+            databaseURL: "https://polor-62c29-default-rtdb.firebaseio.com",
+            projectId: "polor-62c29",
+            storageBucket: "polor-62c29.firebasestorage.app",
+            messagingSenderId: "232986823513",
+            appId: "1:232986823513:web:a6ee6bef6b0609ace3da48",
+            measurementId: "G-KRT42D5TQK"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const database = getDatabase(app);
+
+        // App state
+        let currentUser = null;
+        let currentPage = 'home';
+
+        // DOM elements
+        const authContainer = document.getElementById('authContainer');
+        const contentArea = document.getElementById('contentArea');
+        const bottomNav = document.getElementById('bottomNav');
+        const loading = document.getElementById('loading');
+        const navItems = document.querySelectorAll('.nav-item');
+        const iframes = document.querySelectorAll('.page-iframe');
+
+        // Initialize app
+        function initApp() {
+            // Auth state listener
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    currentUser = user;
+                    showMainApp();
+                    updateProfileUrl();
+                } else {
+                    currentUser = null;
+                    showAuth();
+                }
+            });
+
+            // Navigation event listeners
+            navItems.forEach(item => {
+                item.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const page = item.dataset.page;
+                    if (page !== currentPage) {
+                        navigateToPage(page);
+                    }
+                });
+            });
+
+            // Handle iframe load events
+            document.getElementById('homeFrame').onload = hideLoading;
+            document.getElementById('followingFrame').onload = hideLoading;
+            document.getElementById('searchFrame').onload = hideLoading;
+            document.getElementById('profileFrame').onload = hideLoading;
+        }
+
+        function showAuth() {
+            authContainer.classList.add('active');
+            contentArea.style.display = 'none';
+            bottomNav.style.display = 'none';
+        }
+
+        function showMainApp() {
+            authContainer.classList.remove('active');
+            contentArea.style.display = 'block';
+            bottomNav.style.display = 'flex';
+            navigateToPage('home');
+        }
+
+        function navigateToPage(page) {
+            showLoading();
+            
+            // Update navigation
+            navItems.forEach(item => {
+                item.classList.toggle('active', item.dataset.page === page);
+            });
+
+            // Show correct iframe
+            iframes.forEach(iframe => {
+                iframe.classList.remove('active');
+            });
+
+            const targetFrame = document.getElementById(page + 'Frame');
+            if (targetFrame) {
+                targetFrame.classList.add('active');
+            }
+
+            currentPage = page;
+        }
+
+        function updateProfileUrl() {
+            if (currentUser && currentUser.email) {
+                // Extract username from email or use uid
+                const username = currentUser.email.split('@')[0] || currentUser.uid;
+                const profileFrame = document.getElementById('profileFrame');
+                profileFrame.src = `https://polor.org/profile?${username}`;
+            }
+        }
+
+        function showLoading() {
+            loading.style.display = 'block';
+        }
+
+        function hideLoading() {
+            loading.style.display = 'none';
+        }
+
+        // Handle messages from auth iframe
+        window.addEventListener('message', (event) => {
+            if (event.origin === 'https://polor.org') {
+                if (event.data.type === 'AUTH_SUCCESS') {
+                    // Auth iframe will trigger onAuthStateChanged
+                    console.log('Authentication successful');
+                }
+            }
+        });
+
+        // Initialize the app
+        initApp();
+
+        // Expose functions globally for debugging
+        window.polor = {
+            navigateToPage,
+            getCurrentUser: () => currentUser,
+            getCurrentPage: () => currentPage
+        };
+    </script>
+</body>
+</html>
