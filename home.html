@@ -331,7 +331,7 @@
             border-radius: 16px;
             padding: 40px;
             width: 90%;
-            max-width: 500px;
+            max-width: 600px;
             max-height: 90vh;
             overflow-y: auto;
         }
@@ -368,6 +368,26 @@
         .edit-avatar-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .social-links-section {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .social-links-section h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+            text-align: center;
+        }
+        
+        .social-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
         }
         
         .signout-section {
@@ -447,6 +467,46 @@
         .form-input.error {
             border-color: #dc3545;
             background: #fff5f5;
+        }
+        
+        .social-input-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .social-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: white;
+            flex-shrink: 0;
+        }
+        
+        .social-icon.twitter { background: #1da1f2; }
+        .social-icon.instagram { background: #e1306c; }
+        .social-icon.tiktok { background: #000000; }
+        .social-icon.snapchat { background: #fffc00; color: black; }
+        .social-icon.youtube { background: #ff0000; }
+        .social-icon.discord { background: #7289da; }
+        
+        .social-input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.2s ease;
+        }
+        
+        .social-input:focus {
+            outline: none;
+            border-color: #667eea;
         }
         
         .error-message {
@@ -537,6 +597,10 @@
             .inbox-iframe {
                 height: 350px;
             }
+            
+            .social-grid {
+                grid-template-columns: 1fr;
+            }
         }
         
         @media (max-width: 480px) {
@@ -588,6 +652,15 @@
             
             .avatar-edit-section {
                 padding: 15px;
+            }
+            
+            .social-input-group {
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .social-input {
+                width: 100%;
             }
         }
     </style>
@@ -673,6 +746,41 @@
                     <small style="color: #666; font-size: 12px;">This will be your @username</small>
                 </div>
                 
+                <div class="social-links-section">
+                    <h3>🔗 Social Links</h3>
+                    <div class="social-grid">
+                        <div class="social-input-group">
+                            <div class="social-icon twitter">🐦</div>
+                            <input type="text" class="social-input" id="twitter-input" placeholder="@username">
+                        </div>
+                        
+                        <div class="social-input-group">
+                            <div class="social-icon instagram">📷</div>
+                            <input type="text" class="social-input" id="instagram-input" placeholder="@username">
+                        </div>
+                        
+                        <div class="social-input-group">
+                            <div class="social-icon tiktok">🎵</div>
+                            <input type="text" class="social-input" id="tiktok-input" placeholder="@username">
+                        </div>
+                        
+                        <div class="social-input-group">
+                            <div class="social-icon snapchat">👻</div>
+                            <input type="text" class="social-input" id="snapchat-input" placeholder="@username">
+                        </div>
+                        
+                        <div class="social-input-group">
+                            <div class="social-icon youtube">📺</div>
+                            <input type="text" class="social-input" id="youtube-input" placeholder="@channel">
+                        </div>
+                        
+                        <div class="social-input-group">
+                            <div class="social-icon discord">🎮</div>
+                            <input type="text" class="social-input" id="discord-input" placeholder="username#1234">
+                        </div>
+                    </div>
+                </div>
+                
                 <button type="submit" class="save-btn" id="save-settings-btn">
                     💾 Save Changes
                 </button>
@@ -751,6 +859,7 @@
                 username: currentUser.displayName || currentUser.email.split('@')[0],
                 displayName: currentUser.displayName || currentUser.email.split('@')[0],
                 avatarURL: DEFAULT_AVATAR_URL,
+                socialLinks: {},
                 createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                 lastLogin: firebase.firestore.FieldValue.serverTimestamp()
             };
@@ -804,302 +913,3 @@
                     const baseColor = `rgb(${r}, ${g}, ${b})`;
                     const lighterColor = `rgb(${lighterR}, ${lighterG}, ${lighterB})`;
                     const darkerColor = `rgb(${darkerR}, ${darkerG}, ${darkerB})`;
-                    
-                    // Set background gradient
-                    const gradient = `linear-gradient(135deg, ${lighterColor} 0%, ${baseColor} 50%, ${darkerColor} 100%)`;
-                    document.documentElement.style.setProperty('--bg-gradient', gradient);
-                    
-                    // Set avatar border color to darker version
-                    document.documentElement.style.setProperty('--avatar-border-color', darkerColor);
-                }
-            }
-        }
-
-        // Edit avatar from settings modal
-        function editAvatarFromSettings() {
-            closeSettings();
-            editAvatar();
-        }
-
-        // Sign out
-        async function signOut() {
-            if (confirm('Are you sure you want to sign out?')) {
-                try {
-                    await auth.signOut();
-                    // Redirect handled by auth state change
-                } catch (error) {
-                    console.error('Sign out error:', error);
-                    alert('❌ Sign out failed');
-                }
-            }
-        }
-
-        // Update avatar display
-        function updateAvatarDisplay() {
-            const headerAvatar = document.getElementById('header-avatar');
-            const settingsAvatar = document.getElementById('settings-avatar');
-            
-            // Always try avatarIMG first, then avatarURL, then fallback to default
-            if (userProfile.avatarIMG) {
-                headerAvatar.innerHTML = `<img src="${userProfile.avatarIMG}" alt="Avatar">`;
-                if (settingsAvatar) {
-                    settingsAvatar.innerHTML = `<img src="${userProfile.avatarIMG}" alt="Avatar">`;
-                }
-            } else if (userProfile.avatarURL) {
-                const imageUrl = userProfile.avatarURL + '&I=1';
-                headerAvatar.innerHTML = `<img src="${imageUrl}" alt="Avatar">`;
-                if (settingsAvatar) {
-                    settingsAvatar.innerHTML = `<img src="${imageUrl}" alt="Avatar">`;
-                }
-            } else {
-                // Fallback to default avatar if none exists
-                const defaultImageUrl = 'https://polor.org/Avatars/?backgrounds=bg1.png&bases=base.png&hair=&eyes=BasicMale.png&brows=Basic.png&mouths=Basic.png&noses=basic.png&neck=&tops=16.png&glasses=&hats=editme.png&backgroundsColor=808080&basesColor=FFF8F5&hairColor=F4C2A1&eyesColor=F4C2A1&browsColor=654321&mouthsColor=000000&nosesColor=FFA07A&neckColor=FFB6C1&topsColor=676767&glassesColor=6B4423&hatsColor=FF4500&I=1';
-                headerAvatar.innerHTML = `<img src="${defaultImageUrl}" alt="Avatar">`;
-                if (settingsAvatar) {
-                    settingsAvatar.innerHTML = `<img src="${defaultImageUrl}" alt="Avatar">`;
-                }
-            }
-        }
-
-        // Show dashboard
-        function showDashboard() {
-            document.getElementById('loading-screen').style.display = 'none';
-            document.getElementById('dashboard').classList.add('show');
-            
-            // Load messages iframe after dashboard is shown
-            loadMessagesIframe();
-        }
-        
-        // Load messages iframe
-        function loadMessagesIframe() {
-            const iframe = document.getElementById('inbox-iframe');
-            const loading = document.getElementById('inbox-loading');
-            
-            // Set iframe source
-            iframe.src = 'https://polor.org/messages?iframe=true';
-            
-            // Handle iframe load
-            iframe.onload = function() {
-                loading.style.display = 'none';
-                iframe.style.display = 'block';
-            };
-            
-            // Handle iframe error
-            iframe.onerror = function() {
-                loading.innerHTML = '<p style="color: #dc3545;">Failed to load messages</p>';
-            };
-        }
-
-        // Edit avatar - now opens in popup iframe
-        function editAvatar() {
-            const popup = document.getElementById('avatar-editor-popup');
-            const iframe = document.getElementById('avatar-iframe');
-            const loading = document.getElementById('iframe-loading');
-            
-            // Show popup
-            popup.classList.add('show');
-            
-            // Reset iframe state
-            iframe.style.display = 'none';
-            loading.style.display = 'flex';
-            
-            // Build iframe URL with user's current avatar or default
-            let iframeUrl = 'https://polor.org/Avatars/';
-            if (userProfile && userProfile.avatarURL) {
-                // Use existing avatar settings
-                iframeUrl = userProfile.avatarURL;
-            }
-            
-            // Add ref=home and cache busting parameter
-            const separator = iframeUrl.includes('?') ? '&' : '?';
-            iframeUrl += separator + 'ref=home&v=' + Date.now();
-            
-            // Set iframe source
-            iframe.src = iframeUrl;
-            
-            // Handle iframe load
-            iframe.onload = function() {
-                loading.style.display = 'none';
-                iframe.style.display = 'block';
-            };
-        }
-
-        // Close avatar editor popup
-        function closeAvatarEditor() {
-            const popup = document.getElementById('avatar-editor-popup');
-            const iframe = document.getElementById('avatar-iframe');
-            
-            popup.classList.remove('show');
-            
-            // Reset iframe after animation
-            setTimeout(() => {
-                iframe.src = '';
-                iframe.style.display = 'none';
-                document.getElementById('iframe-loading').style.display = 'flex';
-            }, 300);
-            
-            // Refresh user data in case avatar was saved
-            setTimeout(() => {
-                loadUserProfile();
-            }, 500);
-        }
-
-        // Listen for messages from the iframe
-        window.addEventListener('message', function(event) {
-            // Check if message is from our avatar editor
-            if (event.origin === 'https://polor.org') {
-                if (event.data === 'avatarSaved' || event.data === 'closeEditor') {
-                    closeAvatarEditor();
-                }
-            }
-        });
-
-        // Open settings modal
-        function openSettings() {
-            const modal = document.getElementById('settings-modal');
-            const displayNameInput = document.getElementById('display-name');
-            const usernameInput = document.getElementById('username-input');
-            
-            // Pre-fill current values
-            displayNameInput.value = userProfile.displayName || '';
-            usernameInput.value = userProfile.username || '';
-            
-            // Update settings avatar
-            updateAvatarDisplay();
-            
-            modal.classList.add('show');
-        }
-
-        // Close settings modal
-        function closeSettings() {
-            const modal = document.getElementById('settings-modal');
-            modal.classList.remove('show');
-            clearErrors();
-        }
-
-        // Clear error messages
-        function clearErrors() {
-            document.querySelectorAll('.error-message').forEach(e => e.classList.remove('show'));
-            document.querySelectorAll('.form-input').forEach(i => i.classList.remove('error'));
-        }
-
-        // Show error message
-        function showError(inputId, message) {
-            const input = document.getElementById(inputId);
-            const errorDiv = document.getElementById(`${inputId.replace('-input', '')}-error`);
-            
-            input.classList.add('error');
-            errorDiv.textContent = message;
-            errorDiv.classList.add('show');
-        }
-
-        // Handle settings form submission
-        document.getElementById('settings-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            clearErrors();
-            
-            const displayName = document.getElementById('display-name').value.trim();
-            const username = document.getElementById('username-input').value.trim();
-            const saveBtn = document.getElementById('save-settings-btn');
-            
-            // Validation
-            if (!displayName) {
-                showError('display-name', 'Display name is required');
-                return;
-            }
-            
-            if (!username) {
-                showError('username-input', 'Username is required');
-                return;
-            }
-            
-            if (username.length < 3) {
-                showError('username-input', 'Username must be at least 3 characters');
-                return;
-            }
-            
-            if (!/^[a-zA-Z0-9_]+$/.test(username)) {
-                showError('username-input', 'Username can only contain letters, numbers, and underscores');
-                return;
-            }
-            
-            saveBtn.disabled = true;
-            saveBtn.textContent = '💾 Saving...';
-            
-            try {
-                // Check if username is taken (if changed)
-                if (username !== userProfile.username) {
-                    const usernameQuery = await firestore.collection('users')
-                        .where('username', '==', username)
-                        .get();
-                    
-                    if (!usernameQuery.empty && usernameQuery.docs[0].id !== currentUser.uid) {
-                        showError('username-input', 'Username is already taken');
-                        return;
-                    }
-                }
-                
-                // Update Firestore
-                await firestore.collection('users').doc(currentUser.uid).update({
-                    displayName: displayName,
-                    username: username,
-                    lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                
-                // Update Auth displayName
-                await currentUser.updateProfile({
-                    displayName: displayName
-                });
-                
-                // Update local profile
-                userProfile.displayName = displayName;
-                userProfile.username = username;
-                
-                // Update UI
-                updateUserInterface();
-                closeSettings();
-                alert('✅ Settings saved successfully!');
-                
-            } catch (error) {
-                console.error('Save failed:', error);
-                alert('❌ Failed to save settings: ' + error.message);
-            } finally {
-                saveBtn.disabled = false;
-                saveBtn.textContent = '💾 Save Changes';
-            }
-        });
-
-        // Coming soon function
-        function comingSoon(feature) {
-            alert(`🚀 ${feature} is coming soon! Stay tuned for updates.`);
-        }
-
-        // Close modals when clicking outside
-        document.getElementById('settings-modal').addEventListener('click', (e) => {
-            if (e.target.id === 'settings-modal') {
-                closeSettings();
-            }
-        });
-
-        document.getElementById('avatar-editor-popup').addEventListener('click', (e) => {
-            if (e.target.id === 'avatar-editor-popup') {
-                closeAvatarEditor();
-            }
-        });
-
-        // Handle escape key
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                const avatarPopup = document.getElementById('avatar-editor-popup');
-                const settingsModal = document.getElementById('settings-modal');
-                
-                if (avatarPopup.classList.contains('show')) {
-                    closeAvatarEditor();
-                } else if (settingsModal.classList.contains('show')) {
-                    closeSettings();
-                }
-            }
-        });
-    </script>
-</body>
-</html>
