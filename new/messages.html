@@ -446,6 +446,7 @@
         let currentUserProfile = null;
         let messages = [];
         let currentMessage = null;
+        let deleteCheckInterval = null;
 
         // Auth state listener
         auth.onAuthStateChanged(async (user) => {
@@ -481,10 +482,84 @@
                     ...doc.data()
                 }));
 
+                // Check for messages to delete before rendering
+                await checkAndDeleteExpiredMessages();
+                
                 renderMessages();
+                
+                // Start delete check interval if not already running
+                if (!deleteCheckInterval) {
+                    deleteCheckInterval = setInterval(checkAndDeleteExpiredMessages, 60000); // Check every minute
+                }
             } catch (error) {
                 console.error('Error loading messages:', error);
                 showNoMessages();
+            }
+        }
+
+        // Check and delete expired messages
+        async function checkAndDeleteExpiredMessages() {
+            if (!messages || messages.length === 0) return;
+
+            const now = new Date();
+            const messagesToDelete = [];
+
+            for (const message of messages) {
+                let shouldDelete = false;
+                const messageDate = message.timestamp?.toDate ? message.timestamp.toDate() : new Date(message.timestamp);
+                
+                // Rule 1: 10 minutes after posting (if unread and unanswered)
+                if (message.status === 'unread' && !message.hasAnswer) {
+                    const tenMinutesAfterPost = new Date(messageDate.getTime() + 10 * 60 * 1000);
+                    if (now >= tenMinutesAfterPost) {
+                        shouldDelete = true;
+                        console.log(`Deleting message ${message.id}: 10 minutes after posting`);
+                    }
+                }
+                
+                // Rule 2: 30 minutes after being read
+                if (message.status === 'read' && message.readAt) {
+                    const readDate = message.readAt?.toDate ? message.readAt.toDate() : new Date(message.readAt);
+                    const thirtyMinutesAfterRead = new Date(readDate.getTime() + 30 * 60 * 1000);
+                    if (now >= thirtyMinutesAfterRead) {
+                        shouldDelete = true;
+                        console.log(`Deleting message ${message.id}: 30 minutes after reading`);
+                    }
+                }
+                
+                // Rule 3: 10 days no matter what
+                const tenDaysAfterPost = new Date(messageDate.getTime() + 10 * 24 * 60 * 60 * 1000);
+                if (now >= tenDaysAfterPost) {
+                    shouldDelete = true;
+                    console.log(`Deleting message ${message.id}: 10 days after posting`);
+                }
+
+                if (shouldDelete) {
+                    messagesToDelete.push(message.id);
+                }
+            }
+
+            // Delete expired messages from Firebase
+            if (messagesToDelete.length > 0) {
+                for (const messageId of messagesToDelete) {
+                    try {
+                        await firestore.collection('askMessages').doc(messageId).delete();
+                        console.log(`Successfully deleted message: ${messageId}`);
+                    } catch (error) {
+                        console.error(`Error deleting message ${messageId}:`, error);
+                    }
+                }
+
+                // Remove deleted messages from local array
+                messages = messages.filter(msg => !messagesToDelete.includes(msg.id));
+                
+                // Re-render messages after deletion
+                renderMessages();
+                
+                // Show notification if messages were deleted
+                if (messagesToDelete.length > 0) {
+                    showSuccessAnimation('🗑️');
+                }
             }
         }
 
@@ -707,6 +782,13 @@
         function hideLoading() {
             document.getElementById('loading-screen').style.display = 'none';
         }
+
+        // Clean up interval when page unloads
+        window.addEventListener('beforeunload', () => {
+            if (deleteCheckInterval) {
+                clearInterval(deleteCheckInterval);
+            }
+        });
 
         // Add some extra dopamine farming effects
         document.addEventListener('DOMContentLoaded', function() {
