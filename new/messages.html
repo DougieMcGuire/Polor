@@ -16,28 +16,36 @@
             background: #f8f9fa;
             min-height: 100vh;
             color: #333;
+            overflow-x: hidden;
         }
         
         .messages-container {
             max-width: 600px;
             margin: 0 auto;
             padding: 20px;
+            animation: fadeInUp 0.8s ease-out;
         }
         
         .header {
             text-align: center;
             margin-bottom: 30px;
+            animation: slideInDown 0.6s ease-out;
         }
         
         .header h1 {
             font-size: 1.8rem;
             margin-bottom: 5px;
             font-weight: 600;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
         
         .header p {
             color: #666;
             font-size: 1rem;
+            animation: pulse 2s infinite;
         }
         
         .messages-grid {
@@ -56,13 +64,36 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+            animation: bounceIn 0.6s ease-out;
+        }
+        
+        .message-circle::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(255,255,255,0.3), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
         
         .message-circle:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            transform: translateY(-8px) scale(1.05);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+        }
+        
+        .message-circle:hover::before {
+            opacity: 1;
+        }
+        
+        .message-circle:active {
+            transform: translateY(-4px) scale(0.98);
         }
         
         .message-circle.read {
@@ -70,44 +101,85 @@
             color: #666;
         }
         
+        .message-circle.anonymous {
+            background: #6c757d;
+        }
+        
+        .message-circle.nsfw {
+            background: #dc3545;
+            animation: glow 2s infinite;
+        }
+        
         .message-icon {
             font-size: 28px;
             color: white;
+            z-index: 2;
+            transition: transform 0.3s ease;
+        }
+        
+        .message-circle:hover .message-icon {
+            transform: scale(1.2) rotate(5deg);
+        }
+        
+        .message-icon img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
         }
         
         .read .message-icon {
             color: #666;
         }
         
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #ff4757;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: bounce 1s infinite;
+        }
+        
         .no-messages {
             text-align: center;
             padding: 60px 20px;
             color: #666;
+            animation: fadeIn 1s ease-out;
         }
         
         .no-messages-icon {
             font-size: 4rem;
             margin-bottom: 20px;
             opacity: 0.6;
+            animation: float 3s ease-in-out infinite;
         }
         
-        /* Message Modal */
+        /* Message Modal - Now positioned relative to viewport */
         .message-modal {
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0,0,0,0.6);
             display: none;
             align-items: center;
             justify-content: center;
-            z-index: 1000;
+            z-index: 10000;
             padding: 20px;
+            backdrop-filter: blur(5px);
         }
         
         .message-modal.show {
             display: flex;
+            animation: modalFadeIn 0.3s ease-out;
         }
         
         .modal-content {
@@ -117,6 +189,9 @@
             max-width: 500px;
             max-height: 90vh;
             overflow-y: auto;
+            transform: scale(0.9);
+            animation: modalSlideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
         }
         
         .modal-header {
@@ -134,6 +209,18 @@
             font-size: 24px;
             cursor: pointer;
             color: #666;
+            transition: all 0.3s ease;
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .close-btn:hover {
+            background: #f8f9fa;
+            transform: rotate(90deg);
         }
         
         .sender-info {
@@ -142,6 +229,7 @@
             justify-content: center;
             gap: 12px;
             margin-bottom: 20px;
+            animation: slideInUp 0.5s ease-out;
         }
         
         .sender-avatar {
@@ -150,6 +238,11 @@
             border-radius: 50%;
             overflow: hidden;
             border: 2px solid #e9ecef;
+            transition: transform 0.3s ease;
+        }
+        
+        .sender-avatar:hover {
+            transform: scale(1.1);
         }
         
         .sender-avatar img {
@@ -175,6 +268,8 @@
             font-size: 16px;
             line-height: 1.5;
             margin-bottom: 20px;
+            animation: slideInUp 0.6s ease-out;
+            border-left: 4px solid #667eea;
         }
         
         .answer-input {
@@ -186,11 +281,15 @@
             font-size: 16px;
             resize: vertical;
             margin-bottom: 15px;
+            transition: all 0.3s ease;
+            animation: slideInUp 0.7s ease-out;
         }
         
         .answer-input:focus {
             outline: none;
             border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
         }
         
         .answer-btn {
@@ -202,10 +301,30 @@
             font-weight: 600;
             cursor: pointer;
             margin-bottom: 20px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            animation: slideInUp 0.8s ease-out;
+        }
+        
+        .answer-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s ease;
         }
         
         .answer-btn:hover {
             transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .answer-btn:hover::before {
+            left: 100%;
         }
         
         .answer-btn:disabled {
@@ -222,10 +341,14 @@
             font-weight: 600;
             cursor: pointer;
             width: 100%;
+            transition: all 0.3s ease;
+            animation: slideInUp 0.9s ease-out;
         }
         
         .share-twitter:hover {
             background: #0d8bd9;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(29, 161, 242, 0.3);
         }
         
         .loading-screen {
@@ -251,14 +374,10 @@
             margin-bottom: 20px;
         }
         
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
         .auth-prompt {
             text-align: center;
             padding: 60px 20px;
+            animation: fadeIn 1s ease-out;
         }
         
         .auth-title {
@@ -275,6 +394,154 @@
             text-decoration: none;
             font-weight: 600;
             display: inline-block;
+            transition: all 0.3s ease;
+        }
+        
+        .auth-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .success-animation {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10001;
+            font-size: 4rem;
+            animation: successPop 1s ease-out;
+            pointer-events: none;
+        }
+        
+        /* Animations */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes fadeInUp {
+            from { 
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes slideInDown {
+            from {
+                transform: translateY(-30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slideInUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes bounceIn {
+            0% {
+                transform: scale(0.3);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            70% {
+                transform: scale(0.9);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-5px);
+            }
+            60% {
+                transform: translateY(-3px);
+            }
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+            50% { box-shadow: 0 4px 12px rgba(220, 53, 69, 0.5); }
+        }
+        
+        @keyframes modalFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes modalSlideIn {
+            from { 
+                transform: scale(0.9) translateY(-20px);
+                opacity: 0;
+            }
+            to { 
+                transform: scale(1) translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes successPop {
+            0% { 
+                transform: translate(-50%, -50%) scale(0);
+                opacity: 0;
+            }
+            50% { 
+                transform: translate(-50%, -50%) scale(1.2);
+                opacity: 1;
+            }
+            100% { 
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 0;
+            }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        
+        .shake {
+            animation: shake 0.5s ease-in-out;
         }
         
         @media (max-width: 768px) {
@@ -438,15 +705,54 @@
 
             grid.innerHTML = '';
 
-            messages.forEach(message => {
+            messages.forEach((message, index) => {
                 const circle = document.createElement('div');
-                circle.className = `message-circle ${message.status !== 'unread' ? 'read' : ''}`;
+                
+                // Determine circle class based on message properties
+                let circleClass = 'message-circle';
+                if (message.status !== 'unread') {
+                    circleClass += ' read';
+                }
+                if (message.isAnonymous) {
+                    circleClass += ' anonymous';
+                }
+                if (message.isNSFW) {
+                    circleClass += ' nsfw';
+                }
+                
+                circle.className = circleClass;
+                circle.style.animationDelay = `${index * 0.1}s`;
                 circle.onclick = () => openMessage(message);
 
                 const icon = document.createElement('div');
                 icon.className = 'message-icon';
-                icon.textContent = '📧';
+                
+                // Try to use image icon, fallback to emoji
+                let iconHTML = '';
+                if (message.iconImage) {
+                    iconHTML = `<img src="${message.iconImage}" alt="Message icon" onerror="this.style.display='none'; this.nextSibling.style.display='block';">`;
+                    iconHTML += `<span style="display:none;">📧</span>`;
+                } else {
+                    // Different emojis based on message type
+                    let emoji = '📧';
+                    if (message.isNSFW) {
+                        emoji = '🔞';
+                    } else if (message.isAnonymous) {
+                        emoji = '🕵️';
+                    }
+                    iconHTML = emoji;
+                }
+                
+                icon.innerHTML = iconHTML;
                 circle.appendChild(icon);
+
+                // Add notification badge for unread messages
+                if (message.status === 'unread') {
+                    const badge = document.createElement('div');
+                    badge.className = 'notification-badge';
+                    badge.textContent = '!';
+                    circle.appendChild(badge);
+                }
 
                 grid.appendChild(circle);
             });
@@ -456,7 +762,7 @@
         async function openMessage(message) {
             currentMessage = message;
 
-            // Mark as read
+            // Mark as read with animation
             if (message.status === 'unread') {
                 try {
                     await firestore.collection('askMessages').doc(message.id).update({
@@ -464,6 +770,9 @@
                         readAt: firebase.firestore.FieldValue.serverTimestamp()
                     });
                     message.status = 'read';
+                    
+                    // Show success animation
+                    showSuccessAnimation('✅');
                 } catch (error) {
                     console.error('Error marking as read:', error);
                 }
@@ -501,7 +810,8 @@
             const answer = answerInput.value.trim();
 
             if (!answer) {
-                alert('Please write an answer first!');
+                answerInput.classList.add('shake');
+                setTimeout(() => answerInput.classList.remove('shake'), 500);
                 return;
             }
 
@@ -544,11 +854,12 @@
                 document.getElementById('answer-section').style.display = 'none';
                 document.getElementById('share-section').style.display = 'block';
 
-                alert('Answer posted!');
+                // Show success animation
+                showSuccessAnimation('🎉');
 
             } catch (error) {
                 console.error('Error posting answer:', error);
-                alert('Failed to post answer. Please try again.');
+                showSuccessAnimation('❌');
             } finally {
                 answerBtn.disabled = false;
                 answerBtn.textContent = 'Post Answer';
@@ -572,6 +883,20 @@
             
             const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
             window.open(twitterUrl, '_blank');
+            
+            showSuccessAnimation('🐦');
+        }
+
+        // Show success animation
+        function showSuccessAnimation(emoji) {
+            const animation = document.createElement('div');
+            animation.className = 'success-animation';
+            animation.textContent = emoji;
+            document.body.appendChild(animation);
+            
+            setTimeout(() => {
+                document.body.removeChild(animation);
+            }, 1000);
         }
 
         // Close modal
@@ -601,6 +926,16 @@
         document.getElementById('message-modal').addEventListener('click', (e) => {
             if (e.target.id === 'message-modal') {
                 closeModal();
+            }
+        });
+
+        // Add some extra dopamine farming effects
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add confetti effect when messages load
+            if (messages.length > 0) {
+                setTimeout(() => {
+                    showSuccessAnimation('🎊');
+                }, 1000);
             }
         });
     </script>
