@@ -660,8 +660,8 @@
             cursor: not-allowed;
         }
         
-        .share-twitter {
-            background: #1da1f2;
+        .view-profile {
+            background: #667eea;
             color: white;
             border: none;
             padding: 12px 24px;
@@ -671,12 +671,13 @@
             width: 100%;
             transition: all 0.3s ease;
             animation: slideInUp 0.9s ease-out;
+            text-align: center;
         }
         
-        .share-twitter:hover {
-            background: #0d8bd9;
+        .view-profile:hover {
+            background: #5a67d8;
             transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(29, 161, 242, 0.3);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
         }
 
         .success-animation {
@@ -837,7 +838,7 @@
             </div>
             
             <div id="share-section" style="display: none; padding: 0 20px 20px;">
-                <button class="share-twitter" onclick="shareToTwitter()">Share to Twitter</button>
+                <div class="share-twitter" onclick="goToProfile()">View Profile</div>
             </div>
         </div>
     </div>
@@ -1081,8 +1082,10 @@
                 return;
             }
 
+            // Visual feedback immediately
             answerBtn.disabled = true;
             answerBtn.textContent = 'Posting...';
+            answerBtn.style.background = '#ccc';
 
             // Store the answer temporarily
             currentMessage.pendingAnswer = answer;
@@ -1095,12 +1098,13 @@
             }, '*');
         }
 
-        function shareToTwitter() {
-            // Send message to iframe to handle the sharing
-            document.getElementById('inbox-iframe').contentWindow.postMessage({
-                type: 'SHARE_TWITTER',
-                messageId: currentMessage.id
-            }, '*');
+        function goToProfile() {
+            // Navigate to the user's profile page
+            if (userProfile && userProfile.username) {
+                window.open(`https://polor.org/@${userProfile.username}`, '_blank');
+            } else {
+                window.open('https://polor.org/profile', '_blank');
+            }
         }
 
         function showSuccessAnimation(emoji) {
@@ -1163,8 +1167,17 @@
                 showSuccessAnimation('🎉');
             } else if (event.data.type === 'ANSWER_POSTED_ERROR') {
                 const answerBtn = document.getElementById('answer-btn');
-                answerBtn.disabled = false;
-                answerBtn.textContent = 'Post Answer';
+                
+                // Show error state briefly
+                answerBtn.textContent = 'Error ✗';
+                answerBtn.style.background = '#ef4444';
+                
+                // Reset button after 2 seconds
+                setTimeout(() => {
+                    answerBtn.disabled = false;
+                    answerBtn.textContent = 'Post Answer';
+                    answerBtn.style.background = '';
+                }, 2000);
                 
                 // Clear pending answer
                 if (currentMessage && currentMessage.pendingAnswer) {
