@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Polor - Settings</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8f9fa;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .settings-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .settings-section {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border: 1px solid #e9ecef;
+        }
+        
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f1f3f4;
+        }
+        
+        .section-header h2 {
+            color: #333;
+            font-size: 1.4rem;
+            margin: 0;
+        }
+        
+        .section-header .icon {
+            font-size: 1.5rem;
+        }
+        
+        /* Profile Section */
+        .profile-section {
+            text-align: center;
+        }
+        
+        .avatar-container {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 4px solid #667eea;
+            position: relative;
+            background: #f8f9fa;
+            margin: 0 auto 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .avatar-container:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .avatar-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .avatar-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 35px;
+            color: #667eea;
+        }
+        
+        .edit-avatar-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 12px 24px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 0 auto 20px;
+        }
+        
+        .edit-avatar-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.2s ease;
+            background: #f8f9fa;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .form-input.error {
+            border-color: #dc3545;
+            background: #fff5f5;
+        }
+        
+        .error-message {
+            color: #dc3545;
+            font-size: 14px;
+            margin-top: 6px;
+            display: none;
+        }
+        
+        .error-message.show {
+            display: block;
+        }
+        
+        .help-text {
+            color: #666;
+            font-size: 12px;
+            margin-top: 6px;
+        }
+        
+        /* Social Links Styles */
+        .social-link-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 0;
+            border-bottom: 1px solid #f1f3f4;
+        }
+        
+        .social-link-item:last-child {
+            border-bottom: none;
+        }
+        
+        .social-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: white;
+            flex-shrink: 0;
+        }
+        
+        .social-icon.instagram { background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); }
+        .social-icon.tiktok { background: #000; }
+        .social-icon.facebook { background: #1877f2; }
+        .social-icon.x { background: #000; }
+        .social-icon.discord { background: #5865f2; }
+        .social-icon.reddit { background: #ff4500; }
+        .social-icon.snapchat { background: #fffc00; color: #000; }
+        .social-icon.github { background: #333; }
+        .social-icon.bluesky { background: #0085ff; }
+        .social-icon.custom { background: #667eea; }
+        
+        .social-info {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .social-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+        }
+        
+        .social-description {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .social-input {
+            flex: 1;
+            padding: 10px 12px;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+        
+        .social-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+        }
+        
+        /* Button Styles */
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: center;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #c82333;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(220, 53, 69, 0.4);
+        }
+        
+        .btn-full {
+            width: 100%;
+        }
+        
+        /* Loading State */
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Success Message */
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #c3e6cb;
+            display: none;
+        }
+        
+        .success-message.show {
+            display: block;
+        }
+        
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .settings-container {
+                padding: 15px;
+            }
+            
+            .settings-section {
+                padding: 20px;
+                margin-bottom: 15px;
+            }
+            
+            .section-header h2 {
+                font-size: 1.2rem;
+            }
+            
+            .form-input {
+                padding: 12px;
+            }
+            
+            .social-link-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .social-input {
+                width: 100%;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .settings-container {
+                padding: 10px;
+            }
+            
+            .settings-section {
+                padding: 15px;
+            }
+            
+            .avatar-container {
+                width: 80px;
+                height: 80px;
+            }
+            
+            .avatar-placeholder {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="settings-container">
+        <!-- Success Message -->
+        <div id="success-message" class="success-message">
+            ✅ Settings saved successfully!
+        </div>
+        
+        <!-- Profile Section -->
+        <div class="settings-section profile-section">
+            <div class="section-header">
+                <span class="icon">👤</span>
+                <h2>Profile</h2>
+            </div>
+            
+            <div class="avatar-container" id="settings-avatar">
+                <div class="avatar-placeholder">🎨</div>
+            </div>
+            
+            <button class="edit-avatar-btn" onclick="editAvatar()">
+                ✏️ Edit Avatar
+            </button>
+            
+            <form id="profile-form">
+                <div class="form-group">
+                    <label class="form-label">Display Name</label>
+                    <input type="text" class="form-input" id="display-name" placeholder="Your display name" required>
+                    <div class="error-message" id="name-error"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Username</label>
+                    <input type="text" class="form-input" id="username-input" placeholder="username" maxlength="20" required>
+                    <div class="error-message" id="username-error"></div>
+                    <div class="help-text">This will be your @username. Only letters, numbers, and underscores allowed.</div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-input" id="email-input" readonly style="background: #f1f3f4; cursor: not-allowed;">
+                    <div class="help-text">Email cannot be changed for security reasons.</div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-full" id="save-profile-btn">
+                    💾 Save Profile Changes
+                </button>
+            </form>
+        </div>
+        
+        <!-- Social Links Section -->
+        <div class="settings-section">
+            <div class="section-header">
+                <span class="icon">🔗</span>
+                <h2>Social Links</h2>
+            </div>
+            
+            <form id="social-form">
+                <div class="social-link-item">
+                    <div class="social-icon instagram">📷</div>
+                    <div class="social-info">
+                        <div class="social-name">Instagram</div>
+                        <div class="social-description">Your Instagram username</div>
+                    </div>
+                    <input type="text" class="social-input" id="instagram" placeholder="username">
+                </div>
+                
+                <div class="social-link-item">
+                    <div class="social-icon tiktok">🎵</div>
+                    <div class="social-info">
+                        <div class="social-name">TikTok</div>
+                        <div class="social-description">Your TikTok username</div>
+                    </div>
+                    <input type="text" class="social-input" id="tiktok" placeholder="@username">
+                </div>
+                
+                <div class="social-link-item">
+                    <div class="social-icon facebook">👥</div>
+                    <div class="social-info">
+                        <div class="social-name">Facebook</div>
+                        <div class="social-description">Your Facebook username or profile URL</div>
+                    </div>
+                    <input type="text" class="social-input" id="facebook" placeholder="username or facebook.com/username">
+                </div>
+                
+                <div class="social-link-item">
+                    <div class="social-icon x">🐦</div>
+                    <div class="social-info">
+                        <div class="social-name">X (Twitter)</div>
+                        <div class="social-description">Your X/Twitter username</div>
+                    </div>
+                    <input type="text" class="social-input" id="x" placeholder="@username">
+                </div>
+                
+                <div class="social-link-item">
+                    <div class="social-icon discord">🎮</div>
+                    <div class="social-info">
+                        <div class="social-name">Discord</div>
+                        <div class="social-description">Your Discord username</div>
+                    </div>
+                    <input type="text" class="social-input" id="discord" placeholder="username#1234">
+                </div>
+                
+                <div class="social-link-item">
+                    <div class="social-icon reddit">🤖</div>
+                    <div class="social-info">
+                        <div class="social-name">Reddit</div>
+                        <div class="social-description">Your Reddit username</div>
+                    </div>
+                    <input type="text" class="social-input" id="reddit" placeholder="u/username">
+                </div>
+                
+                <div class="social-link-item">
+                    <div class="social-icon snapchat">👻</div>
+                    <div class="social-info">
+                        <div class="social-name">Snapchat</div>
+                        <div class="social-description">Your Snapchat username</div>
+                    </div>
+                    <input type="text" class="social-input" id="snapchat" placeholder="username">
+                </div>
+                
+                <div class="social-link-item">
+                    <div class="social-icon github">💻</div>
+                    <div class="social-info">
+                        <div class="social-name">GitHub</div>
+                        <div class="social-description">Your GitHub username</div>
+                    </div>
+                    <input type="text" class="social-input" id="github" placeholder="username">
+                </div>
+                
+                <div class="social-link-item">
+                    <div class="social-icon bluesky">☁️</div>
+                    <div class="social-info">
+                        <div class="social-name">Bluesky</div>
+                        <div class="social-description">Your Bluesky handle</div>
+                    </div>
+                    <input type="text" class="social-input" id="bluesky" placeholder="username.bsky.social">
+                </div>
+                
+                <div class="social-link-item">
+                    <div class="social-icon custom">🌐</div>
+                    <div class="social-info">
+                        <div class="social-name">Custom Website</div>
+                        <div class="social-description">Your personal website or any other link</div>
+                    </div>
+                    <input type="url" class="social-input" id="custom" placeholder="https://yourwebsite.com">
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-full" id="save-social-btn" style="margin-top: 20px;">
+                    🔗 Save Social Links
+                </button>
+            </form>
+        </div>
+        
+        <!-- Account Actions -->
+        <div class="settings-section">
+            <div class="section-header">
+                <span class="icon">⚙️</span>
+                <h2>Account</h2>
+            </div>
+            
+            <button class="btn btn-danger btn-full" onclick="signOut()">
+                🚪 Sign Out
+            </button>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        // Firebase config
+        const firebaseConfig = {
+            apiKey: "AIzaSyA8HcTDiCQtJHRiMES2p1iUlA30AkZPx1Y",
+            authDomain: "polor-62c29.firebaseapp.com",
+            databaseURL: "https://polor-62c29-default-rtdb.firebaseio.com",
+            projectId: "polor-62c29",
+            storageBucket: "polor-62c29.firebasestorage.app",
+            messagingSenderId: "232986823513",
+            appId: "1:232986823513:web:a6ee6bef6b0609ace3da48",
+            measurementId: "G-KRT42D5TQK"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const firestore = firebase.firestore();
+
+        let currentUser = null;
+        let userProfile = null;
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if we're in an iframe
+            if (window.parent !== window) {
+                // We're in an iframe, get user data from parent
+                initializeFromParent();
+            } else {
+                // Standalone page, initialize Firebase auth
+                auth.onAuthStateChanged(loadUserData);
+            }
+        });
+
+        // Initialize from parent window (when used as iframe)
+        function initializeFromParent() {
+            // Listen for user data from parent first
+            window.addEventListener('message', function(event) {
+                if (event.data && event.data.type === 'userData') {
+                    currentUser = event.data.user;
+                    userProfile = event.data.profile;
+                    initializeSettings();
+                } else if (event.origin === window.location.origin || event.origin.includes('polor.org')) {
+                    // Handle other messages from parent
+                    console.log('Message from parent:', event.data);
+                }
+            });
+            
+            // Request user data from parent after listener is set up
+            setTimeout(() => {
+                if (window.parent !== window) {
+                    window.parent.postMessage('getUserData', '*');
+                }
+            }, 100);
+        }
+
+        // Load user data (for standalone usage)
+        async function loadUserData(user) {
+            if (user) {
+                currentUser = user;
+                try {
+                    const doc = await firestore.collection('users').doc(user.uid).get();
+                    if (doc.exists) {
+                        userProfile = doc.data();
+                        initializeSettings();
+                    }
+                } catch (error) {
+                    console.error('Error loading user data:', error);
+                }
+            }
+        }
+
+        // Initialize settings interface
+        function initializeSettings() {
+            // Add safety checks
+            if (!currentUser) {
+                console.error('No current user found');
+                return;
+            }
+            
+            if (!userProfile) {
+                console.error('No user profile found');
+                return;
+            }
+            
+            console.log('Initializing settings with user:', currentUser.uid);
+            console.log('User profile:', userProfile);
+            
+            // Update form fields
+            updateProfileForm();
+            updateAvatarDisplay();
+            updateSocialLinks();
+        }
+
+        // Update profile form with current data
+        function updateProfileForm() {
+            if (!userProfile || !currentUser) {
+                console.error('Missing user data in updateProfileForm');
+                return;
+            }
+            
+            console.log('Updating profile form with:', userProfile);
+            
+            const displayNameInput = document.getElementById('display-name');
+            const usernameInput = document.getElementById('username-input');
+            const emailInput = document.getElementById('email-input');
+            
+            if (displayNameInput) displayNameInput.value = userProfile.displayName || '';
+            if (usernameInput) usernameInput.value = userProfile.username || '';
+            if (emailInput) emailInput.value = currentUser.email || '';
+        }
+
+        // Update avatar display
+        function updateAvatarDisplay() {
+            if (!userProfile) {
+                console.error('No user profile for avatar display');
+                return;
+            }
+            
+            const avatarContainer = document.getElementById('settings-avatar');
+            if (!avatarContainer) {
+                console.error('Avatar container not found');
+                return;
+            }
+            
+            console.log('Updating avatar display. Profile data:', {
+                avatarIMG: userProfile.avatarIMG,
+                avatarURL: userProfile.avatarURL
+            });
+            
+            // Priority: avatarIMG > avatarURL > default
+            if (userProfile.avatarIMG && userProfile.avatarIMG.trim()) {
+                console.log('Using avatarIMG:', userProfile.avatarIMG);
+                avatarContainer.innerHTML = `<img src="${userProfile.avatarIMG}" alt="Avatar">`;
+            } else if (userProfile.avatarURL && userProfile.avatarURL.trim()) {
+                const imageUrl = userProfile.avatarURL + '&I=1';
+                console.log('Using avatarURL:', imageUrl);
+                avatarContainer.innerHTML = `<img src="${imageUrl}" alt="Avatar">`;
+            } else {
+                console.log('Using default avatar');
+                const defaultImageUrl = 'https://polor.org/Avatars/?backgrounds=bg1.png&bases=base.png&hair=&eyes=BasicMale.png&brows=Basic.png&mouths=Basic.png&noses=basic.png&neck=&tops=16.png&glasses=&hats=editme.png&backgroundsColor=808080&basesColor=FFF8F5&hairColor=F4C2A1&eyesColor=F4C2A1&browsColor=654321&mouthsColor=000000&nosesColor=FFA07A&neckColor=FFB6C1&topsColor=676767&glassesColor=6B4423&hatsColor=FF4500&I=1';
+                avatarContainer.innerHTML = `<img src="${defaultImageUrl}" alt="Avatar">`;
+            }
+        }
+
+        // Update social links form with current data
+        function updateSocialLinks() {
+            const socialLinks = userProfile.socialLinks || {};
+            
+            // Update each social input
+            const socialPlatforms = ['instagram', 'tiktok', 'facebook', 'x', 'discord', 'reddit', 'snapchat', 'github', 'bluesky', 'custom'];
+            
+            socialPlatforms.forEach(platform => {
+                const input = document.getElementById(platform);
+                if (input && socialLinks[platform]) {
+                    input.value = socialLinks[platform];
+                }
+            });
+        }
+
+        // Handle profile form submission
+        document.getElementById('profile-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            clearErrors();
+            
+            const displayName = document.getElementById('display-name').value.trim();
+            const username = document.getElementById('username-input').value.trim();
+            const saveBtn = document.getElementById('save-profile-btn');
+            
+            // Validation
+            if (!displayName) {
+                showError('display-name', 'Display name is required');
+                return;
+            }
+            
+            if (!username) {
+                showError('username-input', 'Username is required');
+                return;
+            }
+            
+            if (username.length < 3) {
+                showError('username-input', 'Username must be at least 3 characters');
+                return;
+            }
+            
+            if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+                showError('username-input', 'Username can only contain letters, numbers, and underscores');
+                return;
+            }
+            
+            // Show loading state
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = '<span class="spinner"></span> Saving...';
+            
+            try {
+                // Check if username is taken (if changed)
+                if (username !== userProfile.username) {
+                    const usernameQuery = await firestore.collection('users')
+                        .where('username', '==', username)
+                        .get();
+                    
+                    if (!usernameQuery.empty && usernameQuery.docs[0].id !== currentUser.uid) {
+                        showError('username-input', 'Username is already taken');
+                        return;
+                    }
+                }
+                
+                // Update Firestore
+                await firestore.collection('users').doc(currentUser.uid).update({
+                    displayName: displayName,
+                    username: username,
+                    lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                // Update Auth displayName
+                await currentUser.updateProfile({
+                    displayName: displayName
+                });
+                
+                // Update local profile
+                userProfile.displayName = displayName;
+                userProfile.username = username;
+                
+                // Show success message
+                showSuccess();
+                
+                // Notify parent window if in iframe
+                if (window.parent !== window) {
+                    window.parent.postMessage('settingsSaved', '*');
+                }
+                
+            } catch (error) {
+                console.error('Save failed:', error);
+                alert('❌ Failed to save profile: ' + error.message);
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = '💾 Save Profile Changes';
+            }
+        });
+
+        // Handle social links form submission
+        document.getElementById('social-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const saveBtn = document.getElementById('save-social-btn');
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = '<span class="spinner"></span> Saving...';
+            
+            try {
+                // Collect all social links
+                const socialLinks = {};
+                const socialPlatforms = ['instagram', 'tiktok', 'facebook', 'x', 'discord', 'reddit', 'snapchat', 'github', 'bluesky', 'custom'];
+                
+                socialPlatforms.forEach(platform => {
+                    const input = document.getElementById(platform);
+                    const value = input.value.trim();
+                    if (value) {
+                        socialLinks[platform] = value;
+                    }
+                });
+                
+                // Update Firestore
+                await firestore.collection('users').doc(currentUser.uid).update({
+                    socialLinks: socialLinks,
+                    lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                // Update local profile
+                userProfile.socialLinks = socialLinks;
+                
+                // Show success message
+                showSuccess();
+                
+                // Notify parent window if in iframe
+                if (window.parent !== window) {
+                    window.parent.postMessage('settingsSaved', '*');
+                }
+                
+            } catch (error) {
+                console.error('Save failed:', error);
+                alert('❌ Failed to save social links: ' + error.message);
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = '🔗 Save Social Links';
+            }
+        });
+
+        // Edit avatar
+        function editAvatar() {
+            // Notify parent window to open avatar editor
+            if (window.parent !== window) {
+                window.parent.postMessage('editAvatar', '*');
+            } else {
+                alert('Avatar editor is only available from the main dashboard.');
+            }
+        }
+
+        // Sign out
+        function signOut() {
+            // Notify parent window to handle sign out
+            if (window.parent !== window) {
+                window.parent.postMessage('signOut', '*');
+            } else {
+                // Standalone mode
+                if (confirm('Are you sure you want to sign out?')) {
+                    auth.signOut().then(() => {
+                        window.location.href = 'auth.html';
+                    });
+                }
+            }
+        }
+
+        // Utility functions
+        function clearErrors() {
+            document.querySelectorAll('.error-message').forEach(e => e.classList.remove('show'));
+            document.querySelectorAll('.form-input').forEach(i => i.classList.remove('error'));
+        }
+
+        function showError(inputId, message) {
+            const input = document.getElementById(inputId);
+            const errorDiv = document.getElementById(`${inputId.replace('-input', '')}-error`);
+            
+            input.classList.add('error');
+            if (errorDiv) {
+                errorDiv.textContent = message;
+                errorDiv.classList.add('show');
+            }
+        }
+
+        function showSuccess() {
+            const successMessage = document.getElementById('success-message');
+            successMessage.classList.add('show');
+            
+            // Hide after 3 seconds
+            setTimeout(() => {
+                successMessage.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
