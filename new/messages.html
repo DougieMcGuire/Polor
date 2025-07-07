@@ -688,7 +688,10 @@
 
         // Listen for responses from parent window
         window.addEventListener('message', async (event) => {
+            console.log('IFRAME: Received message from parent:', event.data); // Debug log
+            
             if (event.data.type === 'POST_ANSWER') {
+                console.log('IFRAME: Processing POST_ANSWER request...'); // Debug log
                 await handlePostAnswer(event.data.answer, event.data.messageId);
             } else if (event.data.type === 'SHARE_TWITTER') {
                 handleShareTwitter(event.data.messageId);
@@ -698,7 +701,17 @@
         // Handle posting answer (called from parent)
         async function handlePostAnswer(answer, messageId) {
             const message = messages.find(m => m.id === messageId);
-            if (!message) return;
+            if (!message) {
+                console.error('Message not found:', messageId);
+                window.parent.postMessage({
+                    type: 'ANSWER_POSTED_ERROR',
+                    messageId: messageId,
+                    error: 'Message not found'
+                }, '*');
+                return;
+            }
+
+            console.log('IFRAME: Starting to post answer...'); // Debug log
 
             try {
                 // Simple Q&A object for user profile
@@ -732,17 +745,22 @@
                 message.hasAnswer = true;
                 message.answer = answer;
 
-                // Show success animation
+                console.log('IFRAME: Answer posted successfully, sending to parent...'); // Debug log
+
+                // Show success animation in iframe
                 showSuccessAnimation('🎉');
 
                 // Tell parent that answer was posted successfully
                 window.parent.postMessage({
                     type: 'ANSWER_POSTED_SUCCESS',
-                    messageId: messageId
+                    messageId: messageId,
+                    answer: answer
                 }, '*');
 
+                console.log('IFRAME: Success message sent to parent!'); // Debug log
+
             } catch (error) {
-                console.error('Error posting answer:', error);
+                console.error('IFRAME: Error posting answer:', error);
                 window.parent.postMessage({
                     type: 'ANSWER_POSTED_ERROR',
                     messageId: messageId,
