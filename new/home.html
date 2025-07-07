@@ -661,7 +661,7 @@
         }
         
         .view-profile {
-            background: #667eea;
+            background: #3b82f6;
             color: white;
             border: none;
             padding: 12px 24px;
@@ -675,9 +675,9 @@
         }
         
         .view-profile:hover {
-            background: #5a67d8;
+            background: #2563eb;
             transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
         }
 
         .success-animation {
@@ -1099,9 +1099,9 @@
         }
 
         function goToProfile() {
-            // Navigate to the user's profile page
+            // Navigate to the user's profile page with correct URL format
             if (userProfile && userProfile.username) {
-                window.open(`https://polor.org/@${userProfile.username}`, '_blank');
+                window.open(`https://polor.org/profile?=@${userProfile.username}`, '_blank');
             } else {
                 window.open('https://polor.org/profile', '_blank');
             }
@@ -1111,13 +1111,94 @@
             const animation = document.createElement('div');
             animation.className = 'success-animation';
             animation.textContent = emoji;
+            animation.style.zIndex = '10001'; // Ensure it's above everything
             document.body.appendChild(animation);
+            
+            console.log('Success animation created:', emoji); // Debug log
             
             setTimeout(() => {
                 if (document.body.contains(animation)) {
                     document.body.removeChild(animation);
                 }
             }, 1000);
+        }
+
+        function createBigSuccessAnimation() {
+            // Create a bigger, more noticeable success animation ON THE PARENT PAGE
+            const bigAnimation = document.createElement('div');
+            bigAnimation.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                z-index: 10002;
+                font-size: 6rem;
+                pointer-events: none;
+                animation: bigSuccessPop 2s ease-out forwards;
+            `;
+            bigAnimation.textContent = '🎉';
+            
+            // Append to the main document body (parent page), not iframe
+            document.body.appendChild(bigAnimation);
+            
+            console.log('BIG SUCCESS ANIMATION ADDED TO PARENT PAGE'); // Debug log
+            
+            // Add CSS for the big animation if it doesn't exist
+            if (!document.getElementById('big-success-style')) {
+                const style = document.createElement('style');
+                style.id = 'big-success-style';
+                style.textContent = `
+                    @keyframes bigSuccessPop {
+                        0% { 
+                            transform: translate(-50%, -50%) scale(0) rotate(0deg);
+                            opacity: 0;
+                        }
+                        20% { 
+                            transform: translate(-50%, -50%) scale(1.5) rotate(10deg);
+                            opacity: 1;
+                        }
+                        50% { 
+                            transform: translate(-50%, -50%) scale(1.2) rotate(-5deg);
+                            opacity: 1;
+                        }
+                        100% { 
+                            transform: translate(-50%, -50%) scale(1) rotate(0deg);
+                            opacity: 0;
+                        }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+            
+            setTimeout(() => {
+                if (document.body.contains(bigAnimation)) {
+                    document.body.removeChild(bigAnimation);
+                }
+            }, 2000);
+        }
+
+        function createParentPageAnimation(emoji, delay = 0) {
+            setTimeout(() => {
+                const animation = document.createElement('div');
+                animation.style.cssText = `
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    z-index: 10001;
+                    font-size: 4rem;
+                    pointer-events: none;
+                    animation: successPop 1s ease-out forwards;
+                `;
+                animation.textContent = emoji;
+                document.body.appendChild(animation);
+                
+                setTimeout(() => {
+                    if (document.body.contains(animation)) {
+                        document.body.removeChild(animation);
+                    }
+                }, 1000);
+            }, delay);
         }
 
         // Listen for messages from iframe
