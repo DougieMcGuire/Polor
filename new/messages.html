@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Polor Messages</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: transparent;
+            height: 100vh;
+            overflow-y: auto;
+            color: #333;
+        }
+        
+        .messages-container {
+            padding: 20px;
+            height: 100%;
+        }
+        
+        .messages-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            align-content: start;
+            height: 100%;
+        }
+        
+        .message-envelope {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            overflow: hidden;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transform-style: preserve-3d;
+        }
+        
+        .message-envelope:hover {
+            transform: translateY(-8px) scale(1.05) rotateY(5deg);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+        
+        .message-envelope.bounce {
+            animation: bounce 0.6s ease-out;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 53%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40%, 43% {
+                transform: translateY(-15px);
+            }
+            70% {
+                transform: translateY(-8px);
+            }
+            90% {
+                transform: translateY(-3px);
+            }
+        }
+        
+        .message-envelope.nsfw {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
+        }
+        
+        .message-envelope.nsfw:hover {
+            box-shadow: 0 20px 40px rgba(255, 107, 107, 0.4);
+        }
+        
+        .message-envelope.anonymous {
+            background: linear-gradient(135deg, #2d3436, #636e72);
+            box-shadow: 0 8px 25px rgba(45, 52, 54, 0.3);
+        }
+        
+        .message-envelope.anonymous:hover {
+            box-shadow: 0 20px 40px rgba(45, 52, 54, 0.4);
+        }
+        
+        .message-envelope.normal {
+            background: linear-gradient(135deg, #2c5aa0, #1e3f73);
+            box-shadow: 0 8px 25px rgba(44, 90, 160, 0.3);
+        }
+        
+        .message-envelope.normal:hover {
+            box-shadow: 0 20px 40px rgba(44, 90, 160, 0.4);
+        }
+        
+        .message-envelope.read {
+            background: linear-gradient(135deg, #ddd, #bbb);
+            opacity: 0.7;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .envelope-icon {
+            font-size: 60px;
+            color: white;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+            transition: transform 0.3s ease;
+        }
+        
+        .message-envelope:hover .envelope-icon {
+            transform: scale(1.1) rotateZ(-5deg);
+        }
+        
+        .envelope-image {
+            width: 70px;
+            height: 70px;
+            filter: brightness(0) invert(1) drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+            transition: transform 0.3s ease;
+        }
+        
+        .message-envelope:hover .envelope-image {
+            transform: scale(1.1) rotateZ(-5deg);
+        }
+        
+        .message-type-indicator {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+        }
+        
+        .indicator-nsfw {
+            background: rgba(255, 107, 107, 0.9);
+            color: white;
+        }
+        
+        .indicator-anonymous {
+            background: rgba(45, 52, 54, 0.9);
+            color: white;
+        }
+        
+        .indicator-normal {
+            background: rgba(44, 90, 160, 0.9);
+            color: white;
+        }
+        
+        .empty-inbox {
+            grid-column: span 3;
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+            animation: fadeIn 0.6s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .polar-bear-container {
+            position: relative;
+            margin: 0 auto 20px;
+            width: 80px;
+            height: 80px;
+        }
+        
+        .polar-bear {
+            width: 80px;
+            height: 80px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+        
+        .empty-title {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #2c5aa0;
+        }
+        
+        .empty-subtitle {
+            font-size: 1rem;
+            opacity: 0.8;
+        }
+        
+        .loading-state {
+            grid-column: span 3;
+            text-align: center;
+            padding: 60px 20px;
+        }
+        
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(44, 90, 160, 0.2);
+            border-top: 4px solid #2c5aa0;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .pulse-effect {
+            animation: pulse 0.6s ease-out;
+        }
+        
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 480px) {
+            .messages-grid {
+                gap: 15px;
+            }
+            
+            .envelope-icon {
+                font-size: 50px;
+            }
+            
+            .envelope-image {
+                width: 60px;
+                height: 60px;
+            }
+        }
+        
+        /* Stagger animation for grid items */
+        .message-envelope:nth-child(1) { animation-delay: 0.1s; }
+        .message-envelope:nth-child(2) { animation-delay: 0.2s; }
+        .message-envelope:nth-child(3) { animation-delay: 0.3s; }
+        .message-envelope:nth-child(4) { animation-delay: 0.4s; }
+        .message-envelope:nth-child(5) { animation-delay: 0.5s; }
+        .message-envelope:nth-child(6) { animation-delay: 0.6s; }
+        .message-envelope:nth-child(7) { animation-delay: 0.7s; }
+        .message-envelope:nth-child(8) { animation-delay: 0.8s; }
+        .message-envelope:nth-child(9) { animation-delay: 0.9s; }
+        
+        .stagger-in {
+            animation: staggerIn 0.6s ease-out both;
+        }
+        
+        @keyframes staggerIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="messages-container">
+        <div id="messages-grid" class="messages-grid">
+            <!-- Loading state -->
+            <div id="loading-state" class="loading-state">
+                <div class="loading-spinner"></div>
+                <p>Loading your messages...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        // Firebase config
+        const firebaseConfig = {
+            apiKey: "AIzaSyA8HcTDiCQtJHRiMES2p1iUlA30AkZPx1Y",
+            authDomain: "polor-62c29.firebaseapp.com",
+            databaseURL: "https://polor-62c29-default-rtdb.firebaseio.com",
+            projectId: "polor-62c29",
+            storageBucket: "polor-62c29.firebasestorage.app",
+            messagingSenderId: "232986823513",
+            appId: "1:232986823513:web:a6ee6bef6b0609ace3da48",
+            measurementId: "G-KRT42D5TQK"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const firestore = firebase.firestore();
+
+        let currentUser = null;
+        let currentUserProfile = null;
+        let messages = [];
+
+        // Auth state listener
+        auth.onAuthStateChanged(async (user) => {
+            currentUser = user;
+            if (user) {
+                try {
+                    const userDoc = await firestore.collection('users').doc(user.uid).get();
+                    if (userDoc.exists) {
+                        currentUserProfile = userDoc.data();
+                    }
+                    await loadMessages();
+                } catch (error) {
+                    console.error('Error loading user profile:', error);
+                    showEmptyState();
+                }
+            } else {
+                showEmptyState();
+            }
+            hideLoading();
+        });
+
+        // Load messages from Firebase
+        async function loadMessages() {
+            if (!currentUser || !currentUserProfile) return;
+
+            try {
+                const messagesQuery = await firestore.collection('askMessages')
+                    .where('toUser', '==', currentUserProfile.username)
+                    .orderBy('timestamp', 'desc')
+                    .get();
+
+                messages = messagesQuery.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+
+                renderMessages();
+            } catch (error) {
+                console.error('Error loading messages:', error);
+                showEmptyState();
+            }
+        }
+
+        // Render messages grid
+        function renderMessages() {
+            const grid = document.getElementById('messages-grid');
+            
+            if (messages.length === 0) {
+                showEmptyState();
+                return;
+            }
+            
+            grid.innerHTML = '';
+            
+            messages.forEach((message, index) => {
+                const envelope = createEnvelopeElement(message, index);
+                grid.appendChild(envelope);
+            });
+        }
+
+        // Create envelope element
+        function createEnvelopeElement(message, index) {
+            const envelope = document.createElement('div');
+            
+            // Determine message type
+            let messageType = 'normal';
+            if (message.isAnonymous) {
+                messageType = 'anonymous';
+            }
+            if (message.isNSFW) {
+                messageType = 'nsfw';
+            }
+            
+            envelope.className = `message-envelope ${messageType} ${message.status === 'read' ? 'read' : ''} stagger-in`;
+            envelope.style.animationDelay = `${index * 0.1}s`;
+            envelope.onclick = () => openMessage(message);
+            
+            // Try to load image, fallback to emoji
+            const iconContainer = document.createElement('div');
+            
+            const img = document.createElement('img');
+            img.className = 'envelope-image';
+            img.src = '/assets/icons/envelope.png'; // Your envelope icon path
+            img.onerror = () => {
+                // Fallback to emoji
+                iconContainer.innerHTML = '<div class="envelope-icon">✉️</div>';
+            };
+            
+            iconContainer.appendChild(img);
+            envelope.appendChild(iconContainer);
+            
+            // Type indicator
+            const indicator = document.createElement('div');
+            indicator.className = `message-type-indicator indicator-${messageType}`;
+            
+            if (messageType === 'nsfw') {
+                indicator.textContent = '🔥';
+            } else if (messageType === 'anonymous') {
+                indicator.textContent = '👤';
+            } else {
+                indicator.textContent = '📝';
+            }
+            
+            envelope.appendChild(indicator);
+            
+            return envelope;
+        }
+
+        // Show empty state
+        function showEmptyState() {
+            const grid = document.getElementById('messages-grid');
+            grid.innerHTML = `
+                <div class="empty-inbox">
+                    <div class="polar-bear-container">
+                        <div class="polar-bear">🐻</div>
+                    </div>
+                    <h3 class="empty-title">No messages yet!</h3>
+                    <p class="empty-subtitle">Share your profile to start getting questions</p>
+                </div>
+            `;
+        }
+
+        // Hide loading
+        function hideLoading() {
+            document.getElementById('loading-state').style.display = 'none';
+        }
+
+        // Open message (send to parent window for modal)
+        async function openMessage(message) {
+            // Add click animation
+            event.target.closest('.message-envelope').classList.add('pulse-effect');
+            
+            // Mark as read in Firebase
+            if (message.status === 'unread') {
+                try {
+                    await firestore.collection('askMessages').doc(message.id).update({
+                        status: 'read',
+                        readAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    message.status = 'read';
+                } catch (error) {
+                    console.error('Error marking as read:', error);
+                }
+            }
+            
+            // Send message to parent window to open modal
+            window.parent.postMessage({
+                type: 'openMessage',
+                message: message
+            }, '*');
+            
+            // Update visual state
+            setTimeout(() => {
+                event.target.closest('.message-envelope').classList.add('read');
+                event.target.closest('.message-envelope').classList.remove('pulse-effect');
+            }, 300);
+        }
+
+        // Listen for messages from parent
+        window.addEventListener('message', function(event) {
+            if (event.data.type === 'refreshMessages') {
+                loadMessages();
+            } else if (event.data.type === 'addMessage') {
+                messages.unshift(event.data.message);
+                renderMessages();
+                
+                // Play notification animation
+                setTimeout(() => {
+                    const firstEnvelope = document.querySelector('.message-envelope');
+                    if (firstEnvelope) {
+                        firstEnvelope.classList.add('bounce');
+                    }
+                }, 100);
+            }
+        });
+
+        // Add ripple effect on click
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('.message-envelope')) {
+                const envelope = e.target.closest('.message-envelope');
+                const ripple = document.createElement('div');
+                ripple.style.cssText = `
+                    position: absolute;
+                    border-radius: 50%;
+                    background: rgba(255,255,255,0.3);
+                    transform: scale(0);
+                    animation: ripple 0.6s linear;
+                    pointer-events: none;
+                `;
+                
+                const rect = envelope.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height);
+                ripple.style.width = ripple.style.height = size + 'px';
+                ripple.style.left = (e.clientX - rect.left - size / 2) + 'px';
+                ripple.style.top = (e.clientY - rect.top - size / 2) + 'px';
+                
+                envelope.appendChild(ripple);
+                
+                setTimeout(() => {
+                    ripple.remove();
+                }, 600);
+            }
+        });
+
+        // Add ripple animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes ripple {
+                to {
+                    transform: scale(2);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
