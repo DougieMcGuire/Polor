@@ -388,6 +388,262 @@
             height: calc(100% - 80px);
             border: none;
         }
+
+        /* Message Modal Styles */
+        .message-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            padding: 20px;
+            backdrop-filter: blur(5px);
+        }
+        
+        .message-modal.show {
+            display: flex;
+            animation: modalFadeIn 0.3s ease-out;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 500px;
+            transform: scale(0.9);
+            animation: modalSlideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .modal-header {
+            padding: 25px 25px 0;
+            text-align: center;
+            position: relative;
+        }
+        
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+            transition: all 0.3s ease;
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .close-btn:hover {
+            background: #f8f9fa;
+            transform: rotate(90deg);
+        }
+        
+        .sender-info {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            animation: slideInUp 0.5s ease-out;
+        }
+        
+        .sender-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 2px solid #e9ecef;
+            transition: transform 0.3s ease;
+        }
+        
+        .sender-avatar:hover {
+            transform: scale(1.1);
+        }
+        
+        .sender-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .sender-name {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .message-content {
+            padding: 0 25px;
+            margin-bottom: 25px;
+            flex: 1;
+        }
+        
+        .message-text {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            font-size: 16px;
+            line-height: 1.5;
+            margin-bottom: 20px;
+            animation: slideInUp 0.6s ease-out;
+            border-left: 4px solid #667eea;
+        }
+        
+        .answer-input {
+            width: 100%;
+            height: 80px;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            font-size: 16px;
+            resize: none;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+            animation: slideInUp 0.7s ease-out;
+            font-family: inherit;
+        }
+        
+        .answer-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .answer-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            animation: slideInUp 0.8s ease-out;
+        }
+        
+        .answer-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .answer-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .answer-btn:hover::before {
+            left: 100%;
+        }
+        
+        .answer-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .share-twitter {
+            background: #1da1f2;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s ease;
+            animation: slideInUp 0.9s ease-out;
+        }
+        
+        .share-twitter:hover {
+            background: #0d8bd9;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(29, 161, 242, 0.3);
+        }
+
+        .success-animation {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10001;
+            font-size: 4rem;
+            animation: successPop 1s ease-out;
+            pointer-events: none;
+        }
+
+        .shake {
+            animation: shake 0.5s ease-in-out;
+        }
+        
+        /* Animations */
+        @keyframes modalFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes modalSlideIn {
+            from { 
+                transform: scale(0.9) translateY(-20px);
+                opacity: 0;
+            }
+            to { 
+                transform: scale(1) translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slideInUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes successPop {
+            0% { 
+                transform: translate(-50%, -50%) scale(0);
+                opacity: 0;
+            }
+            50% { 
+                transform: translate(-50%, -50%) scale(1.2);
+                opacity: 1;
+            }
+            100% { 
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 0;
+            }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
         
         @media (max-width: 768px) {
             .header {
@@ -414,6 +670,10 @@
             
             .inbox-iframe {
                 height: 350px;
+            }
+            
+            .modal-content {
+                margin: 10px;
             }
         }
     </style>
@@ -455,6 +715,34 @@
         </div>
     </div>
 
+    <!-- Message Modal -->
+    <div id="message-modal" class="message-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button class="close-btn" onclick="closeMessageModal()">&times;</button>
+                <div class="sender-info">
+                    <div class="sender-avatar">
+                        <img id="sender-avatar" src="https://polor.org/Avatars/anonymous.png" alt="Sender">
+                    </div>
+                    <div class="sender-name" id="sender-name">Anonymous</div>
+                </div>
+            </div>
+            
+            <div class="message-content">
+                <div class="message-text" id="message-text"></div>
+                
+                <div id="answer-section">
+                    <textarea id="answer-input" class="answer-input" placeholder="Type your answer here..."></textarea>
+                    <button id="answer-btn" class="answer-btn" onclick="postAnswer()">Post Answer</button>
+                </div>
+                
+                <div id="share-section" style="display: none;">
+                    <button class="share-twitter" onclick="shareToTwitter()">Share to Twitter</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
@@ -477,6 +765,7 @@
 
         let currentUser = null;
         let userProfile = null;
+        let currentMessage = null;
 
         auth.onAuthStateChanged(async (user) => {
             if (user) {
@@ -583,15 +872,127 @@
             }, 300);
         }
 
+        // Message Modal Functions
+        function openMessageModal(message) {
+            currentMessage = message;
+
+            // Update modal content
+            if (message.isAnonymous) {
+                document.getElementById('sender-avatar').src = 'https://polor.org/Avatars/anonymous.png';
+                document.getElementById('sender-name').textContent = 'Anonymous';
+            } else if (message.fromUserProfile) {
+                document.getElementById('sender-avatar').src = message.fromUserProfile.avatarIMG || 'https://polor.org/Avatars/default.png';
+                document.getElementById('sender-name').textContent = message.fromUserProfile.displayName || message.fromUserProfile.username;
+            }
+
+            document.getElementById('message-text').textContent = message.message;
+
+            // Show appropriate section
+            if (message.hasAnswer) {
+                document.getElementById('answer-section').style.display = 'none';
+                document.getElementById('share-section').style.display = 'block';
+            } else {
+                document.getElementById('answer-section').style.display = 'block';
+                document.getElementById('share-section').style.display = 'none';
+                document.getElementById('answer-input').value = '';
+            }
+
+            document.getElementById('message-modal').classList.add('show');
+        }
+
+        function closeMessageModal() {
+            document.getElementById('message-modal').classList.remove('show');
+            currentMessage = null;
+        }
+
+        function postAnswer() {
+            const answerInput = document.getElementById('answer-input');
+            const answerBtn = document.getElementById('answer-btn');
+            const answer = answerInput.value.trim();
+
+            if (!answer) {
+                answerInput.classList.add('shake');
+                setTimeout(() => answerInput.classList.remove('shake'), 500);
+                return;
+            }
+
+            answerBtn.disabled = true;
+            answerBtn.textContent = 'Posting...';
+
+            // Send message to iframe to handle the posting
+            document.getElementById('inbox-iframe').contentWindow.postMessage({
+                type: 'POST_ANSWER',
+                answer: answer,
+                messageId: currentMessage.id
+            }, '*');
+        }
+
+        function shareToTwitter() {
+            // Send message to iframe to handle the sharing
+            document.getElementById('inbox-iframe').contentWindow.postMessage({
+                type: 'SHARE_TWITTER',
+                messageId: currentMessage.id
+            }, '*');
+        }
+
+        function showSuccessAnimation(emoji) {
+            const animation = document.createElement('div');
+            animation.className = 'success-animation';
+            animation.textContent = emoji;
+            document.body.appendChild(animation);
+            
+            setTimeout(() => {
+                if (document.body.contains(animation)) {
+                    document.body.removeChild(animation);
+                }
+            }, 1000);
+        }
+
+        // Listen for messages from iframe
+        window.addEventListener('message', (event) => {
+            if (event.data.type === 'OPEN_MESSAGE_MODAL') {
+                openMessageModal(event.data.message);
+            } else if (event.data.type === 'ANSWER_POSTED_SUCCESS') {
+                const answerBtn = document.getElementById('answer-btn');
+                answerBtn.disabled = false;
+                answerBtn.textContent = 'Post Answer';
+                
+                // Switch to share mode
+                document.getElementById('answer-section').style.display = 'none';
+                document.getElementById('share-section').style.display = 'block';
+                
+                currentMessage.hasAnswer = true;
+                showSuccessAnimation('🎉');
+            } else if (event.data.type === 'ANSWER_POSTED_ERROR') {
+                const answerBtn = document.getElementById('answer-btn');
+                answerBtn.disabled = false;
+                answerBtn.textContent = 'Post Answer';
+                
+                showSuccessAnimation('❌');
+                alert('Failed to post answer. Please try again.');
+            }
+        });
+
+        // Event listeners
         document.getElementById('settings-modal').addEventListener('click', (e) => {
             if (e.target.id === 'settings-modal') {
                 closeSettings();
             }
         });
 
+        document.getElementById('message-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'message-modal') {
+                closeMessageModal();
+            }
+        });
+
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && document.getElementById('settings-modal').classList.contains('show')) {
-                closeSettings();
+            if (e.key === 'Escape') {
+                if (document.getElementById('message-modal').classList.contains('show')) {
+                    closeMessageModal();
+                } else if (document.getElementById('settings-modal').classList.contains('show')) {
+                    closeSettings();
+                }
             }
         });
     </script>
