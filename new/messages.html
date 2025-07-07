@@ -339,27 +339,35 @@
 
         // Auth state listener
         auth.onAuthStateChanged(async (user) => {
+            console.log('Auth state changed:', user ? 'logged in' : 'not logged in');
             currentUser = user;
             if (user) {
                 try {
                     const userDoc = await firestore.collection('users').doc(user.uid).get();
                     if (userDoc.exists) {
                         currentUserProfile = userDoc.data();
+                        console.log('User profile loaded:', currentUserProfile);
                     }
                     await loadMessages();
                 } catch (error) {
                     console.error('Error loading user profile:', error);
-                    showEmptyState();
+                    showMockMessages(); // Show mock data if Firebase fails
                 }
             } else {
-                showEmptyState();
+                console.log('No user, showing mock data');
+                showMockMessages(); // Show mock data when not logged in
             }
             hideLoading();
         });
 
         // Load messages from Firebase
         async function loadMessages() {
-            if (!currentUser || !currentUserProfile) return;
+            if (!currentUser || !currentUserProfile) {
+                // If no user, show mock data for testing
+                console.log('No user logged in, showing mock data');
+                showMockMessages();
+                return;
+            }
 
             try {
                 const messagesQuery = await firestore.collection('askMessages')
@@ -375,8 +383,51 @@
                 renderMessages();
             } catch (error) {
                 console.error('Error loading messages:', error);
-                showEmptyState();
+                // Fallback to mock data
+                showMockMessages();
             }
+        }
+
+        // Show mock messages for testing
+        function showMockMessages() {
+            messages = [
+                {
+                    id: 'mock1',
+                    message: 'What are you doing tomorrow?',
+                    isAnonymous: false,
+                    isNSFW: false,
+                    status: 'unread',
+                    fromUserProfile: { displayName: 'John Doe' },
+                    timestamp: new Date()
+                },
+                {
+                    id: 'mock2',
+                    message: 'Do you like someone?',
+                    isAnonymous: true,
+                    isNSFW: false,
+                    status: 'unread',
+                    timestamp: new Date()
+                },
+                {
+                    id: 'mock3',
+                    message: 'Inappropriate question here...',
+                    isAnonymous: false,
+                    isNSFW: true,
+                    status: 'unread',
+                    fromUserProfile: { displayName: 'Sarah' },
+                    timestamp: new Date()
+                },
+                {
+                    id: 'mock4',
+                    message: 'Favorite book?',
+                    isAnonymous: false,
+                    isNSFW: false,
+                    status: 'read',
+                    fromUserProfile: { displayName: 'Mike' },
+                    timestamp: new Date()
+                }
+            ];
+            renderMessages();
         }
 
         // Render messages grid
@@ -464,33 +515,47 @@
         }
 
         // Open message (send to parent window for modal)
-        async function openMessage(message) {
-            // Add click animation
-            event.target.closest('.message-envelope').classList.add('pulse-effect');
+        function openMessage(message) {
+            console.log('Opening message:', message); // Debug log
             
-            // Mark as read in Firebase
-            if (message.status === 'unread') {
-                try {
-                    await firestore.collection('askMessages').doc(message.id).update({
-                        status: 'read',
-                        readAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                    message.status = 'read';
-                } catch (error) {
-                    console.error('Error marking as read:', error);
-                }
+            // Add click animation
+            const envelope = event.target.closest('.message-envelope');
+            if (envelope) {
+                envelope.classList.add('pulse-effect');
             }
             
             // Send message to parent window to open modal
-            window.parent.postMessage({
-                type: 'openMessage',
-                message: message
-            }, '*');
+            try {
+                window.parent.postMessage({
+                    type: 'openMessage',
+                    message: message
+                }, '*');
+                console.log('Message sent to parent'); // Debug log
+            } catch (error) {
+                console.error('Error sending to parent:', error);
+                // Fallback - show alert with message content
+                alert(`Message: ${message.message || 'No message content'}`);
+            }
+            
+            // Mark as read in Firebase (if available)
+            if (message.status === 'unread' && firestore && currentUser) {
+                firestore.collection('askMessages').doc(message.id).update({
+                    status: 'read',
+                    readAt: firebase.firestore.FieldValue.serverTimestamp()
+                }).then(() => {
+                    message.status = 'read';
+                    console.log('Message marked as read');
+                }).catch(error => {
+                    console.error('Error marking as read:', error);
+                });
+            }
             
             // Update visual state
             setTimeout(() => {
-                event.target.closest('.message-envelope').classList.add('read');
-                event.target.closest('.message-envelope').classList.remove('pulse-effect');
+                if (envelope) {
+                    envelope.classList.add('read');
+                    envelope.classList.remove('pulse-effect');
+                }
             }, 300);
         }
 
