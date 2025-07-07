@@ -943,9 +943,17 @@
             const headerAvatar = document.getElementById('header-avatar');
             
             if (userProfile.avatarIMG) {
-                headerAvatar.innerHTML = `<img src="${userProfile.avatarIMG}" alt="Avatar">`;
+                const img = document.createElement('img');
+                img.src = userProfile.avatarIMG;
+                img.alt = 'Avatar';
+                headerAvatar.innerHTML = '';
+                headerAvatar.appendChild(img);
             } else {
-                headerAvatar.innerHTML = '<div class="avatar-placeholder">👤</div>';
+                const placeholder = document.createElement('div');
+                placeholder.className = 'avatar-placeholder';
+                placeholder.textContent = '👤';
+                headerAvatar.innerHTML = '';
+                headerAvatar.appendChild(placeholder);
             }
         }
 
@@ -1006,11 +1014,13 @@
                 modalHeader.style.background = '#48C7F5';
             }
 
-            // Clear and build chat container
+            // Clear and build chat container - SAFE VERSION
             const chatContainer = document.getElementById('chat-container');
-            chatContainer.innerHTML = '';
+            while (chatContainer.firstChild) {
+                chatContainer.removeChild(chatContainer.firstChild);
+            }
 
-            // Add user question bubble
+            // Add user question bubble - SAFE VERSION
             const userAvatar = message.isAnonymous ? 
                 'https://polor.org/Avatars/anonymous.png' : 
                 (message.fromUserProfile?.avatarIMG || 'https://polor.org/Avatars/default.png');
@@ -1019,14 +1029,13 @@
                 (message.fromUserProfile?.displayName || message.fromUserProfile?.username || 'User');
             
             const questionText = `${userName} asked:\n${message.message || 'No message content'}`;
-            const questionBubble = createChatBubble(userAvatar, questionText, 'user-question-bubble');
+            const questionBubble = createSafeChatBubble(userAvatar, questionText, 'user-question-bubble');
             chatContainer.appendChild(questionBubble);
 
-            // Add response bubble if answered
+            // Add response bubble if answered - SAFE VERSION
             if (message.hasAnswer && message.answer) {
-                // Use current user's avatar for response
                 const responseAvatar = userProfile?.avatarIMG || 'https://polor.org/Avatars/default.png';
-                const responseBubble = createChatBubble(responseAvatar, message.answer, 'user-response-bubble');
+                const responseBubble = createSafeChatBubble(responseAvatar, message.answer, 'user-response-bubble');
                 chatContainer.appendChild(responseBubble);
             }
 
@@ -1046,62 +1055,44 @@
             document.getElementById('message-modal').classList.add('show');
         }
 
-        function createChatBubble(avatarSrc, text, className = '') {
-            try {
-                const bubble = document.createElement('div');
-                bubble.className = `chat-bubble ${className}`;
-                
-                // Create avatar element safely
-                const avatarDiv = document.createElement('div');
-                avatarDiv.className = 'chat-avatar';
-                
-                if (avatarSrc && (avatarSrc.startsWith('http') || avatarSrc.startsWith('data:'))) {
-                    const img = document.createElement('img');
-                    img.src = avatarSrc;
-                    img.alt = 'Avatar';
-                    img.style.width = '100%';
-                    img.style.height = '100%';
-                    img.style.objectFit = 'cover';
-                    img.onerror = function() { 
-                        this.style.display = 'none';
-                        const fallback = document.createElement('div');
-                        fallback.className = 'avatar-fallback';
-                        fallback.textContent = '👤';
-                        avatarDiv.appendChild(fallback);
-                    };
-                    avatarDiv.appendChild(img);
-                } else {
-                    const fallback = document.createElement('div');
-                    fallback.className = 'avatar-fallback';
-                    fallback.textContent = '👤';
-                    avatarDiv.appendChild(fallback);
-                }
-                
-                // Create content safely
-                const contentDiv = document.createElement('div');
-                contentDiv.className = 'chat-bubble-content';
-                
-                const textP = document.createElement('p');
-                textP.className = 'chat-text';
-                textP.innerHTML = text.replace(/\n/g, '<br>');
-                contentDiv.appendChild(textP);
-                
-                // Assemble bubble
-                bubble.appendChild(avatarDiv);
-                bubble.appendChild(contentDiv);
-                
-                return bubble;
-            } catch (error) {
-                console.error('Error creating chat bubble:', error);
-                // Return simple fallback
-                const fallbackBubble = document.createElement('div');
-                fallbackBubble.textContent = text;
-                fallbackBubble.style.padding = '10px';
-                fallbackBubble.style.background = '#f0f0f0';
-                fallbackBubble.style.borderRadius = '10px';
-                fallbackBubble.style.margin = '10px 0';
-                return fallbackBubble;
+        // COMPLETELY SAFE CHAT BUBBLE CREATION - NO innerHTML ANYWHERE
+        function createSafeChatBubble(avatarSrc, text, className = '') {
+            const bubble = document.createElement('div');
+            bubble.className = `chat-bubble ${className}`;
+            
+            // Create avatar safely
+            const avatarDiv = document.createElement('div');
+            avatarDiv.className = 'chat-avatar';
+            
+            if (avatarSrc && (avatarSrc.startsWith('http') || avatarSrc.startsWith('data:'))) {
+                const img = document.createElement('img');
+                img.src = avatarSrc;
+                img.alt = 'Avatar';
+                img.style.width = '100%';
+                img.style.height = '100%';
+                img.style.objectFit = 'cover';
+                avatarDiv.appendChild(img);
+            } else {
+                const fallback = document.createElement('div');
+                fallback.className = 'avatar-fallback';
+                fallback.textContent = '👤';
+                avatarDiv.appendChild(fallback);
             }
+            
+            // Create content safely
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'chat-bubble-content';
+            
+            const textP = document.createElement('p');
+            textP.className = 'chat-text';
+            textP.textContent = text; // USE textContent ONLY
+            contentDiv.appendChild(textP);
+            
+            // Assemble
+            bubble.appendChild(avatarDiv);
+            bubble.appendChild(contentDiv);
+            
+            return bubble;
         }
 
         function closeMessageModal() {
