@@ -1047,24 +1047,61 @@
         }
 
         function createChatBubble(avatarSrc, text, className = '') {
-            const bubble = document.createElement('div');
-            bubble.className = `chat-bubble ${className}`;
-            
-            let avatarHTML;
-            if (avatarSrc && (avatarSrc.startsWith('http') || avatarSrc.startsWith('data:'))) {
-                avatarHTML = `<img src="${avatarSrc}" alt="Avatar" onerror="this.style.display='none'; this.parentNode.innerHTML='<div class=\\'avatar-fallback\\'>👤</div>';">`;
-            } else {
-                avatarHTML = `<div class="avatar-fallback">👤</div>`;
+            try {
+                const bubble = document.createElement('div');
+                bubble.className = `chat-bubble ${className}`;
+                
+                // Create avatar element safely
+                const avatarDiv = document.createElement('div');
+                avatarDiv.className = 'chat-avatar';
+                
+                if (avatarSrc && (avatarSrc.startsWith('http') || avatarSrc.startsWith('data:'))) {
+                    const img = document.createElement('img');
+                    img.src = avatarSrc;
+                    img.alt = 'Avatar';
+                    img.style.width = '100%';
+                    img.style.height = '100%';
+                    img.style.objectFit = 'cover';
+                    img.onerror = function() { 
+                        this.style.display = 'none';
+                        const fallback = document.createElement('div');
+                        fallback.className = 'avatar-fallback';
+                        fallback.textContent = '👤';
+                        avatarDiv.appendChild(fallback);
+                    };
+                    avatarDiv.appendChild(img);
+                } else {
+                    const fallback = document.createElement('div');
+                    fallback.className = 'avatar-fallback';
+                    fallback.textContent = '👤';
+                    avatarDiv.appendChild(fallback);
+                }
+                
+                // Create content safely
+                const contentDiv = document.createElement('div');
+                contentDiv.className = 'chat-bubble-content';
+                
+                const textP = document.createElement('p');
+                textP.className = 'chat-text';
+                textP.innerHTML = text.replace(/\n/g, '<br>');
+                contentDiv.appendChild(textP);
+                
+                // Assemble bubble
+                bubble.appendChild(avatarDiv);
+                bubble.appendChild(contentDiv);
+                
+                return bubble;
+            } catch (error) {
+                console.error('Error creating chat bubble:', error);
+                // Return simple fallback
+                const fallbackBubble = document.createElement('div');
+                fallbackBubble.textContent = text;
+                fallbackBubble.style.padding = '10px';
+                fallbackBubble.style.background = '#f0f0f0';
+                fallbackBubble.style.borderRadius = '10px';
+                fallbackBubble.style.margin = '10px 0';
+                return fallbackBubble;
             }
-            
-            bubble.innerHTML = `
-                <div class="chat-avatar">${avatarHTML}</div>
-                <div class="chat-bubble-content">
-                    <p class="chat-text">${text.replace(/\n/g, '<br>')}</p>
-                </div>
-            `;
-            
-            return bubble;
         }
 
         function closeMessageModal() {
