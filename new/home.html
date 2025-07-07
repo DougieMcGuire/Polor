@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Polor - Home</title>
+    <title>Polor - Dashboard</title>
+    <link rel="icon" href="https://polor.org/assets/polorcircle.png" type="image/png">
     <style>
         * {
             margin: 0;
@@ -12,136 +13,154 @@
         }
         
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #FFFFFF;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-gradient, linear-gradient(135deg, #667eea 0%, #764ba2 100%));
             min-height: 100vh;
-            padding: 24px;
-            color: #1a1a1a;
+            padding: 20px;
         }
         
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-        
-        .user-section {
-            background: #FFFFFF;
-            border: 2px solid #48C7F5;
-            border-radius: 16px;
-            padding: 32px;
-            margin-bottom: 32px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            box-shadow: 0 4px 20px rgba(72, 199, 245, 0.1);
-        }
-        
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-        
-        .user-avatar {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            border: 3px solid #48C7F5;
-            overflow: hidden;
-            background: #f5f5f5;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .user-avatar img {
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
-            object-fit: cover;
-        }
-        
-        .default-avatar {
-            font-size: 32px;
-            color: #48C7F5;
-        }
-        
-        .user-details h1 {
-            font-size: 28px;
-            font-weight: 700;
-            color: #1a1a1a;
-            margin-bottom: 4px;
-        }
-        
-        .user-details p {
-            font-size: 16px;
-            color: #48C7F5;
-            font-weight: 500;
-        }
-        
-        .settings-btn {
-            background: #48C7F5;
-            color: white;
-            border: none;
-            border-radius: 12px;
-            width: 48px;
-            height: 48px;
-            cursor: pointer;
-            font-size: 20px;
-            transition: all 0.2s ease;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             display: flex;
             align-items: center;
             justify-content: center;
+            z-index: 1000;
         }
         
-        .settings-btn:hover {
-            background: #2196F3;
-            transform: scale(1.05);
-        }
-        
-        .messages-container {
-            background: #FFFFFF;
-            border: 2px solid #48C7F5;
-            border-radius: 16px;
-            overflow: hidden;
-            box-shadow: 0 4px 20px rgba(72, 199, 245, 0.1);
-        }
-        
-        .messages-header {
-            background: #48C7F5;
-            color: white;
-            padding: 20px 24px;
+        .loading-content {
             text-align: center;
-            font-size: 18px;
-            font-weight: 600;
-        }
-        
-        .messages-iframe {
-            width: 100%;
-            height: 600px;
-            border: none;
-            background: white;
-        }
-        
-        .loading {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background: #FFFFFF;
+            color: white;
         }
         
         .spinner {
-            width: 40px;
-            height: 40px;
-            border: 3px solid #f0f0f0;
-            border-top: 3px solid #48C7F5;
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255,255,255,0.3);
+            border-top: 5px solid white;
             border-radius: 50%;
             animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
         }
         
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
+        }
+        
+        .dashboard {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: none;
+        }
+        
+        .dashboard.show {
+            display: block;
+        }
+        
+        .header {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+            position: relative;
+        }
+        
+        .settings-icon-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 45px;
+            height: 45px;
+            border: 3px solid white;
+            background: var(--bg-gradient, linear-gradient(135deg, #667eea, #764ba2));
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            font-size: 20px;
+            color: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .settings-icon-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        .avatar-container {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 4px solid var(--avatar-border-color, #667eea);
+            position: relative;
+            background: #f8f9fa;
+            margin: 0 auto 20px;
+            transition: all 0.2s ease;
+        }
+        
+        .avatar-container:hover {
+            transform: scale(1.05);
+        }
+        
+        .avatar-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .avatar-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            color: #667eea;
+        }
+        
+        .welcome-text h1 {
+            color: #333;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .username {
+            color: #667eea;
+            font-size: 1.4rem;
+            font-weight: 500;
+        }
+        
+        .inbox-section {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .inbox-header {
+            color: #333;
+            font-size: 1.8rem;
+            padding: 30px 30px 20px 30px;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .inbox-iframe {
+            width: 100%;
+            height: 400px;
+            border: none;
+            background: #f8f9fa;
         }
         
         .settings-modal {
@@ -150,150 +169,150 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            display: flex;
-            justify-content: center;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            display: none;
             align-items: center;
-            z-index: 1000;
+            justify-content: center;
+            z-index: 2000;
             opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
+            transition: opacity 0.3s ease;
         }
         
-        .settings-modal.active {
+        .settings-modal.show {
+            display: flex;
             opacity: 1;
-            visibility: visible;
         }
         
-        .settings-content {
+        .settings-container {
+            width: 95%;
+            max-width: 900px;
+            height: 90vh;
+            max-height: 800px;
             background: white;
-            width: 90%;
-            max-width: 800px;
-            height: 80vh;
-            border-radius: 16px;
-            border: 2px solid #48C7F5;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
             overflow: hidden;
             transform: scale(0.9);
             transition: transform 0.3s ease;
         }
         
-        .settings-modal.active .settings-content {
+        .settings-modal.show .settings-container {
             transform: scale(1);
         }
         
         .settings-header {
-            background: #48C7F5;
+            background: var(--bg-gradient, linear-gradient(135deg, #667eea, #764ba2));
             color: white;
-            padding: 20px 24px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            padding: 20px;
+            text-align: center;
+            position: relative;
         }
         
-        .settings-title {
-            font-size: 18px;
-            font-weight: 600;
+        .settings-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
         }
         
-        .close-btn {
-            background: none;
+        .settings-close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(255, 255, 255, 0.2);
             border: none;
             color: white;
-            font-size: 24px;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
             cursor: pointer;
-            width: 32px;
-            height: 32px;
+            font-size: 18px;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 4px;
-            transition: background 0.2s ease;
+            transition: all 0.2s ease;
         }
         
-        .close-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
+        .settings-close-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
         }
         
         .settings-iframe {
             width: 100%;
-            height: calc(100% - 64px);
+            height: calc(100% - 80px);
             border: none;
         }
         
         @media (max-width: 768px) {
-            .container {
-                padding: 16px;
+            .header {
+                padding: 30px 20px;
             }
             
-            .user-section {
-                flex-direction: column;
-                text-align: center;
-                gap: 20px;
+            .welcome-text h1 {
+                font-size: 2rem;
             }
             
-            .user-info {
-                flex-direction: column;
-                gap: 16px;
+            .username {
+                font-size: 1.2rem;
             }
             
-            .user-details h1 {
-                font-size: 24px;
+            .avatar-container {
+                width: 100px;
+                height: 100px;
             }
             
-            .messages-iframe {
-                height: 400px;
-            }
-            
-            .settings-content {
+            .settings-container {
                 width: 95%;
                 height: 90vh;
+            }
+            
+            .inbox-iframe {
+                height: 350px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="loading" id="loading">
-        <div class="spinner"></div>
+    <div id="loading-screen" class="loading-screen">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <h2>Loading your dashboard...</h2>
+            <p>Setting up your Polor experience</p>
+        </div>
     </div>
     
-    <div class="container" id="mainContent" style="display: none;">
-        <div class="user-section">
-            <div class="user-info">
-                <div class="user-avatar" id="userAvatar">
-                    <div class="default-avatar">👤</div>
-                </div>
-                <div class="user-details">
-                    <h1 id="displayName">Loading...</h1>
-                    <p id="username">@loading</p>
-                </div>
+    <div id="dashboard" class="dashboard">
+        <div class="header">
+            <button class="settings-icon-btn" onclick="openSettings()">⚙️</button>
+            <div class="avatar-container" id="header-avatar">
+                <div class="avatar-placeholder">👤</div>
             </div>
-            <button class="settings-btn" onclick="openSettings()" title="Settings">⚙️</button>
+            <div class="welcome-text">
+                <h1 id="welcome-message">Welcome to Polor!</h1>
+                <div class="username" id="user-handle">@username</div>
+            </div>
         </div>
         
-        <div class="messages-container">
-            <div class="messages-header">Messages</div>
-            <iframe src="messages.html" class="messages-iframe" id="messagesFrame"></iframe>
+        <div class="inbox-section">
+            <h2 class="inbox-header">📥 Inbox</h2>
+            <iframe id="inbox-iframe" class="inbox-iframe" src="messages.html"></iframe>
         </div>
     </div>
-    
-    <!-- Settings Modal -->
-    <div class="settings-modal" id="settingsModal">
-        <div class="settings-content">
+
+    <div id="settings-modal" class="settings-modal">
+        <div class="settings-container">
             <div class="settings-header">
-                <div class="settings-title">Settings</div>
-                <button class="close-btn" onclick="closeSettings()">×</button>
+                <h2>⚙️ Settings</h2>
+                <button class="settings-close-btn" onclick="closeSettings()">&times;</button>
             </div>
-            <iframe src="settings.html" class="settings-iframe" id="settingsFrame"></iframe>
+            <iframe id="settings-iframe" class="settings-iframe"></iframe>
         </div>
     </div>
-    
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
-    
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
     <script>
-        // Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyA8HcTDiCQtJHRiMES2p1iUlA30AkZPx1Y",
             authDomain: "polor-62c29.firebaseapp.com",
@@ -304,107 +323,107 @@
             appId: "1:232986823513:web:a6ee6bef6b0609ace3da48",
             measurementId: "G-KRT42D5TQK"
         };
-        
-        // Initialize Firebase
+
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const firestore = firebase.firestore();
-        
-        // Auth state observer
-        auth.onAuthStateChanged((user) => {
+
+        let currentUser = null;
+        let userProfile = null;
+
+        auth.onAuthStateChanged(async (user) => {
             if (user) {
-                // User is signed in
-                loadUserData(user);
+                currentUser = user;
+                await loadUserProfile();
+                showDashboard();
             } else {
-                // User is signed out, redirect to auth page
                 window.location.href = 'auth.html';
             }
         });
-        
-        // Load user data from Firestore
-        function loadUserData(user) {
-            const userId = user.uid;
-            
-            firestore.collection('users').doc(userId).get()
-                .then((doc) => {
-                    if (doc.exists) {
-                        const userData = doc.data();
-                        updateUserInterface(userData);
-                    } else {
-                        console.log('No user document found');
-                        // Create basic user interface with auth data
-                        const basicData = {
-                            displayName: user.displayName || 'User',
-                            username: user.email ? user.email.split('@')[0] : 'user',
-                            avatarIMG: null
-                        };
-                        updateUserInterface(basicData);
-                    }
-                })
-                .catch((error) => {
-                    console.error('Error getting user document:', error);
-                    // Fallback to basic user info
-                    const basicData = {
-                        displayName: user.displayName || 'User',
-                        username: user.email ? user.email.split('@')[0] : 'user',
-                        avatarIMG: null
-                    };
-                    updateUserInterface(basicData);
-                });
-        }
-        
-        // Update UI with user data
-        function updateUserInterface(userData) {
-            const displayNameElement = document.getElementById('displayName');
-            const usernameElement = document.getElementById('username');
-            const avatarElement = document.getElementById('userAvatar');
-            
-            // Update display name
-            displayNameElement.textContent = userData.displayName || 'User';
-            
-            // Update username
-            usernameElement.textContent = `@${userData.username || 'user'}`;
-            
-            // Update avatar with base64 image from avatarIMG
-            if (userData.avatarIMG) {
-                // Check if it's already a data URL or needs data:image prefix
-                const imageData = userData.avatarIMG.startsWith('data:') 
-                    ? userData.avatarIMG 
-                    : `data:image/png;base64,${userData.avatarIMG}`;
+
+        async function loadUserProfile() {
+            try {
+                const doc = await firestore.collection('users').doc(currentUser.uid).get();
                 
-                avatarElement.innerHTML = `<img src="${imageData}" alt="User Avatar" onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=\"default-avatar\">👤</div>';">`;
-            } else {
-                avatarElement.innerHTML = '<div class="default-avatar">👤</div>';
+                if (doc.exists) {
+                    userProfile = doc.data();
+                    updateUserInterface();
+                } else {
+                    await createUserProfile();
+                }
+            } catch (error) {
+                console.error('Error loading user profile:', error);
             }
+        }
+
+        async function createUserProfile() {
+            const profile = {
+                uid: currentUser.uid,
+                email: currentUser.email,
+                username: currentUser.displayName || currentUser.email.split('@')[0],
+                displayName: currentUser.displayName || currentUser.email.split('@')[0],
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+            };
             
-            // Show main content and hide loading
-            document.getElementById('loading').style.display = 'none';
-            document.getElementById('mainContent').style.display = 'block';
+            await firestore.collection('users').doc(currentUser.uid).set(profile, { merge: true });
+            userProfile = profile;
         }
-        
-        // Settings functions
+
+        function updateUserInterface() {
+            const welcomeMsg = document.getElementById('welcome-message');
+            const displayName = userProfile.displayName || userProfile.username || 'User';
+            welcomeMsg.textContent = `Welcome back, ${displayName}!`;
+            
+            const userHandle = document.getElementById('user-handle');
+            const username = userProfile.username || currentUser.email.split('@')[0];
+            userHandle.textContent = `@${username}`;
+            
+            updateAvatarDisplay();
+        }
+
+        function updateAvatarDisplay() {
+            const headerAvatar = document.getElementById('header-avatar');
+            
+            if (userProfile.avatarIMG) {
+                headerAvatar.innerHTML = `<img src="${userProfile.avatarIMG}" alt="Avatar">`;
+            } else {
+                headerAvatar.innerHTML = '<div class="avatar-placeholder">👤</div>';
+            }
+        }
+
+        function showDashboard() {
+            document.getElementById('loading-screen').style.display = 'none';
+            document.getElementById('dashboard').classList.add('show');
+        }
+
         function openSettings() {
-            const modal = document.getElementById('settingsModal');
-            modal.classList.add('active');
-            document.body.style.overflow = 'hidden';
+            const modal = document.getElementById('settings-modal');
+            const iframe = document.getElementById('settings-iframe');
+            
+            modal.classList.add('show');
+            iframe.src = 'settings.html';
         }
-        
+
         function closeSettings() {
-            const modal = document.getElementById('settingsModal');
-            modal.classList.remove('active');
-            document.body.style.overflow = 'auto';
+            const modal = document.getElementById('settings-modal');
+            const iframe = document.getElementById('settings-iframe');
+            
+            modal.classList.remove('show');
+            setTimeout(() => {
+                iframe.src = '';
+                loadUserProfile();
+            }, 300);
         }
-        
-        // Close modal when clicking outside
-        document.getElementById('settingsModal').addEventListener('click', (e) => {
-            if (e.target === e.currentTarget) {
+
+        document.getElementById('settings-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'settings-modal') {
                 closeSettings();
             }
         });
-        
-        // Close modal with Escape key
+
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && document.getElementById('settingsModal').classList.contains('active')) {
+            if (e.key === 'Escape' && document.getElementById('settings-modal').classList.contains('show')) {
                 closeSettings();
             }
         });
