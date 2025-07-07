@@ -161,195 +161,7 @@
             animation: float 3s ease-in-out infinite;
         }
         
-        /* Message Modal - Now positioned relative to viewport */
-        .message-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: rgba(0,0,0,0.6);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 10000;
-            padding: 20px;
-            backdrop-filter: blur(5px);
-        }
-        
-        .message-modal.show {
-            display: flex;
-            animation: modalFadeIn 0.3s ease-out;
-        }
-        
-        .modal-content {
-            background: white;
-            border-radius: 20px;
-            width: 100%;
-            max-width: 500px;
-            max-height: 90vh;
-            overflow-y: auto;
-            transform: scale(0.9);
-            animation: modalSlideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-        }
-        
-        .modal-header {
-            padding: 25px 25px 0;
-            text-align: center;
-            position: relative;
-        }
-        
-        .close-btn {
-            position: absolute;
-            top: 15px;
-            right: 20px;
-            background: none;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-            color: #666;
-            transition: all 0.3s ease;
-            border-radius: 50%;
-            width: 35px;
-            height: 35px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .close-btn:hover {
-            background: #f8f9fa;
-            transform: rotate(90deg);
-        }
-        
-        .sender-info {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            margin-bottom: 20px;
-            animation: slideInUp 0.5s ease-out;
-        }
-        
-        .sender-avatar {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            overflow: hidden;
-            border: 2px solid #e9ecef;
-            transition: transform 0.3s ease;
-        }
-        
-        .sender-avatar:hover {
-            transform: scale(1.1);
-        }
-        
-        .sender-avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        
-        .sender-name {
-            font-weight: 600;
-            color: #333;
-        }
-        
-        .message-content {
-            padding: 0 25px;
-            margin-bottom: 25px;
-        }
-        
-        .message-text {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 12px;
-            font-size: 16px;
-            line-height: 1.5;
-            margin-bottom: 20px;
-            animation: slideInUp 0.6s ease-out;
-            border-left: 4px solid #667eea;
-        }
-        
-        .answer-input {
-            width: 100%;
-            min-height: 100px;
-            padding: 15px;
-            border: 2px solid #e9ecef;
-            border-radius: 12px;
-            font-size: 16px;
-            resize: vertical;
-            margin-bottom: 15px;
-            transition: all 0.3s ease;
-            animation: slideInUp 0.7s ease-out;
-        }
-        
-        .answer-input:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-            transform: translateY(-2px);
-        }
-        
-        .answer-btn {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 25px;
-            font-weight: 600;
-            cursor: pointer;
-            margin-bottom: 20px;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-            animation: slideInUp 0.8s ease-out;
-        }
-        
-        .answer-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-            transition: left 0.5s ease;
-        }
-        
-        .answer-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
-        }
-        
-        .answer-btn:hover::before {
-            left: 100%;
-        }
-        
-        .answer-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-        
-        .share-twitter {
-            background: #1da1f2;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 25px;
-            font-weight: 600;
-            cursor: pointer;
-            width: 100%;
-            transition: all 0.3s ease;
-            animation: slideInUp 0.9s ease-out;
-        }
-        
-        .share-twitter:hover {
-            background: #0d8bd9;
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(29, 161, 242, 0.3);
-        }
+        /* Remove modal styles since they'll be on parent page */
         
         .loading-screen {
             position: fixed;
@@ -589,33 +401,7 @@
         </div>
     </div>
 
-    <!-- Message Modal -->
-    <div id="message-modal" class="message-modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button class="close-btn" onclick="closeModal()">&times;</button>
-                <div class="sender-info">
-                    <div class="sender-avatar">
-                        <img id="sender-avatar" src="https://polor.org/Avatars/anonymous.png" alt="Sender">
-                    </div>
-                    <div class="sender-name" id="sender-name">Anonymous</div>
-                </div>
-            </div>
-            
-            <div class="message-content">
-                <div class="message-text" id="message-text"></div>
-                
-                <div id="answer-section">
-                    <textarea id="answer-input" class="answer-input" placeholder="Type your answer here..."></textarea>
-                    <button id="answer-btn" class="answer-btn" onclick="postAnswer()">Post Answer</button>
-                </div>
-                
-                <div id="share-section" style="display: none;">
-                    <button class="share-twitter" onclick="shareToTwitter()">Share to Twitter</button>
-                </div>
-            </div>
-        </div>
-    </div>
+
 
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -758,7 +544,7 @@
             });
         }
 
-        // Open message modal
+        // Open message modal - now sends to parent
         async function openMessage(message) {
             currentMessage = message;
 
@@ -778,54 +564,38 @@
                 }
             }
 
-            // Update modal content
-            if (message.isAnonymous) {
-                document.getElementById('sender-avatar').src = 'https://polor.org/Avatars/anonymous.png';
-                document.getElementById('sender-name').textContent = 'Anonymous';
-            } else if (message.fromUserProfile) {
-                document.getElementById('sender-avatar').src = message.fromUserProfile.avatarIMG || 'https://polor.org/Avatars/default.png';
-                document.getElementById('sender-name').textContent = message.fromUserProfile.displayName || message.fromUserProfile.username;
-            }
+            // Send message to parent window to open modal there
+            window.parent.postMessage({
+                type: 'OPEN_MESSAGE_MODAL',
+                message: message,
+                userProfile: currentUserProfile
+            }, '*');
 
-            document.getElementById('message-text').textContent = message.message;
-
-            // Show appropriate section
-            if (message.hasAnswer) {
-                document.getElementById('answer-section').style.display = 'none';
-                document.getElementById('share-section').style.display = 'block';
-            } else {
-                document.getElementById('answer-section').style.display = 'block';
-                document.getElementById('share-section').style.display = 'none';
-                document.getElementById('answer-input').value = '';
-            }
-
-            document.getElementById('message-modal').classList.add('show');
             renderMessages();
         }
 
-        // Post answer
-        async function postAnswer() {
-            const answerInput = document.getElementById('answer-input');
-            const answerBtn = document.getElementById('answer-btn');
-            const answer = answerInput.value.trim();
-
-            if (!answer) {
-                answerInput.classList.add('shake');
-                setTimeout(() => answerInput.classList.remove('shake'), 500);
-                return;
+        // Listen for responses from parent window
+        window.addEventListener('message', async (event) => {
+            if (event.data.type === 'POST_ANSWER') {
+                await handlePostAnswer(event.data.answer, event.data.messageId);
+            } else if (event.data.type === 'SHARE_TWITTER') {
+                handleShareTwitter(event.data.messageId);
             }
+        });
+
+        // Handle posting answer (called from parent)
+        async function handlePostAnswer(answer, messageId) {
+            const message = messages.find(m => m.id === messageId);
+            if (!message) return;
 
             try {
-                answerBtn.disabled = true;
-                answerBtn.textContent = 'Posting...';
-
                 // Simple Q&A object for user profile
                 const qaItem = {
-                    id: currentMessage.id,
-                    question: currentMessage.message,
+                    id: message.id,
+                    question: message.message,
                     answer: answer,
                     timestamp: new Date().toISOString(),
-                    isAnonymous: currentMessage.isAnonymous
+                    isAnonymous: message.isAnonymous
                 };
 
                 // Get current Q&As and add new one
@@ -842,41 +612,47 @@
                 });
 
                 // Mark message as answered
-                await firestore.collection('askMessages').doc(currentMessage.id).update({
+                await firestore.collection('askMessages').doc(message.id).update({
                     hasAnswer: true,
                     answer: answer
                 });
 
-                currentMessage.hasAnswer = true;
-                currentMessage.answer = answer;
-
-                // Switch to share mode
-                document.getElementById('answer-section').style.display = 'none';
-                document.getElementById('share-section').style.display = 'block';
+                message.hasAnswer = true;
+                message.answer = answer;
 
                 // Show success animation
                 showSuccessAnimation('🎉');
 
+                // Tell parent that answer was posted successfully
+                window.parent.postMessage({
+                    type: 'ANSWER_POSTED_SUCCESS',
+                    messageId: messageId
+                }, '*');
+
             } catch (error) {
                 console.error('Error posting answer:', error);
-                showSuccessAnimation('❌');
-            } finally {
-                answerBtn.disabled = false;
-                answerBtn.textContent = 'Post Answer';
+                window.parent.postMessage({
+                    type: 'ANSWER_POSTED_ERROR',
+                    messageId: messageId,
+                    error: error.message
+                }, '*');
             }
         }
 
-        // Share to Twitter
-        function shareToTwitter() {
-            const question = currentMessage.message;
-            const answer = currentMessage.answer;
+        // Handle sharing to Twitter (called from parent)
+        function handleShareTwitter(messageId) {
+            const message = messages.find(m => m.id === messageId);
+            if (!message) return;
+
+            const question = message.message;
+            const answer = message.answer;
             
             let tweetText = `Q: ${question}\nA: ${answer}\n\n`;
             
-            if (currentMessage.isAnonymous) {
+            if (message.isAnonymous) {
                 tweetText += 'Asked anonymously\n\n';
-            } else if (currentMessage.fromUserProfile) {
-                tweetText += `Asked by: ${currentMessage.fromUserProfile.displayName}\n\n`;
+            } else if (message.fromUserProfile) {
+                tweetText += `Asked by: ${message.fromUserProfile.displayName}\n\n`;
             }
             
             tweetText += `Ask me anything 👇\nhttps://polor.org/ask?@${currentUserProfile.username}\n\n#AnonymousQA #Polor`;
@@ -899,12 +675,6 @@
             }, 1000);
         }
 
-        // Close modal
-        function closeModal() {
-            document.getElementById('message-modal').classList.remove('show');
-            currentMessage = null;
-        }
-
         // Utility functions
         function showNoMessages() {
             document.getElementById('main-container').style.display = 'block';
@@ -921,13 +691,6 @@
         function hideLoading() {
             document.getElementById('loading-screen').style.display = 'none';
         }
-
-        // Close modal when clicking outside
-        document.getElementById('message-modal').addEventListener('click', (e) => {
-            if (e.target.id === 'message-modal') {
-                closeModal();
-            }
-        });
 
         // Add some extra dopamine farming effects
         document.addEventListener('DOMContentLoaded', function() {
