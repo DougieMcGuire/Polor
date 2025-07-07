@@ -50,14 +50,14 @@
         
         .messages-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-            gap: 15px;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 20px;
             margin-bottom: 30px;
         }
         
         .message-circle {
-            width: 80px;
-            height: 80px;
+            width: 100px;
+            height: 100px;
             border-radius: 50%;
             background: linear-gradient(135deg, #667eea, #764ba2);
             display: flex;
@@ -111,7 +111,7 @@
         }
         
         .message-icon {
-            font-size: 28px;
+            font-size: 36px;
             color: white;
             z-index: 2;
             transition: transform 0.3s ease;
@@ -122,8 +122,8 @@
         }
         
         .message-icon img {
-            width: 40px;
-            height: 40px;
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
         }
         
@@ -133,18 +133,19 @@
         
         .notification-badge {
             position: absolute;
-            top: -5px;
-            right: -5px;
+            top: -8px;
+            right: -8px;
             background: #ff4757;
             color: white;
             border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            font-size: 12px;
+            width: 24px;
+            height: 24px;
+            font-size: 14px;
             display: flex;
             align-items: center;
             justify-content: center;
             animation: bounce 1s infinite;
+            font-weight: bold;
         }
         
         .no-messages {
@@ -361,8 +362,23 @@
                 padding: 15px;
             }
             
-            .modal-content {
-                margin: 10px;
+            .messages-grid {
+                grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+                gap: 15px;
+            }
+            
+            .message-circle {
+                width: 90px;
+                height: 90px;
+            }
+            
+            .message-icon {
+                font-size: 32px;
+            }
+            
+            .message-icon img {
+                width: 45px;
+                height: 45px;
             }
         }
     </style>
