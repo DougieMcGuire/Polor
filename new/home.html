@@ -499,6 +499,22 @@
             margin-bottom: 20px;
             animation: slideInUp 0.6s ease-out;
             border-left: 4px solid #667eea;
+            color: #333;
+        }
+        
+        .message-text strong {
+            color: #222;
+            font-weight: 600;
+        }
+        
+        .message-text .question-prompt {
+            background: #e3f2fd;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 3px solid #2196f3;
+            font-style: italic;
+            color: #1565c0;
         }
         
         .answer-input {
@@ -647,7 +663,7 @@
         
         @media (max-width: 768px) {
             .header {
-                padding: 30px 20px;
+                padding: 30px 15px;
             }
             
             .welcome-text h1 {
@@ -668,12 +684,18 @@
                 height: 90vh;
             }
             
+            .inbox-section {
+                padding: 20px 15px 30px 15px;
+            }
+            
             .inbox-iframe {
-                height: 350px;
+                height: 50vh;
+                min-height: 350px;
             }
             
             .modal-content {
                 margin: 10px;
+                width: calc(100% - 20px);
             }
         }
     </style>
@@ -892,10 +914,16 @@
                 senderName.textContent = 'Anonymous';
             }
 
-            // Update message text
+            // Update message text with question prompt
             const messageTextElement = document.getElementById('message-text');
-            messageTextElement.textContent = message.message || 'No message content';
-            console.log('Message text set to:', message.message); // Debug log
+            let messageHTML = '';
+            
+            // Add question prompt if it exists
+            if (message.questionPrompt) {
+                messageHTML += `<div class="question-prompt">${message.questionPrompt}</div>`;
+            }
+            
+            messageHTML += `<div style="color: #333;"><strong>Question:</strong><br>${message.message || 'No message content'}</div>`;
 
             // Update sections based on answer status
             const answerSection = document.getElementById('answer-section');
@@ -907,12 +935,8 @@
                 shareSection.style.display = 'block';
                 
                 // Show the answer in the message text area
-                messageTextElement.innerHTML = `
-                    <div style="margin-bottom: 15px;">
-                        <strong>Question:</strong><br>
-                        ${message.message || 'No question content'}
-                    </div>
-                    <div style="padding-top: 15px; border-top: 2px solid #e9ecef;">
+                messageHTML += `
+                    <div style="padding-top: 15px; border-top: 2px solid #e9ecef; margin-top: 15px; color: #333;">
                         <strong>Your Answer:</strong><br>
                         ${message.answer}
                     </div>
@@ -922,6 +946,9 @@
                 shareSection.style.display = 'none';
                 answerInput.value = '';
             }
+
+            messageTextElement.innerHTML = messageHTML;
+            console.log('Message text set'); // Debug log
 
             document.getElementById('message-modal').classList.add('show');
         }
@@ -996,16 +1023,25 @@
                     
                     // Update the modal display
                     const messageTextElement = document.getElementById('message-text');
-                    messageTextElement.innerHTML = `
-                        <div style="margin-bottom: 15px;">
+                    let messageHTML = '';
+                    
+                    // Add question prompt if it exists
+                    if (currentMessage.questionPrompt) {
+                        messageHTML += `<div class="question-prompt">${currentMessage.questionPrompt}</div>`;
+                    }
+                    
+                    messageHTML += `
+                        <div style="margin-bottom: 15px; color: #333;">
                             <strong>Question:</strong><br>
                             ${currentMessage.message || 'No question content'}
                         </div>
-                        <div style="padding-top: 15px; border-top: 2px solid #e9ecef;">
+                        <div style="padding-top: 15px; border-top: 2px solid #e9ecef; color: #333;">
                             <strong>Your Answer:</strong><br>
                             ${currentMessage.answer}
                         </div>
                     `;
+                    
+                    messageTextElement.innerHTML = messageHTML;
                 }
                 
                 // Switch to share mode
