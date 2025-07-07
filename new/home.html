@@ -414,7 +414,7 @@
             background: white;
             border-radius: 20px;
             width: 100%;
-            max-width: 500px;
+            max-width: 400px;
             transform: scale(0.9);
             animation: modalSlideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
@@ -423,24 +423,25 @@
         }
         
         .modal-header {
-            padding: 25px 25px 0;
+            padding: 20px 20px 10px;
             text-align: center;
             position: relative;
+            border-bottom: 1px solid #f0f0f0;
         }
         
         .close-btn {
             position: absolute;
             top: 15px;
-            right: 20px;
+            right: 15px;
             background: none;
             border: none;
-            font-size: 24px;
+            font-size: 20px;
             cursor: pointer;
             color: #666;
             transition: all 0.3s ease;
             border-radius: 50%;
-            width: 35px;
-            height: 35px;
+            width: 30px;
+            height: 30px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -451,70 +452,132 @@
             transform: rotate(90deg);
         }
         
-        .sender-info {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            margin-bottom: 20px;
-            animation: slideInUp 0.5s ease-out;
-        }
-        
-        .sender-avatar {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            overflow: hidden;
-            border: 2px solid #e9ecef;
-            transition: transform 0.3s ease;
-        }
-        
-        .sender-avatar:hover {
-            transform: scale(1.1);
-        }
-        
-        .sender-avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        
-        .sender-name {
+        .modal-title {
+            font-size: 18px;
             font-weight: 600;
             color: #333;
+            margin: 0;
+        }
+        
+        .modal-subtitle {
+            font-size: 14px;
+            color: #666;
+            margin: 5px 0 0 0;
+        }
+        
+        .sender-info {
+            display: none;
         }
         
         .message-content {
-            padding: 0 25px;
-            margin-bottom: 25px;
+            padding: 20px;
             flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .chat-bubble {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+        
+        .chat-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+        
+        .chat-bubble-content {
+            background: #f8f9fa;
+            border-radius: 20px;
+            padding: 15px;
+            max-width: 280px;
+            position: relative;
+            border: 1px solid #e9ecef;
+        }
+        
+        .chat-bubble-content::before {
+            content: '';
+            position: absolute;
+            left: -8px;
+            top: 15px;
+            width: 0;
+            height: 0;
+            border-top: 8px solid transparent;
+            border-bottom: 8px solid transparent;
+            border-right: 8px solid #e9ecef;
+        }
+        
+        .chat-bubble-content::after {
+            content: '';
+            position: absolute;
+            left: -7px;
+            top: 15px;
+            width: 0;
+            height: 0;
+            border-top: 8px solid transparent;
+            border-bottom: 8px solid transparent;
+            border-right: 8px solid #f8f9fa;
+        }
+        
+        .question-prompt-bubble .chat-bubble-content {
+            background: #e3f2fd;
+            border-color: #2196f3;
+            font-style: italic;
+            color: #1565c0;
+        }
+        
+        .question-prompt-bubble .chat-bubble-content::after {
+            border-right-color: #e3f2fd;
+        }
+        
+        .user-response-bubble {
+            flex-direction: row-reverse;
+        }
+        
+        .user-response-bubble .chat-bubble-content {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .user-response-bubble .chat-bubble-content::before {
+            left: auto;
+            right: -8px;
+            border-left: 8px solid #667eea;
+            border-right: none;
+        }
+        
+        .user-response-bubble .chat-bubble-content::after {
+            left: auto;
+            right: -7px;
+            border-left: 8px solid #667eea;
+            border-right: none;
+        }
+        
+        .chat-text {
+            margin: 0;
+            font-size: 15px;
+            line-height: 1.4;
+            color: #333;
+            word-wrap: break-word;
+        }
+        
+        .user-response-bubble .chat-text {
+            color: white;
         }
         
         .message-text {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 12px;
-            font-size: 16px;
-            line-height: 1.5;
-            margin-bottom: 20px;
-            animation: slideInUp 0.6s ease-out;
-            border-left: 4px solid #667eea;
-            color: #333;
-        }
-        
-        .message-text strong {
-            color: #222;
-            font-weight: 600;
-        }
-        
-        .message-text .question-prompt {
-            background: #e3f2fd;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            border-left: 3px solid #2196f3;
-            font-style: italic;
-            color: #1565c0;
+            display: none;
         }
         
         .answer-input {
@@ -742,25 +805,21 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button class="close-btn" onclick="closeMessageModal()">&times;</button>
-                <div class="sender-info">
-                    <div class="sender-avatar">
-                        <img id="sender-avatar" src="https://polor.org/Avatars/anonymous.png" alt="Sender">
-                    </div>
-                    <div class="sender-name" id="sender-name">Anonymous</div>
-                </div>
+                <h3 class="modal-title">Ask Me Anything</h3>
+                <p class="modal-subtitle">(or wtv the prompt is)</p>
             </div>
             
-            <div class="message-content">
-                <div class="message-text" id="message-text"></div>
-                
-                <div id="answer-section">
-                    <textarea id="answer-input" class="answer-input" placeholder="Type your answer here..."></textarea>
-                    <button id="answer-btn" class="answer-btn" onclick="postAnswer()">Post Answer</button>
-                </div>
-                
-                <div id="share-section" style="display: none;">
-                    <button class="share-twitter" onclick="shareToTwitter()">Share to Twitter</button>
-                </div>
+            <div class="message-content" id="chat-container">
+                <!-- Chat bubbles will be inserted here -->
+            </div>
+            
+            <div id="answer-section" style="padding: 0 20px 20px;">
+                <textarea id="answer-input" class="answer-input" placeholder="respond..."></textarea>
+                <button id="answer-btn" class="answer-btn" onclick="postAnswer()">Post Answer</button>
+            </div>
+            
+            <div id="share-section" style="display: none; padding: 0 20px 20px;">
+                <button class="share-twitter" onclick="shareToTwitter()">Share to Twitter</button>
             </div>
         </div>
     </div>
@@ -897,60 +956,69 @@
         // Message Modal Functions
         function openMessageModal(message) {
             currentMessage = message;
-            console.log('Opening modal with message:', message); // Debug log
+            console.log('Opening modal with message:', message);
 
-            // Update sender info
-            const senderAvatar = document.getElementById('sender-avatar');
-            const senderName = document.getElementById('sender-name');
-            
-            if (message.isAnonymous) {
-                senderAvatar.src = 'https://polor.org/Avatars/anonymous.png';
-                senderName.textContent = 'Anonymous';
-            } else if (message.fromUserProfile) {
-                senderAvatar.src = message.fromUserProfile.avatarIMG || 'https://polor.org/Avatars/default.png';
-                senderName.textContent = message.fromUserProfile.displayName || message.fromUserProfile.username;
-            } else {
-                senderAvatar.src = 'https://polor.org/Avatars/anonymous.png';
-                senderName.textContent = 'Anonymous';
-            }
-
-            // Update message text with question prompt
-            const messageTextElement = document.getElementById('message-text');
-            let messageHTML = '';
-            
-            // Add question prompt if it exists
+            // Update modal title with question prompt
+            const modalSubtitle = document.querySelector('.modal-subtitle');
             if (message.questionPrompt) {
-                messageHTML += `<div class="question-prompt">${message.questionPrompt}</div>`;
+                modalSubtitle.textContent = `(${message.questionPrompt})`;
+            } else {
+                modalSubtitle.textContent = '(or wtv the prompt is)';
             }
+
+            // Clear and build chat container
+            const chatContainer = document.getElementById('chat-container');
+            chatContainer.innerHTML = '';
+
+            // Add question prompt bubble if it exists
+            if (message.questionPrompt) {
+                const promptBubble = createChatBubble('🤖', message.questionPrompt, 'question-prompt-bubble');
+                chatContainer.appendChild(promptBubble);
+            }
+
+            // Add user question bubble
+            const userIcon = message.isAnonymous ? '😎' : '👤';
+            const userName = message.isAnonymous ? 'Anonymous' : 
+                (message.fromUserProfile?.displayName || message.fromUserProfile?.username || 'User');
             
-            messageHTML += `<div style="color: #333;"><strong>Question:</strong><br>${message.message || 'No message content'}</div>`;
+            const questionText = `${userName} asked:\n${message.message || 'No message content'}`;
+            const questionBubble = createChatBubble(userIcon, questionText, 'user-question-bubble');
+            chatContainer.appendChild(questionBubble);
+
+            // Add response bubble if answered
+            if (message.hasAnswer && message.answer) {
+                const responseBubble = createChatBubble('😊', `respond...\n\n${message.answer}`, 'user-response-bubble');
+                chatContainer.appendChild(responseBubble);
+            }
 
             // Update sections based on answer status
             const answerSection = document.getElementById('answer-section');
             const shareSection = document.getElementById('share-section');
-            const answerInput = document.getElementById('answer-input');
 
             if (message.hasAnswer && message.answer) {
                 answerSection.style.display = 'none';
                 shareSection.style.display = 'block';
-                
-                // Show the answer in the message text area
-                messageHTML += `
-                    <div style="padding-top: 15px; border-top: 2px solid #e9ecef; margin-top: 15px; color: #333;">
-                        <strong>Your Answer:</strong><br>
-                        ${message.answer}
-                    </div>
-                `;
             } else {
                 answerSection.style.display = 'block';
                 shareSection.style.display = 'none';
-                answerInput.value = '';
+                document.getElementById('answer-input').value = '';
             }
 
-            messageTextElement.innerHTML = messageHTML;
-            console.log('Message text set'); // Debug log
-
             document.getElementById('message-modal').classList.add('show');
+        }
+
+        function createChatBubble(avatar, text, className = '') {
+            const bubble = document.createElement('div');
+            bubble.className = `chat-bubble ${className}`;
+            
+            bubble.innerHTML = `
+                <div class="chat-avatar">${avatar}</div>
+                <div class="chat-bubble-content">
+                    <p class="chat-text">${text.replace(/\n/g, '<br>')}</p>
+                </div>
+            `;
+            
+            return bubble;
         }
 
         function closeMessageModal() {
