@@ -12,229 +12,107 @@
         }
         
         body {
-            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #48C7F5 0%, #E8F7FE 50%, #FFFFFF 100%);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #FFFFFF;
             min-height: 100vh;
-            padding: 20px;
-            overflow-x: hidden;
+            padding: 24px;
+            color: #1a1a1a;
         }
         
         .container {
-            max-width: 1200px;
+            max-width: 1000px;
             margin: 0 auto;
-            animation: fadeIn 0.8s ease-out;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 40px;
-            padding: 20px 30px;
-            background: rgba(255, 255, 255, 0.25);
-            backdrop-filter: blur(20px);
-            border-radius: 24px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            box-shadow: 0 8px 32px rgba(72, 199, 245, 0.15);
-            transition: all 0.3s ease;
-        }
-        
-        .header:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 48px rgba(72, 199, 245, 0.2);
-        }
-        
-        .logo {
-            font-size: 32px;
-            font-weight: 700;
-            background: linear-gradient(45deg, #48C7F5, #2196F3);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            letter-spacing: -0.5px;
-        }
-        
-        .settings-btn {
-            background: linear-gradient(135deg, #48C7F5, #2196F3);
-            color: white;
-            border: none;
-            border-radius: 16px;
-            width: 48px;
-            height: 48px;
-            cursor: pointer;
-            font-size: 20px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 16px rgba(72, 199, 245, 0.3);
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .settings-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-            transform: translateX(-100%);
-            transition: transform 0.6s;
-        }
-        
-        .settings-btn:hover::before {
-            transform: translateX(100%);
-        }
-        
-        .settings-btn:hover {
-            transform: translateY(-2px) scale(1.05);
-            box-shadow: 0 8px 24px rgba(72, 199, 245, 0.4);
         }
         
         .user-section {
-            text-align: center;
-            margin-bottom: 40px;
-            padding: 40px;
-            background: rgba(255, 255, 255, 0.35);
-            backdrop-filter: blur(20px);
-            border-radius: 32px;
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            box-shadow: 0 12px 48px rgba(72, 199, 245, 0.1);
-            transition: all 0.3s ease;
+            background: #FFFFFF;
+            border: 2px solid #48C7F5;
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 20px rgba(72, 199, 245, 0.1);
         }
         
-        .user-section:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 20px 64px rgba(72, 199, 245, 0.15);
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
         }
         
         .user-avatar {
-            width: 120px;
-            height: 120px;
+            width: 80px;
+            height: 80px;
             border-radius: 50%;
-            margin: 0 auto 24px;
-            position: relative;
+            border: 3px solid #48C7F5;
             overflow: hidden;
-            background: linear-gradient(45deg, #48C7F5, #E3F2FD);
-            border: 4px solid rgba(255, 255, 255, 0.8);
-            box-shadow: 0 8px 32px rgba(72, 199, 245, 0.2);
-            transition: all 0.3s ease;
-        }
-        
-        .user-avatar:hover {
-            transform: scale(1.05);
-            box-shadow: 0 12px 48px rgba(72, 199, 245, 0.3);
+            background: #f5f5f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         .user-avatar img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transition: transform 0.3s ease;
-        }
-        
-        .user-avatar:hover img {
-            transform: scale(1.1);
         }
         
         .default-avatar {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 48px;
-            color: white;
-            background: linear-gradient(45deg, #48C7F5, #2196F3);
-        }
-        
-        .username {
+            font-size: 32px;
             color: #48C7F5;
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 8px;
-            opacity: 0.9;
         }
         
-        .greeting {
+        .user-details h1 {
             font-size: 28px;
             font-weight: 700;
-            color: #1A1A1A;
-            margin-bottom: 8px;
-            letter-spacing: -0.3px;
+            color: #1a1a1a;
+            margin-bottom: 4px;
         }
         
-        .status-indicator {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
+        .user-details p {
+            font-size: 16px;
             color: #48C7F5;
-            font-size: 14px;
             font-weight: 500;
         }
         
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #4CAF50;
-            animation: pulse 2s infinite;
+        .settings-btn {
+            background: #48C7F5;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            width: 48px;
+            height: 48px;
+            cursor: pointer;
+            font-size: 20px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); }
-            70% { box-shadow: 0 0 0 10px rgba(76, 175, 80, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
+        .settings-btn:hover {
+            background: #2196F3;
+            transform: scale(1.05);
         }
         
         .messages-container {
-            background: rgba(255, 255, 255, 0.4);
-            backdrop-filter: blur(20px);
-            border-radius: 32px;
-            border: 1px solid rgba(255, 255, 255, 0.5);
-            box-shadow: 0 16px 64px rgba(72, 199, 245, 0.1);
+            background: #FFFFFF;
+            border: 2px solid #48C7F5;
+            border-radius: 16px;
             overflow: hidden;
-            transition: all 0.3s ease;
-        }
-        
-        .messages-container:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 24px 80px rgba(72, 199, 245, 0.15);
+            box-shadow: 0 4px 20px rgba(72, 199, 245, 0.1);
         }
         
         .messages-header {
-            background: linear-gradient(135deg, #48C7F5, #2196F3);
+            background: #48C7F5;
             color: white;
-            padding: 24px 32px;
+            padding: 20px 24px;
             text-align: center;
-            font-size: 20px;
+            font-size: 18px;
             font-weight: 600;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .messages-header::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-            transform: translateX(-100%);
-            animation: shimmer 3s infinite;
-        }
-        
-        @keyframes shimmer {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
         }
         
         .messages-iframe {
@@ -242,7 +120,6 @@
             height: 600px;
             border: none;
             background: white;
-            display: block;
         }
         
         .loading {
@@ -250,13 +127,13 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background: linear-gradient(135deg, #48C7F5, #E8F7FE);
+            background: #FFFFFF;
         }
         
         .spinner {
             width: 40px;
             height: 40px;
-            border: 3px solid rgba(72, 199, 245, 0.3);
+            border: 3px solid #f0f0f0;
             border-top: 3px solid #48C7F5;
             border-radius: 50%;
             animation: spin 1s linear infinite;
@@ -273,8 +150,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(10px);
+            background: rgba(0, 0, 0, 0.5);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -294,8 +170,8 @@
             width: 90%;
             max-width: 800px;
             height: 80vh;
-            border-radius: 24px;
-            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.3);
+            border-radius: 16px;
+            border: 2px solid #48C7F5;
             overflow: hidden;
             transform: scale(0.9);
             transition: transform 0.3s ease;
@@ -306,7 +182,7 @@
         }
         
         .settings-header {
-            background: linear-gradient(135deg, #48C7F5, #2196F3);
+            background: #48C7F5;
             color: white;
             padding: 20px 24px;
             display: flex;
@@ -315,24 +191,27 @@
         }
         
         .settings-title {
-            font-size: 20px;
+            font-size: 18px;
             font-weight: 600;
         }
         
         .close-btn {
-            background: rgba(255, 255, 255, 0.2);
+            background: none;
             border: none;
             color: white;
+            font-size: 24px;
+            cursor: pointer;
             width: 32px;
             height: 32px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 18px;
-            transition: background 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            transition: background 0.2s ease;
         }
         
         .close-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.2);
         }
         
         .settings-iframe {
@@ -341,79 +220,24 @@
             border: none;
         }
         
-        .floating-elements {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: -1;
-        }
-        
-        .floating-circle {
-            position: absolute;
-            border-radius: 50%;
-            background: rgba(72, 199, 245, 0.1);
-            animation: float 20s infinite ease-in-out;
-        }
-        
-        .floating-circle:nth-child(1) {
-            top: 10%;
-            left: 80%;
-            width: 60px;
-            height: 60px;
-            animation-delay: 0s;
-        }
-        
-        .floating-circle:nth-child(2) {
-            top: 70%;
-            left: 10%;
-            width: 40px;
-            height: 40px;
-            animation-delay: 7s;
-        }
-        
-        .floating-circle:nth-child(3) {
-            top: 30%;
-            left: 5%;
-            width: 80px;
-            height: 80px;
-            animation-delay: 14s;
-        }
-        
-        @keyframes float {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            33% { transform: translateY(-30px) rotate(120deg); }
-            66% { transform: translateY(15px) rotate(240deg); }
-        }
-        
         @media (max-width: 768px) {
             .container {
-                padding: 10px;
-            }
-            
-            .header {
-                padding: 16px 20px;
-                margin-bottom: 24px;
-            }
-            
-            .logo {
-                font-size: 24px;
+                padding: 16px;
             }
             
             .user-section {
-                padding: 24px;
-                margin-bottom: 24px;
+                flex-direction: column;
+                text-align: center;
+                gap: 20px;
             }
             
-            .user-avatar {
-                width: 100px;
-                height: 100px;
+            .user-info {
+                flex-direction: column;
+                gap: 16px;
             }
             
-            .greeting {
-                font-size: 22px;
+            .user-details h1 {
+                font-size: 24px;
             }
             
             .messages-iframe {
@@ -422,7 +246,7 @@
             
             .settings-content {
                 width: 95%;
-                height: 85vh;
+                height: 90vh;
             }
         }
     </style>
@@ -432,32 +256,22 @@
         <div class="spinner"></div>
     </div>
     
-    <div class="floating-elements">
-        <div class="floating-circle"></div>
-        <div class="floating-circle"></div>
-        <div class="floating-circle"></div>
-    </div>
-    
     <div class="container" id="mainContent" style="display: none;">
-        <div class="header">
-            <div class="logo">POLOR</div>
+        <div class="user-section">
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">
+                    <div class="default-avatar">👤</div>
+                </div>
+                <div class="user-details">
+                    <h1 id="displayName">Loading...</h1>
+                    <p id="username">@loading</p>
+                </div>
+            </div>
             <button class="settings-btn" onclick="openSettings()" title="Settings">⚙️</button>
         </div>
         
-        <div class="user-section">
-            <div class="user-avatar" id="userAvatar">
-                <div class="default-avatar">👤</div>
-            </div>
-            <div class="username" id="username">@username</div>
-            <div class="greeting" id="greeting">Welcome Back, User</div>
-            <div class="status-indicator">
-                <div class="status-dot"></div>
-                Online
-            </div>
-        </div>
-        
         <div class="messages-container">
-            <div class="messages-header">Your Messages</div>
+            <div class="messages-header">Messages</div>
             <iframe src="messages.html" class="messages-iframe" id="messagesFrame"></iframe>
         </div>
     </div>
@@ -476,7 +290,7 @@
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
     
     <script>
         // Firebase Configuration
@@ -494,7 +308,7 @@
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
-        const database = firebase.database();
+        const firestore = firebase.firestore();
         
         // Auth state observer
         auth.onAuthStateChanged((user) => {
@@ -507,35 +321,33 @@
             }
         });
         
-        // Load user data from Firebase
+        // Load user data from Firestore
         function loadUserData(user) {
             const userId = user.uid;
-            const userRef = database.ref('users/' + userId);
             
-            userRef.once('value')
-                .then((snapshot) => {
-                    const userData = snapshot.val();
-                    if (userData) {
+            firestore.collection('users').doc(userId).get()
+                .then((doc) => {
+                    if (doc.exists) {
+                        const userData = doc.data();
                         updateUserInterface(userData);
                     } else {
-                        // User data doesn't exist, use basic info
+                        console.log('No user document found');
+                        // Create basic user interface with auth data
                         const basicData = {
-                            firstName: user.displayName ? user.displayName.split(' ')[0] : 'User',
-                            lastName: user.displayName ? user.displayName.split(' ')[1] || '' : '',
+                            displayName: user.displayName || 'User',
                             username: user.email ? user.email.split('@')[0] : 'user',
-                            avatarIMG: user.photoURL || null
+                            avatarIMG: null
                         };
                         updateUserInterface(basicData);
                     }
                 })
                 .catch((error) => {
-                    console.error('Error loading user data:', error);
+                    console.error('Error getting user document:', error);
                     // Fallback to basic user info
                     const basicData = {
-                        firstName: user.displayName ? user.displayName.split(' ')[0] : 'User',
-                        lastName: user.displayName ? user.displayName.split(' ')[1] || '' : '',
+                        displayName: user.displayName || 'User',
                         username: user.email ? user.email.split('@')[0] : 'user',
-                        avatarIMG: user.photoURL || null
+                        avatarIMG: null
                     };
                     updateUserInterface(basicData);
                 });
@@ -543,22 +355,24 @@
         
         // Update UI with user data
         function updateUserInterface(userData) {
+            const displayNameElement = document.getElementById('displayName');
             const usernameElement = document.getElementById('username');
-            const greetingElement = document.getElementById('greeting');
             const avatarElement = document.getElementById('userAvatar');
+            
+            // Update display name
+            displayNameElement.textContent = userData.displayName || 'User';
             
             // Update username
             usernameElement.textContent = `@${userData.username || 'user'}`;
             
-            // Update greeting
-            const firstName = userData.firstName || 'User';
-            const lastName = userData.lastName || '';
-            const fullName = `${firstName} ${lastName}`.trim();
-            greetingElement.textContent = `Welcome Back, ${fullName}`;
-            
-            // Update avatar - only show user's avatar image
+            // Update avatar with base64 image from avatarIMG
             if (userData.avatarIMG) {
-                avatarElement.innerHTML = `<img src="${userData.avatarIMG}" alt="User Avatar" onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=\"default-avatar\">👤</div>';">`;
+                // Check if it's already a data URL or needs data:image prefix
+                const imageData = userData.avatarIMG.startsWith('data:') 
+                    ? userData.avatarIMG 
+                    : `data:image/png;base64,${userData.avatarIMG}`;
+                
+                avatarElement.innerHTML = `<img src="${imageData}" alt="User Avatar" onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=\"default-avatar\">👤</div>';">`;
             } else {
                 avatarElement.innerHTML = '<div class="default-avatar">👤</div>';
             }
@@ -594,9 +408,6 @@
                 closeSettings();
             }
         });
-        
-        // Add smooth scroll behavior
-        document.documentElement.style.scrollBehavior = 'smooth';
     </script>
 </body>
 </html>
