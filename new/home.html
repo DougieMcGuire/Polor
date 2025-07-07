@@ -56,6 +56,10 @@
             max-width: 1000px;
             margin: 0 auto;
             display: none;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
         }
         
         .dashboard.show {
@@ -63,13 +67,10 @@
         }
         
         .header {
-            background: white;
-            border-radius: 20px;
-            padding: 40px;
-            margin-bottom: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 40px 40px 30px 40px;
             text-align: center;
             position: relative;
+            border-bottom: 1px solid #e9ecef;
         }
         
         .settings-icon-btn {
@@ -78,8 +79,8 @@
             right: 20px;
             width: 45px;
             height: 45px;
-            border: 3px solid white;
-            background: var(--bg-gradient, linear-gradient(135deg, #667eea, #764ba2));
+            border: none;
+            background: #667eea;
             border-radius: 50%;
             cursor: pointer;
             display: flex;
@@ -93,6 +94,7 @@
         
         .settings-icon-btn:hover {
             transform: scale(1.1);
+            background: #764ba2;
         }
         
         .avatar-container {
@@ -100,7 +102,7 @@
             height: 120px;
             border-radius: 50%;
             overflow: hidden;
-            border: 4px solid var(--avatar-border-color, #667eea);
+            border: 4px solid #667eea;
             position: relative;
             background: #f8f9fa;
             margin: 0 auto 20px;
@@ -137,20 +139,17 @@
             color: #667eea;
             font-size: 1.4rem;
             font-weight: 500;
+            margin-bottom: 0;
         }
         
         .inbox-section {
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-            overflow: hidden;
+            padding: 30px 40px 40px 40px;
         }
         
         .inbox-header {
             color: #333;
             font-size: 1.8rem;
-            padding: 30px 30px 20px 30px;
-            border-bottom: 1px solid #e9ecef;
+            margin-bottom: 20px;
             display: flex;
             align-items: center;
             gap: 10px;
@@ -161,6 +160,7 @@
             height: 400px;
             border: none;
             background: #f8f9fa;
+            border-radius: 12px;
         }
         
         .settings-modal {
