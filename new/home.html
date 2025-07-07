@@ -251,7 +251,7 @@
         }
         
         .inbox-section {
-            padding: 30px 40px 40px 40px;
+            padding: 30px 20px 40px 20px;
             background: transparent;
             animation: fadeUpwards 0.8s ease-out 0.7s both;
         }
@@ -286,7 +286,9 @@
         
         .inbox-iframe {
             width: 100%;
-            height: 400px;
+            height: 60vh;
+            min-height: 400px;
+            max-height: 600px;
             border: none;
             background: rgba(255, 255, 255, 0.95);
             border-radius: 12px;
@@ -462,10 +464,6 @@
             margin: 0;
         }
         
-        .modal-subtitle {
-            display: none;
-        }
-        
         .sender-info {
             display: none;
         }
@@ -548,17 +546,6 @@
             border-right: 8px solid #f8f9fa;
         }
         
-        .question-prompt-bubble .chat-bubble-content {
-            background: #e3f2fd;
-            border-color: #2196f3;
-            font-style: italic;
-            color: #1565c0;
-        }
-        
-        .question-prompt-bubble .chat-bubble-content::after {
-            border-right-color: #e3f2fd;
-        }
-        
         .user-response-bubble {
             flex-direction: row-reverse;
         }
@@ -595,10 +582,6 @@
             color: white;
         }
         
-        .message-text {
-            display: none;
-        }
-        
         .answer-input {
             width: 100%;
             height: 80px;
@@ -609,7 +592,6 @@
             resize: none;
             margin-bottom: 15px;
             transition: all 0.3s ease;
-            animation: slideInUp 0.7s ease-out;
             font-family: inherit;
         }
         
@@ -632,27 +614,11 @@
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
-            animation: slideInUp 0.8s ease-out;
-        }
-        
-        .answer-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-            transition: left 0.5s ease;
         }
         
         .answer-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
-        }
-        
-        .answer-btn:hover::before {
-            left: 100%;
         }
         
         .answer-btn:disabled {
@@ -670,7 +636,6 @@
             cursor: pointer;
             width: 100%;
             transition: all 0.3s ease;
-            animation: slideInUp 0.9s ease-out;
             text-align: center;
         }
         
@@ -679,21 +644,6 @@
             color: white;
             transform: translateY(-2px);
             box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
-        }
-
-        .success-animation {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 10001;
-            font-size: 4rem;
-            animation: successPop 1s ease-out;
-            pointer-events: none;
-        }
-
-        .shake {
-            animation: shake 0.5s ease-in-out;
         }
         
         /* Animations */
@@ -711,38 +661,6 @@
                 transform: scale(1) translateY(0);
                 opacity: 1;
             }
-        }
-        
-        @keyframes slideInUp {
-            from {
-                transform: translateY(30px);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-
-        @keyframes successPop {
-            0% { 
-                transform: translate(-50%, -50%) scale(0);
-                opacity: 0;
-            }
-            50% { 
-                transform: translate(-50%, -50%) scale(1.2);
-                opacity: 1;
-            }
-            100% { 
-                transform: translate(-50%, -50%) scale(1);
-                opacity: 0;
-            }
-        }
-
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
         }
         
         @media (max-width: 768px) {
@@ -821,7 +739,7 @@
         </div>
     </div>
 
-    <!-- Message Modal -->
+    <!-- SIMPLE MESSAGE MODAL -->
     <div id="message-modal" class="message-modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -830,7 +748,7 @@
             </div>
             
             <div class="message-content" id="chat-container">
-                <!-- Chat bubbles will be inserted here -->
+                <!-- Chat bubbles appear here -->
             </div>
             
             <div id="answer-section" style="padding: 0 20px 20px;">
@@ -839,7 +757,7 @@
             </div>
             
             <div id="share-section" style="display: none; padding: 0 20px 20px;">
-                <div class="share-twitter" onclick="goToProfile()">View Profile</div>
+                <div class="view-profile" onclick="goToProfile()">View Profile</div>
             </div>
         </div>
     </div>
@@ -927,7 +845,6 @@
                     const backgroundColor = urlParams.get('backgroundsColor');
                     
                     if (backgroundColor) {
-                        // Convert hex color if it doesn't have #
                         const bgColor = backgroundColor.startsWith('#') ? backgroundColor : `#${backgroundColor}`;
                         document.body.style.background = bgColor;
                         document.querySelector('.loading-screen').style.background = bgColor;
@@ -941,18 +858,17 @@
 
         function updateAvatarDisplay() {
             const headerAvatar = document.getElementById('header-avatar');
+            headerAvatar.innerHTML = '';
             
             if (userProfile.avatarIMG) {
                 const img = document.createElement('img');
                 img.src = userProfile.avatarIMG;
                 img.alt = 'Avatar';
-                headerAvatar.innerHTML = '';
                 headerAvatar.appendChild(img);
             } else {
                 const placeholder = document.createElement('div');
                 placeholder.className = 'avatar-placeholder';
                 placeholder.textContent = '👤';
-                headerAvatar.innerHTML = '';
                 headerAvatar.appendChild(placeholder);
             }
         }
@@ -981,96 +897,58 @@
             }, 300);
         }
 
-        // Message Modal Functions
+        // SIMPLE MESSAGE MODAL FUNCTIONS - NO innerHTML BULLSHIT
         function openMessageModal(message) {
             currentMessage = message;
-            console.log('Opening modal with message:', message);
-
-            // Update modal title with question prompt or default
-            const modalTitle = document.getElementById('modal-title');
-            const modalHeader = document.querySelector('.modal-header');
             
+            const modalTitle = document.getElementById('modal-title');
             if (message.questionPrompt) {
                 modalTitle.textContent = message.questionPrompt;
             } else {
                 modalTitle.textContent = 'Ask Me Anything';
             }
 
-            // Set header background color from user's profile
-            if (userProfile && userProfile.avatarURL) {
-                try {
-                    const urlParams = new URLSearchParams(userProfile.avatarURL.split('?')[1]);
-                    const backgroundColor = urlParams.get('backgroundsColor');
-                    
-                    if (backgroundColor) {
-                        const bgColor = backgroundColor.startsWith('#') ? backgroundColor : `#${backgroundColor}`;
-                        modalHeader.style.background = bgColor;
-                    }
-                } catch (error) {
-                    console.log('Could not parse background color, using default');
-                    modalHeader.style.background = '#48C7F5';
-                }
-            } else {
-                modalHeader.style.background = '#48C7F5';
-            }
-
-            // Clear and build chat container - SAFE VERSION
             const chatContainer = document.getElementById('chat-container');
             while (chatContainer.firstChild) {
                 chatContainer.removeChild(chatContainer.firstChild);
             }
 
-            // Add user question bubble - SAFE VERSION
-            const userAvatar = message.isAnonymous ? 
-                'https://polor.org/Avatars/anonymous.png' : 
-                (message.fromUserProfile?.avatarIMG || 'https://polor.org/Avatars/default.png');
-            
-            const userName = message.isAnonymous ? 'Anonymous' : 
-                (message.fromUserProfile?.displayName || message.fromUserProfile?.username || 'User');
-            
-            const questionText = `${userName} asked:\n${message.message || 'No message content'}`;
-            const questionBubble = createSafeChatBubble(userAvatar, questionText, 'user-question-bubble');
+            const questionBubble = createSimpleBubble(
+                message.fromUserProfile?.avatarIMG || 'https://polor.org/Avatars/anonymous.png',
+                `${message.isAnonymous ? 'Anonymous' : (message.fromUserProfile?.displayName || 'User')} asked: ${message.message}`,
+                false
+            );
             chatContainer.appendChild(questionBubble);
 
-            // Add response bubble if answered - SAFE VERSION
             if (message.hasAnswer && message.answer) {
-                const responseAvatar = userProfile?.avatarIMG || 'https://polor.org/Avatars/default.png';
-                const responseBubble = createSafeChatBubble(responseAvatar, message.answer, 'user-response-bubble');
+                const responseBubble = createSimpleBubble(
+                    userProfile?.avatarIMG || 'https://polor.org/Avatars/default.png',
+                    message.answer,
+                    true
+                );
                 chatContainer.appendChild(responseBubble);
-            }
-
-            // Update sections based on answer status
-            const answerSection = document.getElementById('answer-section');
-            const shareSection = document.getElementById('share-section');
-
-            if (message.hasAnswer && message.answer) {
-                answerSection.style.display = 'none';
-                shareSection.style.display = 'block';
+                document.getElementById('answer-section').style.display = 'none';
+                document.getElementById('share-section').style.display = 'block';
             } else {
-                answerSection.style.display = 'block';
-                shareSection.style.display = 'none';
+                document.getElementById('answer-section').style.display = 'block';
+                document.getElementById('share-section').style.display = 'none';
                 document.getElementById('answer-input').value = '';
             }
 
             document.getElementById('message-modal').classList.add('show');
         }
 
-        // COMPLETELY SAFE CHAT BUBBLE CREATION - NO innerHTML ANYWHERE
-        function createSafeChatBubble(avatarSrc, text, className = '') {
+        function createSimpleBubble(avatarSrc, text, isResponse) {
             const bubble = document.createElement('div');
-            bubble.className = `chat-bubble ${className}`;
+            bubble.className = `chat-bubble ${isResponse ? 'user-response-bubble' : ''}`;
             
-            // Create avatar safely
             const avatarDiv = document.createElement('div');
             avatarDiv.className = 'chat-avatar';
             
-            if (avatarSrc && (avatarSrc.startsWith('http') || avatarSrc.startsWith('data:'))) {
+            if (avatarSrc && avatarSrc.startsWith('http')) {
                 const img = document.createElement('img');
                 img.src = avatarSrc;
                 img.alt = 'Avatar';
-                img.style.width = '100%';
-                img.style.height = '100%';
-                img.style.objectFit = 'cover';
                 avatarDiv.appendChild(img);
             } else {
                 const fallback = document.createElement('div');
@@ -1079,16 +957,14 @@
                 avatarDiv.appendChild(fallback);
             }
             
-            // Create content safely
             const contentDiv = document.createElement('div');
             contentDiv.className = 'chat-bubble-content';
             
             const textP = document.createElement('p');
             textP.className = 'chat-text';
-            textP.textContent = text; // USE textContent ONLY
+            textP.textContent = text;
             contentDiv.appendChild(textP);
             
-            // Assemble
             bubble.appendChild(avatarDiv);
             bubble.appendChild(contentDiv);
             
@@ -1106,20 +982,13 @@
             const answer = answerInput.value.trim();
 
             if (!answer) {
-                answerInput.classList.add('shake');
-                setTimeout(() => answerInput.classList.remove('shake'), 500);
                 return;
             }
 
-            // Visual feedback immediately
             answerBtn.disabled = true;
             answerBtn.textContent = 'Posting...';
             answerBtn.style.background = '#ccc';
 
-            // Store the answer temporarily
-            currentMessage.pendingAnswer = answer;
-
-            // Send message to iframe to handle the posting
             document.getElementById('inbox-iframe').contentWindow.postMessage({
                 type: 'POST_ANSWER',
                 answer: answer,
@@ -1128,7 +997,6 @@
         }
 
         function goToProfile() {
-            // Navigate to the user's profile page with correct URL format
             if (userProfile && userProfile.username) {
                 window.open(`https://polor.org/profile?=@${userProfile.username}`, '_blank');
             } else {
@@ -1136,166 +1004,59 @@
             }
         }
 
-        function showSuccessAnimation(emoji) {
-            const animation = document.createElement('div');
-            animation.className = 'success-animation';
-            animation.textContent = emoji;
-            animation.style.zIndex = '10001'; // Ensure it's above everything
-            document.body.appendChild(animation);
-            
-            console.log('Success animation created:', emoji); // Debug log
-            
-            setTimeout(() => {
-                if (document.body.contains(animation)) {
-                    document.body.removeChild(animation);
-                }
-            }, 1000);
-        }
-
-        function createBigSuccessAnimation() {
-            // Create a bigger, more noticeable success animation ON THE PARENT PAGE
-            const bigAnimation = document.createElement('div');
-            bigAnimation.style.cssText = `
-                position: fixed;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                z-index: 10002;
-                font-size: 6rem;
-                pointer-events: none;
-                animation: bigSuccessPop 2s ease-out forwards;
-            `;
-            bigAnimation.textContent = '🎉';
-            
-            // Append to the main document body (parent page), not iframe
-            document.body.appendChild(bigAnimation);
-            
-            console.log('BIG SUCCESS ANIMATION ADDED TO PARENT PAGE'); // Debug log
-            
-            // Add CSS for the big animation if it doesn't exist
-            if (!document.getElementById('big-success-style')) {
-                const style = document.createElement('style');
-                style.id = 'big-success-style';
-                style.textContent = `
-                    @keyframes bigSuccessPop {
-                        0% { 
-                            transform: translate(-50%, -50%) scale(0) rotate(0deg);
-                            opacity: 0;
-                        }
-                        20% { 
-                            transform: translate(-50%, -50%) scale(1.5) rotate(10deg);
-                            opacity: 1;
-                        }
-                        50% { 
-                            transform: translate(-50%, -50%) scale(1.2) rotate(-5deg);
-                            opacity: 1;
-                        }
-                        100% { 
-                            transform: translate(-50%, -50%) scale(1) rotate(0deg);
-                            opacity: 0;
-                        }
-                    }
-                `;
-                document.head.appendChild(style);
-            }
-            
-            setTimeout(() => {
-                if (document.body.contains(bigAnimation)) {
-                    document.body.removeChild(bigAnimation);
-                }
-            }, 2000);
-        }
-
-        function createParentPageAnimation(emoji, delay = 0) {
-            setTimeout(() => {
-                const animation = document.createElement('div');
-                animation.style.cssText = `
-                    position: fixed;
-                    top: 50%;
-                    left: 50%;
-                    transform: translate(-50%, -50%);
-                    z-index: 10001;
-                    font-size: 4rem;
-                    pointer-events: none;
-                    animation: successPop 1s ease-out forwards;
-                `;
-                animation.textContent = emoji;
-                document.body.appendChild(animation);
-                
-                setTimeout(() => {
-                    if (document.body.contains(animation)) {
-                        document.body.removeChild(animation);
-                    }
-                }, 1000);
-            }, delay);
-        }
-
-        // Listen for messages from iframe
+        // LISTEN FOR SUCCESS MESSAGE FROM IFRAME - SIMPLE VERSION
         window.addEventListener('message', (event) => {
-            console.log('Received message from iframe:', event.data); // Debug log
+            console.log('RECEIVED:', event.data.type);
             
             if (event.data.type === 'OPEN_MESSAGE_MODAL') {
                 openMessageModal(event.data.message);
-            } else if (event.data.type === 'ANSWER_POSTED_SUCCESS') {
-                const answerBtn = document.getElementById('answer-btn');
-                answerBtn.disabled = false;
-                answerBtn.textContent = 'Post Answer';
+            } 
+            else if (event.data.type === 'ANSWER_POSTED_SUCCESS') {
+                console.log('SUCCESS - CREATING POPUP ANIMATION');
                 
-                // Update current message with the answer
-                if (currentMessage && currentMessage.pendingAnswer) {
-                    currentMessage.hasAnswer = true;
-                    currentMessage.answer = currentMessage.pendingAnswer;
-                    delete currentMessage.pendingAnswer;
-                    
-                    // Update the modal display
-                    const messageTextElement = document.getElementById('message-text');
-                    let messageHTML = '';
-                    
-                    // Add question prompt if it exists
-                    if (currentMessage.questionPrompt) {
-                        messageHTML += `<div class="question-prompt">${currentMessage.questionPrompt}</div>`;
-                    }
-                    
-                    messageHTML += `
-                        <div style="margin-bottom: 15px; color: #333;">
-                            <strong>Question:</strong><br>
-                            ${currentMessage.message || 'No question content'}
-                        </div>
-                        <div style="padding-top: 15px; border-top: 2px solid #e9ecef; color: #333;">
-                            <strong>Your Answer:</strong><br>
-                            ${currentMessage.answer}
-                        </div>
-                    `;
-                    
-                    messageTextElement.innerHTML = messageHTML;
-                }
+                // CLOSE MODAL FIRST
+                closeMessageModal();
                 
-                // Switch to share mode
-                document.getElementById('answer-section').style.display = 'none';
-                document.getElementById('share-section').style.display = 'block';
+                // CREATE BIG SUCCESS POPUP
+                const popup = document.createElement('div');
+                popup.textContent = '🎉 POSTED! 🎉';
+                popup.style.cssText = `
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%) scale(0);
+                    background: #10b981;
+                    color: white;
+                    padding: 40px 60px;
+                    border-radius: 20px;
+                    font-size: 32px;
+                    font-weight: bold;
+                    z-index: 999999;
+                    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+                    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                `;
                 
-                showSuccessAnimation('🎉');
-            } else if (event.data.type === 'ANSWER_POSTED_ERROR') {
-                const answerBtn = document.getElementById('answer-btn');
+                document.body.appendChild(popup);
+                console.log('POPUP ADDED TO BODY');
                 
-                // Show error state briefly
-                answerBtn.textContent = 'Error ✗';
-                answerBtn.style.background = '#ef4444';
-                
-                // Reset button after 2 seconds
+                // ANIMATE IN
                 setTimeout(() => {
-                    answerBtn.disabled = false;
-                    answerBtn.textContent = 'Post Answer';
-                    answerBtn.style.background = '';
-                }, 2000);
+                    popup.style.transform = 'translate(-50%, -50%) scale(1)';
+                }, 100);
                 
-                // Clear pending answer
-                if (currentMessage && currentMessage.pendingAnswer) {
-                    delete currentMessage.pendingAnswer;
-                }
+                // ANIMATE OUT
+                setTimeout(() => {
+                    popup.style.transform = 'translate(-50%, -50%) scale(0)';
+                    popup.style.opacity = '0';
+                }, 2500);
                 
-                showSuccessAnimation('❌');
-                alert('Failed to post answer. Please try again.');
+                // REMOVE
+                setTimeout(() => {
+                    if (document.body.contains(popup)) {
+                        document.body.removeChild(popup);
+                        console.log('POPUP REMOVED');
+                    }
+                }, 3000);
             }
         });
 
