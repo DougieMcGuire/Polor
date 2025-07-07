@@ -875,26 +875,52 @@
         // Message Modal Functions
         function openMessageModal(message) {
             currentMessage = message;
+            console.log('Opening modal with message:', message); // Debug log
 
-            // Update modal content
+            // Update sender info
+            const senderAvatar = document.getElementById('sender-avatar');
+            const senderName = document.getElementById('sender-name');
+            
             if (message.isAnonymous) {
-                document.getElementById('sender-avatar').src = 'https://polor.org/Avatars/anonymous.png';
-                document.getElementById('sender-name').textContent = 'Anonymous';
+                senderAvatar.src = 'https://polor.org/Avatars/anonymous.png';
+                senderName.textContent = 'Anonymous';
             } else if (message.fromUserProfile) {
-                document.getElementById('sender-avatar').src = message.fromUserProfile.avatarIMG || 'https://polor.org/Avatars/default.png';
-                document.getElementById('sender-name').textContent = message.fromUserProfile.displayName || message.fromUserProfile.username;
+                senderAvatar.src = message.fromUserProfile.avatarIMG || 'https://polor.org/Avatars/default.png';
+                senderName.textContent = message.fromUserProfile.displayName || message.fromUserProfile.username;
+            } else {
+                senderAvatar.src = 'https://polor.org/Avatars/anonymous.png';
+                senderName.textContent = 'Anonymous';
             }
 
-            document.getElementById('message-text').textContent = message.message;
+            // Update message text
+            const messageTextElement = document.getElementById('message-text');
+            messageTextElement.textContent = message.message || 'No message content';
+            console.log('Message text set to:', message.message); // Debug log
 
-            // Show appropriate section
-            if (message.hasAnswer) {
-                document.getElementById('answer-section').style.display = 'none';
-                document.getElementById('share-section').style.display = 'block';
+            // Update sections based on answer status
+            const answerSection = document.getElementById('answer-section');
+            const shareSection = document.getElementById('share-section');
+            const answerInput = document.getElementById('answer-input');
+
+            if (message.hasAnswer && message.answer) {
+                answerSection.style.display = 'none';
+                shareSection.style.display = 'block';
+                
+                // Show the answer in the message text area
+                messageTextElement.innerHTML = `
+                    <div style="margin-bottom: 15px;">
+                        <strong>Question:</strong><br>
+                        ${message.message || 'No question content'}
+                    </div>
+                    <div style="padding-top: 15px; border-top: 2px solid #e9ecef;">
+                        <strong>Your Answer:</strong><br>
+                        ${message.answer}
+                    </div>
+                `;
             } else {
-                document.getElementById('answer-section').style.display = 'block';
-                document.getElementById('share-section').style.display = 'none';
-                document.getElementById('answer-input').value = '';
+                answerSection.style.display = 'block';
+                shareSection.style.display = 'none';
+                answerInput.value = '';
             }
 
             document.getElementById('message-modal').classList.add('show');
@@ -918,6 +944,9 @@
 
             answerBtn.disabled = true;
             answerBtn.textContent = 'Posting...';
+
+            // Store the answer temporarily
+            currentMessage.pendingAnswer = answer;
 
             // Send message to iframe to handle the posting
             document.getElementById('inbox-iframe').contentWindow.postMessage({
@@ -950,6 +979,8 @@
 
         // Listen for messages from iframe
         window.addEventListener('message', (event) => {
+            console.log('Received message from iframe:', event.data); // Debug log
+            
             if (event.data.type === 'OPEN_MESSAGE_MODAL') {
                 openMessageModal(event.data.message);
             } else if (event.data.type === 'ANSWER_POSTED_SUCCESS') {
@@ -957,16 +988,40 @@
                 answerBtn.disabled = false;
                 answerBtn.textContent = 'Post Answer';
                 
+                // Update current message with the answer
+                if (currentMessage && currentMessage.pendingAnswer) {
+                    currentMessage.hasAnswer = true;
+                    currentMessage.answer = currentMessage.pendingAnswer;
+                    delete currentMessage.pendingAnswer;
+                    
+                    // Update the modal display
+                    const messageTextElement = document.getElementById('message-text');
+                    messageTextElement.innerHTML = `
+                        <div style="margin-bottom: 15px;">
+                            <strong>Question:</strong><br>
+                            ${currentMessage.message || 'No question content'}
+                        </div>
+                        <div style="padding-top: 15px; border-top: 2px solid #e9ecef;">
+                            <strong>Your Answer:</strong><br>
+                            ${currentMessage.answer}
+                        </div>
+                    `;
+                }
+                
                 // Switch to share mode
                 document.getElementById('answer-section').style.display = 'none';
                 document.getElementById('share-section').style.display = 'block';
                 
-                currentMessage.hasAnswer = true;
                 showSuccessAnimation('🎉');
             } else if (event.data.type === 'ANSWER_POSTED_ERROR') {
                 const answerBtn = document.getElementById('answer-btn');
                 answerBtn.disabled = false;
                 answerBtn.textContent = 'Post Answer';
+                
+                // Clear pending answer
+                if (currentMessage && currentMessage.pendingAnswer) {
+                    delete currentMessage.pendingAnswer;
+                }
                 
                 showSuccessAnimation('❌');
                 alert('Failed to post answer. Please try again.');
