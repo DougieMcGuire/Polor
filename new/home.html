@@ -14,9 +14,9 @@
         
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: var(--bg-gradient, linear-gradient(135deg, #667eea 0%, #764ba2 100%));
+            background: #48C7F5;
             min-height: 100vh;
-            padding: 20px;
+            padding: 0;
         }
         
         .loading-screen {
@@ -25,7 +25,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #48C7F5;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -53,13 +53,10 @@
         }
         
         .dashboard {
-            max-width: 1000px;
-            margin: 0 auto;
+            width: 100%;
+            min-height: 100vh;
             display: none;
             background: white;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            overflow: hidden;
         }
         
         .dashboard.show {
@@ -71,30 +68,31 @@
             text-align: center;
             position: relative;
             border-bottom: 1px solid #e9ecef;
+            background: white;
         }
         
         .settings-icon-btn {
             position: absolute;
-            top: 20px;
-            right: 20px;
-            width: 45px;
-            height: 45px;
+            top: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
             border: none;
-            background: #667eea;
+            background: #48C7F5;
             border-radius: 50%;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             transition: all 0.2s ease;
-            font-size: 20px;
+            font-size: 24px;
             color: white;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            box-shadow: 0 4px 12px rgba(72, 199, 245, 0.3);
         }
         
         .settings-icon-btn:hover {
             transform: scale(1.1);
-            background: #764ba2;
+            background: #2196F3;
         }
         
         .avatar-container {
@@ -102,7 +100,7 @@
             height: 120px;
             border-radius: 50%;
             overflow: hidden;
-            border: 4px solid #667eea;
+            border: 4px solid #48C7F5;
             position: relative;
             background: #f8f9fa;
             margin: 0 auto 20px;
@@ -126,7 +124,7 @@
             align-items: center;
             justify-content: center;
             font-size: 40px;
-            color: #667eea;
+            color: #48C7F5;
         }
         
         .welcome-text h1 {
@@ -136,7 +134,7 @@
         }
         
         .username {
-            color: #667eea;
+            color: #48C7F5;
             font-size: 1.4rem;
             font-weight: 500;
             margin-bottom: 0;
@@ -144,6 +142,7 @@
         
         .inbox-section {
             padding: 30px 40px 40px 40px;
+            background: white;
         }
         
         .inbox-header {
@@ -202,7 +201,7 @@
         }
         
         .settings-header {
-            background: var(--bg-gradient, linear-gradient(135deg, #667eea, #764ba2));
+            background: #48C7F5;
             color: white;
             padding: 20px;
             text-align: center;
