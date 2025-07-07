@@ -960,30 +960,14 @@
         // NSFW Detection using Pollinations.ai
         async function checkNSFW(text) {
             try {
-                const response = await fetch('https://text.pollinations.ai/openai', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        messages: [
-                            {
-                                role: "system",
-                                content: "You are a content moderator. Analyze the following text and respond with only 'true' if it contains explicit sexual content, graphic violence, or other NSFW material that would be inappropriate for general audiences. Respond with 'false' for mild language, general questions, or appropriate content. Only respond with 'true' or 'false', nothing else."
-                            },
-                            {
-                                role: "user",
-                                content: text
-                            }
-                        ],
-                        model: "openai",
-                        seed: 42
-                    })
-                });
+                const prompt = `Is this message NSFW (containing explicit sexual content, graphic violence, or inappropriate material)? If yes respond only "Yes", if no respond only "No": "${text}"`;
+                const encodedPrompt = encodeURIComponent(prompt);
+                
+                const response = await fetch(`https://text.pollinations.ai/${encodedPrompt}`);
 
                 if (response.ok) {
                     const result = await response.text();
-                    return result.trim().toLowerCase() === 'true';
+                    return result.trim().toLowerCase() === 'yes';
                 }
             } catch (error) {
                 console.error('NSFW check failed:', error);
