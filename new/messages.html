@@ -13,226 +13,242 @@
         
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: transparent;
-            height: 100vh;
-            overflow-y: auto;
+            background: #f8f9fa;
+            min-height: 100vh;
             color: #333;
         }
         
         .messages-container {
+            max-width: 600px;
+            margin: 0 auto;
             padding: 20px;
-            height: 100%;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        
+        .header p {
+            color: #666;
+            font-size: 1rem;
         }
         
         .messages-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-            align-content: start;
-            height: 100%;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
         }
         
-        .message-envelope {
-            position: relative;
-            width: 100%;
-            aspect-ratio: 1;
-            border-radius: 20px;
-            cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-            overflow: hidden;
+        .message-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
             background: linear-gradient(135deg, #667eea, #764ba2);
             display: flex;
             align-items: center;
             justify-content: center;
-            transform-style: preserve-3d;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
         
-        .message-envelope:hover {
-            transform: translateY(-8px) scale(1.05) rotateY(5deg);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        .message-circle:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
         }
         
-        .message-envelope.bounce {
-            animation: bounce 0.6s ease-out;
+        .message-circle.read {
+            background: #e9ecef;
+            color: #666;
         }
         
-        @keyframes bounce {
-            0%, 20%, 53%, 80%, 100% {
-                transform: translateY(0);
-            }
-            40%, 43% {
-                transform: translateY(-15px);
-            }
-            70% {
-                transform: translateY(-8px);
-            }
-            90% {
-                transform: translateY(-3px);
-            }
-        }
-        
-        .message-envelope.nsfw {
-            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
-            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
-        }
-        
-        .message-envelope.nsfw:hover {
-            box-shadow: 0 20px 40px rgba(255, 107, 107, 0.4);
-        }
-        
-        .message-envelope.anonymous {
-            background: linear-gradient(135deg, #2d3436, #636e72);
-            box-shadow: 0 8px 25px rgba(45, 52, 54, 0.3);
-        }
-        
-        .message-envelope.anonymous:hover {
-            box-shadow: 0 20px 40px rgba(45, 52, 54, 0.4);
-        }
-        
-        .message-envelope.normal {
-            background: linear-gradient(135deg, #2c5aa0, #1e3f73);
-            box-shadow: 0 8px 25px rgba(44, 90, 160, 0.3);
-        }
-        
-        .message-envelope.normal:hover {
-            box-shadow: 0 20px 40px rgba(44, 90, 160, 0.4);
-        }
-        
-        .message-envelope.read {
-            background: linear-gradient(135deg, #ddd, #bbb);
-            opacity: 0.7;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-        
-        .envelope-icon {
-            font-size: 60px;
-            color: white;
-            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
-            transition: transform 0.3s ease;
-        }
-        
-        .message-envelope:hover .envelope-icon {
-            transform: scale(1.1) rotateZ(-5deg);
-        }
-        
-        .envelope-image {
-            width: 70px;
-            height: 70px;
-            filter: brightness(0) invert(1) drop-shadow(0 2px 4px rgba(0,0,0,0.3));
-            transition: transform 0.3s ease;
-        }
-        
-        .message-envelope:hover .envelope-image {
-            transform: scale(1.1) rotateZ(-5deg);
-        }
-        
-        .message-type-indicator {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.9);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            font-weight: bold;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-            backdrop-filter: blur(10px);
-        }
-        
-        .indicator-nsfw {
-            background: rgba(255, 107, 107, 0.9);
+        .message-icon {
+            font-size: 28px;
             color: white;
         }
         
-        .indicator-anonymous {
-            background: rgba(45, 52, 54, 0.9);
-            color: white;
+        .read .message-icon {
+            color: #666;
         }
         
-        .indicator-normal {
-            background: rgba(44, 90, 160, 0.9);
-            color: white;
-        }
-        
-        .empty-inbox {
-            grid-column: span 3;
+        .no-messages {
             text-align: center;
             padding: 60px 20px;
             color: #666;
-            animation: fadeIn 0.6s ease-out;
         }
         
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .no-messages-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.6;
         }
         
-        .polar-bear-container {
-            position: relative;
-            margin: 0 auto 20px;
-            width: 80px;
-            height: 80px;
+        /* Message Modal */
+        .message-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
         }
         
-        .polar-bear {
-            width: 80px;
-            height: 80px;
+        .message-modal.show {
+            display: flex;
+        }
+        
+        .modal-content {
             background: white;
-            border-radius: 50%;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            padding: 25px 25px 0;
+            text-align: center;
+            position: relative;
+        }
+        
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+        
+        .sender-info {
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 40px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-            animation: float 3s ease-in-out infinite;
+            gap: 12px;
+            margin-bottom: 20px;
         }
         
-        @keyframes float {
-            0%, 100% {
-                transform: translateY(0);
-            }
-            50% {
-                transform: translateY(-10px);
-            }
+        .sender-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 2px solid #e9ecef;
         }
         
-        .empty-title {
-            font-size: 1.5rem;
-            margin-bottom: 10px;
+        .sender-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .sender-name {
             font-weight: 600;
-            color: #2c5aa0;
+            color: #333;
         }
         
-        .empty-subtitle {
-            font-size: 1rem;
-            opacity: 0.8;
+        .message-content {
+            padding: 0 25px;
+            margin-bottom: 25px;
         }
         
-        .loading-state {
-            grid-column: span 3;
-            text-align: center;
-            padding: 60px 20px;
+        .message-text {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            font-size: 16px;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+        
+        .answer-input {
+            width: 100%;
+            min-height: 100px;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            font-size: 16px;
+            resize: vertical;
+            margin-bottom: 15px;
+        }
+        
+        .answer-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .answer-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        
+        .answer-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .answer-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .share-twitter {
+            background: #1da1f2;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+        }
+        
+        .share-twitter:hover {
+            background: #0d8bd9;
+        }
+        
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
         }
         
         .loading-spinner {
             width: 40px;
             height: 40px;
-            border: 4px solid rgba(44, 90, 160, 0.2);
-            border-top: 4px solid #2c5aa0;
+            border: 4px solid #e9ecef;
+            border-top: 4px solid #667eea;
             border-radius: 50%;
             animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
+            margin-bottom: 20px;
         }
         
         @keyframes spin {
@@ -240,72 +256,96 @@
             100% { transform: rotate(360deg); }
         }
         
-        .pulse-effect {
-            animation: pulse 0.6s ease-out;
+        .auth-prompt {
+            text-align: center;
+            padding: 60px 20px;
         }
         
-        @keyframes pulse {
-            0% {
-                transform: scale(1);
-            }
-            50% {
-                transform: scale(1.1);
-            }
-            100% {
-                transform: scale(1);
-            }
+        .auth-title {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            font-weight: 600;
         }
         
-        /* Responsive adjustments */
-        @media (max-width: 480px) {
-            .messages-grid {
-                gap: 15px;
+        .auth-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-block;
+        }
+        
+        @media (max-width: 768px) {
+            .messages-container {
+                padding: 15px;
             }
             
-            .envelope-icon {
-                font-size: 50px;
-            }
-            
-            .envelope-image {
-                width: 60px;
-                height: 60px;
-            }
-        }
-        
-        /* Stagger animation for grid items */
-        .message-envelope:nth-child(1) { animation-delay: 0.1s; }
-        .message-envelope:nth-child(2) { animation-delay: 0.2s; }
-        .message-envelope:nth-child(3) { animation-delay: 0.3s; }
-        .message-envelope:nth-child(4) { animation-delay: 0.4s; }
-        .message-envelope:nth-child(5) { animation-delay: 0.5s; }
-        .message-envelope:nth-child(6) { animation-delay: 0.6s; }
-        .message-envelope:nth-child(7) { animation-delay: 0.7s; }
-        .message-envelope:nth-child(8) { animation-delay: 0.8s; }
-        .message-envelope:nth-child(9) { animation-delay: 0.9s; }
-        
-        .stagger-in {
-            animation: staggerIn 0.6s ease-out both;
-        }
-        
-        @keyframes staggerIn {
-            from {
-                opacity: 0;
-                transform: translateY(30px) scale(0.8);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
+            .modal-content {
+                margin: 10px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="messages-container">
-        <div id="messages-grid" class="messages-grid">
-            <!-- Loading state -->
-            <div id="loading-state" class="loading-state">
-                <div class="loading-spinner"></div>
-                <p>Loading your messages...</p>
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="loading-screen">
+        <div style="text-align: center;">
+            <div class="loading-spinner"></div>
+            <h2>Loading Messages...</h2>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div id="main-container" class="messages-container" style="display: none;">
+        <!-- Header -->
+        <div class="header">
+            <h1>Messages</h1>
+            <p id="message-count">0 new messages</p>
+        </div>
+
+        <!-- Messages Grid -->
+        <div id="messages-grid" class="messages-grid"></div>
+
+        <!-- No Messages State -->
+        <div id="no-messages" class="no-messages" style="display: none;">
+            <div class="no-messages-icon">📬</div>
+            <h2>No messages yet</h2>
+            <p>Share your ask link to start receiving anonymous messages!</p>
+        </div>
+
+        <!-- Auth Prompt -->
+        <div id="auth-prompt" class="auth-prompt" style="display: none;">
+            <h2 class="auth-title">Sign in to view messages</h2>
+            <a href="auth.html" class="auth-btn">Sign In</a>
+        </div>
+    </div>
+
+    <!-- Message Modal -->
+    <div id="message-modal" class="message-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+                <div class="sender-info">
+                    <div class="sender-avatar">
+                        <img id="sender-avatar" src="https://polor.org/Avatars/anonymous.png" alt="Sender">
+                    </div>
+                    <div class="sender-name" id="sender-name">Anonymous</div>
+                </div>
+            </div>
+            
+            <div class="message-content">
+                <div class="message-text" id="message-text"></div>
+                
+                <div id="answer-section">
+                    <textarea id="answer-input" class="answer-input" placeholder="Type your answer here..."></textarea>
+                    <button id="answer-btn" class="answer-btn" onclick="postAnswer()">Post Answer</button>
+                </div>
+                
+                <div id="share-section" style="display: none;">
+                    <button class="share-twitter" onclick="shareToTwitter()">Share to Twitter</button>
+                </div>
             </div>
         </div>
     </div>
@@ -336,38 +376,30 @@
         let currentUser = null;
         let currentUserProfile = null;
         let messages = [];
+        let currentMessage = null;
 
         // Auth state listener
         auth.onAuthStateChanged(async (user) => {
-            console.log('Auth state changed:', user ? 'logged in' : 'not logged in');
             currentUser = user;
             if (user) {
                 try {
                     const userDoc = await firestore.collection('users').doc(user.uid).get();
                     if (userDoc.exists) {
                         currentUserProfile = userDoc.data();
-                        console.log('User profile loaded:', currentUserProfile);
                     }
                     await loadMessages();
                 } catch (error) {
                     console.error('Error loading user profile:', error);
-                    showMockMessages(); // Show mock data if Firebase fails
                 }
             } else {
-                console.log('No user, showing mock data');
-                showMockMessages(); // Show mock data when not logged in
+                showAuthPrompt();
             }
             hideLoading();
         });
 
-        // Load messages from Firebase
+        // Load messages
         async function loadMessages() {
-            if (!currentUser || !currentUserProfile) {
-                // If no user, show mock data for testing
-                console.log('No user logged in, showing mock data');
-                showMockMessages();
-                return;
-            }
+            if (!currentUser || !currentUserProfile) return;
 
             try {
                 const messagesQuery = await firestore.collection('askMessages')
@@ -383,239 +415,194 @@
                 renderMessages();
             } catch (error) {
                 console.error('Error loading messages:', error);
-                // Fallback to mock data
-                showMockMessages();
+                showNoMessages();
             }
-        }
-
-        // Show mock messages for testing
-        function showMockMessages() {
-            messages = [
-                {
-                    id: 'mock1',
-                    message: 'What are you doing tomorrow?',
-                    isAnonymous: false,
-                    isNSFW: false,
-                    status: 'unread',
-                    fromUserProfile: { displayName: 'John Doe' },
-                    timestamp: new Date()
-                },
-                {
-                    id: 'mock2',
-                    message: 'Do you like someone?',
-                    isAnonymous: true,
-                    isNSFW: false,
-                    status: 'unread',
-                    timestamp: new Date()
-                },
-                {
-                    id: 'mock3',
-                    message: 'Inappropriate question here...',
-                    isAnonymous: false,
-                    isNSFW: true,
-                    status: 'unread',
-                    fromUserProfile: { displayName: 'Sarah' },
-                    timestamp: new Date()
-                },
-                {
-                    id: 'mock4',
-                    message: 'Favorite book?',
-                    isAnonymous: false,
-                    isNSFW: false,
-                    status: 'read',
-                    fromUserProfile: { displayName: 'Mike' },
-                    timestamp: new Date()
-                }
-            ];
-            renderMessages();
         }
 
         // Render messages grid
         function renderMessages() {
             const grid = document.getElementById('messages-grid');
-            
+            const countElement = document.getElementById('message-count');
+            const noMessages = document.getElementById('no-messages');
+
             if (messages.length === 0) {
-                showEmptyState();
+                showNoMessages();
                 return;
             }
-            
+
+            document.getElementById('main-container').style.display = 'block';
+            noMessages.style.display = 'none';
+
+            const unreadMessages = messages.filter(msg => msg.status === 'unread');
+            countElement.textContent = `${unreadMessages.length} new message${unreadMessages.length !== 1 ? 's' : ''}`;
+
             grid.innerHTML = '';
-            
-            messages.forEach((message, index) => {
-                const envelope = createEnvelopeElement(message, index);
-                grid.appendChild(envelope);
+
+            messages.forEach(message => {
+                const circle = document.createElement('div');
+                circle.className = `message-circle ${message.status !== 'unread' ? 'read' : ''}`;
+                circle.onclick = () => openMessage(message);
+
+                const icon = document.createElement('div');
+                icon.className = 'message-icon';
+                icon.textContent = '📧';
+                circle.appendChild(icon);
+
+                grid.appendChild(circle);
             });
         }
 
-        // Create envelope element
-        function createEnvelopeElement(message, index) {
-            const envelope = document.createElement('div');
-            
-            // Determine message type
-            let messageType = 'normal';
-            if (message.isAnonymous) {
-                messageType = 'anonymous';
-            }
-            if (message.isNSFW) {
-                messageType = 'nsfw';
-            }
-            
-            envelope.className = `message-envelope ${messageType} ${message.status === 'read' ? 'read' : ''} stagger-in`;
-            envelope.style.animationDelay = `${index * 0.1}s`;
-            envelope.onclick = () => openMessage(message);
-            
-            // Try to load image, fallback to emoji
-            const iconContainer = document.createElement('div');
-            
-            const img = document.createElement('img');
-            img.className = 'envelope-image';
-            img.src = '/assets/icons/envelope.png'; // Your envelope icon path
-            img.onerror = () => {
-                // Fallback to emoji
-                iconContainer.innerHTML = '<div class="envelope-icon">✉️</div>';
-            };
-            
-            iconContainer.appendChild(img);
-            envelope.appendChild(iconContainer);
-            
-            // Type indicator
-            const indicator = document.createElement('div');
-            indicator.className = `message-type-indicator indicator-${messageType}`;
-            
-            if (messageType === 'nsfw') {
-                indicator.textContent = '🔥';
-            } else if (messageType === 'anonymous') {
-                indicator.textContent = '👤';
-            } else {
-                indicator.textContent = '📝';
-            }
-            
-            envelope.appendChild(indicator);
-            
-            return envelope;
-        }
+        // Open message modal
+        async function openMessage(message) {
+            currentMessage = message;
 
-        // Show empty state
-        function showEmptyState() {
-            const grid = document.getElementById('messages-grid');
-            grid.innerHTML = `
-                <div class="empty-inbox">
-                    <div class="polar-bear-container">
-                        <div class="polar-bear">🐻</div>
-                    </div>
-                    <h3 class="empty-title">No messages yet!</h3>
-                    <p class="empty-subtitle">Share your profile to start getting questions</p>
-                </div>
-            `;
-        }
-
-        // Hide loading
-        function hideLoading() {
-            document.getElementById('loading-state').style.display = 'none';
-        }
-
-        // Open message (send to parent window for modal)
-        function openMessage(message) {
-            console.log('Opening message:', message); // Debug log
-            
-            // Add click animation
-            const envelope = event.target.closest('.message-envelope');
-            if (envelope) {
-                envelope.classList.add('pulse-effect');
-            }
-            
-            // Send message to parent window to open modal
-            try {
-                window.parent.postMessage({
-                    type: 'openMessage',
-                    message: message
-                }, '*');
-                console.log('Message sent to parent'); // Debug log
-            } catch (error) {
-                console.error('Error sending to parent:', error);
-                // Fallback - show alert with message content
-                alert(`Message: ${message.message || 'No message content'}`);
-            }
-            
-            // Mark as read in Firebase (if available)
-            if (message.status === 'unread' && firestore && currentUser) {
-                firestore.collection('askMessages').doc(message.id).update({
-                    status: 'read',
-                    readAt: firebase.firestore.FieldValue.serverTimestamp()
-                }).then(() => {
+            // Mark as read
+            if (message.status === 'unread') {
+                try {
+                    await firestore.collection('askMessages').doc(message.id).update({
+                        status: 'read',
+                        readAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
                     message.status = 'read';
-                    console.log('Message marked as read');
-                }).catch(error => {
+                } catch (error) {
                     console.error('Error marking as read:', error);
-                });
-            }
-            
-            // Update visual state
-            setTimeout(() => {
-                if (envelope) {
-                    envelope.classList.add('read');
-                    envelope.classList.remove('pulse-effect');
                 }
-            }, 300);
+            }
+
+            // Update modal content
+            if (message.isAnonymous) {
+                document.getElementById('sender-avatar').src = 'https://polor.org/Avatars/anonymous.png';
+                document.getElementById('sender-name').textContent = 'Anonymous';
+            } else if (message.fromUserProfile) {
+                document.getElementById('sender-avatar').src = message.fromUserProfile.avatarIMG || 'https://polor.org/Avatars/default.png';
+                document.getElementById('sender-name').textContent = message.fromUserProfile.displayName || message.fromUserProfile.username;
+            }
+
+            document.getElementById('message-text').textContent = message.message;
+
+            // Show appropriate section
+            if (message.hasAnswer) {
+                document.getElementById('answer-section').style.display = 'none';
+                document.getElementById('share-section').style.display = 'block';
+            } else {
+                document.getElementById('answer-section').style.display = 'block';
+                document.getElementById('share-section').style.display = 'none';
+                document.getElementById('answer-input').value = '';
+            }
+
+            document.getElementById('message-modal').classList.add('show');
+            renderMessages();
         }
 
-        // Listen for messages from parent
-        window.addEventListener('message', function(event) {
-            if (event.data.type === 'refreshMessages') {
-                loadMessages();
-            } else if (event.data.type === 'addMessage') {
-                messages.unshift(event.data.message);
-                renderMessages();
+        // Post answer
+        async function postAnswer() {
+            const answerInput = document.getElementById('answer-input');
+            const answerBtn = document.getElementById('answer-btn');
+            const answer = answerInput.value.trim();
+
+            if (!answer) {
+                alert('Please write an answer first!');
+                return;
+            }
+
+            try {
+                answerBtn.disabled = true;
+                answerBtn.textContent = 'Posting...';
+
+                // Simple Q&A object for user profile
+                const qaItem = {
+                    id: currentMessage.id,
+                    question: currentMessage.message,
+                    answer: answer,
+                    timestamp: new Date().toISOString(),
+                    isAnonymous: currentMessage.isAnonymous
+                };
+
+                // Get current Q&As and add new one
+                const userRef = firestore.collection('users').doc(currentUser.uid);
+                const userDoc = await userRef.get();
+                const userData = userDoc.data();
+                const currentQAs = userData.answeredQAs || [];
                 
-                // Play notification animation
-                setTimeout(() => {
-                    const firstEnvelope = document.querySelector('.message-envelope');
-                    if (firstEnvelope) {
-                        firstEnvelope.classList.add('bounce');
-                    }
-                }, 100);
+                currentQAs.unshift(qaItem); // Add to beginning
+
+                // Update user profile
+                await userRef.update({
+                    answeredQAs: currentQAs
+                });
+
+                // Mark message as answered
+                await firestore.collection('askMessages').doc(currentMessage.id).update({
+                    hasAnswer: true,
+                    answer: answer
+                });
+
+                currentMessage.hasAnswer = true;
+                currentMessage.answer = answer;
+
+                // Switch to share mode
+                document.getElementById('answer-section').style.display = 'none';
+                document.getElementById('share-section').style.display = 'block';
+
+                alert('Answer posted!');
+
+            } catch (error) {
+                console.error('Error posting answer:', error);
+                alert('Failed to post answer. Please try again.');
+            } finally {
+                answerBtn.disabled = false;
+                answerBtn.textContent = 'Post Answer';
+            }
+        }
+
+        // Share to Twitter
+        function shareToTwitter() {
+            const question = currentMessage.message;
+            const answer = currentMessage.answer;
+            
+            let tweetText = `Q: ${question}\nA: ${answer}\n\n`;
+            
+            if (currentMessage.isAnonymous) {
+                tweetText += 'Asked anonymously\n\n';
+            } else if (currentMessage.fromUserProfile) {
+                tweetText += `Asked by: ${currentMessage.fromUserProfile.displayName}\n\n`;
+            }
+            
+            tweetText += `Ask me anything 👇\nhttps://polor.org/ask?@${currentUserProfile.username}\n\n#AnonymousQA #Polor`;
+            
+            const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
+            window.open(twitterUrl, '_blank');
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('message-modal').classList.remove('show');
+            currentMessage = null;
+        }
+
+        // Utility functions
+        function showNoMessages() {
+            document.getElementById('main-container').style.display = 'block';
+            document.getElementById('no-messages').style.display = 'block';
+            document.getElementById('messages-grid').style.display = 'none';
+            document.getElementById('message-count').textContent = '0 new messages';
+        }
+
+        function showAuthPrompt() {
+            document.getElementById('main-container').style.display = 'block';
+            document.getElementById('auth-prompt').style.display = 'block';
+        }
+
+        function hideLoading() {
+            document.getElementById('loading-screen').style.display = 'none';
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('message-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'message-modal') {
+                closeModal();
             }
         });
-
-        // Add ripple effect on click
-        document.addEventListener('click', (e) => {
-            if (e.target.closest('.message-envelope')) {
-                const envelope = e.target.closest('.message-envelope');
-                const ripple = document.createElement('div');
-                ripple.style.cssText = `
-                    position: absolute;
-                    border-radius: 50%;
-                    background: rgba(255,255,255,0.3);
-                    transform: scale(0);
-                    animation: ripple 0.6s linear;
-                    pointer-events: none;
-                `;
-                
-                const rect = envelope.getBoundingClientRect();
-                const size = Math.max(rect.width, rect.height);
-                ripple.style.width = ripple.style.height = size + 'px';
-                ripple.style.left = (e.clientX - rect.left - size / 2) + 'px';
-                ripple.style.top = (e.clientY - rect.top - size / 2) + 'px';
-                
-                envelope.appendChild(ripple);
-                
-                setTimeout(() => {
-                    ripple.remove();
-                }, 600);
-            }
-        });
-
-        // Add ripple animation
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes ripple {
-                to {
-                    transform: scale(2);
-                    opacity: 0;
-                }
-            }
-        `;
-        document.head.appendChild(style);
     </script>
 </body>
 </html>
