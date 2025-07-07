@@ -945,10 +945,14 @@
             const avatarDiv = document.createElement('div');
             avatarDiv.className = 'chat-avatar';
             
-            if (avatarSrc && avatarSrc.startsWith('http')) {
+            if (avatarSrc && (avatarSrc.startsWith('http') || avatarSrc.startsWith('data:'))) {
                 const img = document.createElement('img');
                 img.src = avatarSrc;
                 img.alt = 'Avatar';
+                img.style.width = '100%';
+                img.style.height = '100%';
+                img.style.objectFit = 'cover';
+                img.style.borderRadius = '50%';
                 avatarDiv.appendChild(img);
             } else {
                 const fallback = document.createElement('div');
