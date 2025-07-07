@@ -332,6 +332,24 @@
             }
         }
         
+        @keyframes glint {
+            0% {
+                opacity: 0;
+                transform: rotate(45deg) translateX(-200%);
+            }
+            10% {
+                opacity: 1;
+            }
+            20% {
+                opacity: 0;
+                transform: rotate(45deg) translateX(200%);
+            }
+            100% {
+                opacity: 0;
+                transform: rotate(45deg) translateX(200%);
+            }
+        }
+        
         @keyframes successPop {
             0% { 
                 transform: translate(-50%, -50%) scale(0);
@@ -589,6 +607,9 @@
                 let circleClass = 'message-circle';
                 if (message.status !== 'unread') {
                     circleClass += ' read';
+                } else {
+                    // Add glint animation for new/unread messages
+                    circleClass += ' new-message';
                 }
                 if (message.isAnonymous) {
                     circleClass += ' anonymous';
