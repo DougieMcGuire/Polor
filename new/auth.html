@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Polor - Sign Up</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .auth-container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 450px;
+        }
+        
+        .auth-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .auth-header h1 {
+            color: #333;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .auth-header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+        
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 30px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 4px;
+        }
+        
+        .auth-tab {
+            flex: 1;
+            text-align: center;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 500;
+            color: #666;
+        }
+        
+        .auth-tab.active {
+            background: white;
+            color: #667eea;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .auth-form {
+            display: none;
+        }
+        
+        .auth-form.active {
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 6px;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.2s ease;
+            background: #f8f9fa;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+        }
+        
+        .form-input.error {
+            border-color: #dc3545;
+            background: #fff5f5;
+        }
+        
+        .error-message {
+            color: #dc3545;
+            font-size: 14px;
+            margin-top: 6px;
+            display: none;
+        }
+        
+        .error-message.show {
+            display: block;
+        }
+        
+        .auth-button {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-bottom: 15px;
+            position: relative;
+        }
+        
+        .auth-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover:not(:disabled) {
+            background: #5a6fd8;
+            transform: translateY(-1px);
+        }
+        
+        .btn-google {
+            background: white;
+            color: #333;
+            border: 2px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .btn-google:hover:not(:disabled) {
+            border-color: #667eea;
+            transform: translateY(-1px);
+        }
+        
+        .google-icon {
+            width: 20px;
+            height: 20px;
+        }
+        
+        .divider {
+            text-align: center;
+            margin: 20px 0;
+            position: relative;
+            color: #666;
+        }
+        
+        .divider:before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #e9ecef;
+        }
+        
+        .divider span {
+            background: white;
+            padding: 0 15px;
+        }
+        
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top: 3px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .success-message.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-header">
+            <h1>Polor</h1>
+            <p>Create your custom avatar</p>
+        </div>
+        
+        <div class="auth-tabs">
+            <div class="auth-tab active" onclick="switchTab('signup')">Sign Up</div>
+            <div class="auth-tab" onclick="switchTab('login')">Login</div>
+        </div>
+        
+        <div id="success-message" class="success-message">
+            <strong>✅ Account created!</strong> Redirecting to your dashboard...
+        </div>
+        
+        <!-- Signup Form -->
+        <form id="signup-form" class="auth-form active">
+            <div class="form-group">
+                <label class="form-label">Username</label>
+                <input type="text" class="form-input" id="signup-username" required>
+                <div class="error-message" id="signup-username-error"></div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-input" id="signup-email" required>
+                <div class="error-message" id="signup-email-error"></div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Password</label>
+                <input type="password" class="form-input" id="signup-password" required>
+                <div class="error-message" id="signup-password-error"></div>
+            </div>
+            
+            <button type="submit" class="auth-button btn-primary" id="signup-btn">
+                Create Account
+            </button>
+            
+            <div class="divider"><span>or</span></div>
+            
+            <button type="button" class="auth-button btn-google" onclick="signInWithGoogle()">
+                <svg class="google-icon" viewBox="0 0 24 24">
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                </svg>
+                Sign up with Google
+            </button>
+        </form>
+        
+        <!-- Login Form -->
+        <form id="login-form" class="auth-form">
+            <div class="form-group">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-input" id="login-email" required>
+                <div class="error-message" id="login-email-error"></div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Password</label>
+                <input type="password" class="form-input" id="login-password" required>
+                <div class="error-message" id="login-password-error"></div>
+            </div>
+            
+            <button type="submit" class="auth-button btn-primary" id="login-btn">
+                Login
+            </button>
+            
+            <div class="divider"><span>or</span></div>
+            
+            <button type="button" class="auth-button btn-google" onclick="signInWithGoogle()">
+                <svg class="google-icon" viewBox="0 0 24 24">
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                </svg>
+                Continue with Google
+            </button>
+        </form>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        // Firebase config
+        const firebaseConfig = {
+            apiKey: "AIzaSyA8HcTDiCQtJHRiMES2p1iUlA30AkZPx1Y",
+            authDomain: "polor-62c29.firebaseapp.com",
+            databaseURL: "https://polor-62c29-default-rtdb.firebaseio.com",
+            projectId: "polor-62c29",
+            storageBucket: "polor-62c29.firebasestorage.app",
+            messagingSenderId: "232986823513",
+            appId: "1:232986823513:web:a6ee6bef6b0609ace3da48",
+            measurementId: "G-KRT42D5TQK"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const firestore = firebase.firestore();
+
+        // Configure Google Auth Provider
+        const googleProvider = new firebase.auth.GoogleAuthProvider();
+        googleProvider.addScope('email');
+        googleProvider.addScope('profile');
+
+        // Default avatar config for new users
+        const DEFAULT_AVATAR_URL = `https://polor.org/Avatars/?backgrounds=bg1.png&bases=base.png&hair=&eyes=BasicMale.png&brows=Basic.png&mouths=Basic.png&noses=basic.png&neck=&tops=16.png&glasses=&hats=editme.png&backgroundsColor=808080&basesColor=FFF8F5&hairColor=F4C2A1&eyesColor=F4C2A1&browsColor=654321&mouthsColor=000000&nosesColor=FFA07A&neckColor=FFB6C1&topsColor=676767&glassesColor=6B4423&hatsColor=FF4500`;
+
+        // Check if user is already logged in - Simplified
+        auth.onAuthStateChanged(async (user) => {
+            console.log('🔄 Auth state changed:', user ? `User: ${user.email}` : 'No user');
+            
+            if (user) {
+                console.log('👤 User is authenticated, checking profile...');
+                
+                try {
+                    // Small delay to ensure Firestore is ready
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    
+                    const userDoc = await firestore.collection('users').doc(user.uid).get();
+                    console.log('📄 User doc exists:', userDoc.exists);
+                    
+                    if (!userDoc.exists) {
+                        console.log('📝 No profile found, creating one...');
+                        document.getElementById('success-message').innerHTML = '<strong>✅ Setting up your account...</strong>';
+                        document.getElementById('success-message').classList.add('show');
+                        
+                        await createUserProfile(user);
+                        console.log('✅ Profile created successfully');
+                    }
+                    
+                    console.log('🏠 Redirecting to home page...');
+                    window.location.href = 'home.html';
+                    
+                } catch (error) {
+                    console.error('❌ Error in auth state handler:', error);
+                    alert('Error setting up account: ' + error.message);
+                }
+            } else {
+                console.log('ℹ️ No authenticated user');
+            }
+        });
+
+        // Tab switching
+        function switchTab(tab) {
+            // Update tab buttons
+            document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+            document.querySelector(`.auth-tab:nth-child(${tab === 'signup' ? '1' : '2'})`).classList.add('active');
+            
+            // Update forms
+            document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+            document.getElementById(`${tab}-form`).classList.add('active');
+            
+            // Clear any error messages
+            clearErrors();
+        }
+
+        // Clear error messages
+        function clearErrors() {
+            document.querySelectorAll('.error-message').forEach(e => e.classList.remove('show'));
+            document.querySelectorAll('.form-input').forEach(i => i.classList.remove('error'));
+        }
+
+        // Show error message
+        function showError(inputId, message) {
+            const input = document.getElementById(inputId);
+            const errorDiv = document.getElementById(`${inputId}-error`);
+            
+            input.classList.add('error');
+            errorDiv.textContent = message;
+            errorDiv.classList.add('show');
+        }
+
+        // Show loading state
+        function setLoading(buttonId, loading) {
+            const button = document.getElementById(buttonId);
+            if (loading) {
+                button.disabled = true;
+                button.innerHTML = '<span class="spinner"></span> Loading...';
+            } else {
+                button.disabled = false;
+                if (buttonId === 'login-btn') {
+                    button.innerHTML = 'Login';
+                } else {
+                    button.innerHTML = 'Create Account';
+                }
+            }
+        }
+
+        // Create user profile in Firestore
+        async function createUserProfile(user, username = null) {
+            try {
+                // Clean username for Google users
+                let finalUsername = username;
+                
+                if (!finalUsername) {
+                    if (user.displayName) {
+                        // Clean Google display name: remove spaces, special chars, make lowercase
+                        finalUsername = user.displayName
+                            .toLowerCase()
+                            .replace(/[^a-zA-Z0-9]/g, '') // Remove all non-alphanumeric
+                            .substring(0, 20); // Limit length
+                        
+                        // If cleaning resulted in empty string, use email
+                        if (!finalUsername) {
+                            finalUsername = user.email.split('@')[0].replace(/[^a-zA-Z0-9]/g, '');
+                        }
+                    } else {
+                        // Use email username part and clean it
+                        finalUsername = user.email.split('@')[0].replace(/[^a-zA-Z0-9]/g, '');
+                    }
+                }
+                
+                // Ensure username is at least 3 characters
+                if (finalUsername.length < 3) {
+                    finalUsername += Math.random().toString(36).substring(2, 5);
+                }
+                
+                console.log('🏷️ Final username:', finalUsername);
+                
+                // Generate base64 avatar image from default.png
+                console.log('🎨 Generating default avatar as base64...');
+                const avatarBase64 = await generateDefaultAvatarBase64();
+                
+                const userProfile = {
+                    uid: user.uid,
+                    email: user.email,
+                    username: finalUsername,
+                    displayName: user.displayName || finalUsername,
+                    avatarURL: DEFAULT_AVATAR_URL,
+                    avatarIMG: avatarBase64, // Save default.png as base64
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
+                    isActive: true
+                };
+
+                // Save to Firestore with merge to avoid overwriting
+                await firestore.collection('users').doc(user.uid).set(userProfile, { merge: true });
+
+                // Update Auth displayName if not already set
+                if (!user.displayName) {
+                    await user.updateProfile({
+                        displayName: finalUsername
+                    });
+                }
+
+                console.log('✅ User profile created successfully with base64 avatar');
+                return userProfile;
+            } catch (error) {
+                console.error('❌ Error creating user profile:', error);
+                throw error;
+            }
+        }
+
+        // Generate default avatar as base64
+        async function generateDefaultAvatarBase64() {
+            return new Promise((resolve) => {
+                // Create a canvas to render the default avatar
+                const canvas = document.createElement('canvas');
+                canvas.width = 200;
+                canvas.height = 200;
+                const ctx = canvas.getContext('2d');
+                
+                // Load the default.png image directly
+                const img = new Image();
+                img.crossOrigin = 'anonymous';
+                
+                img.onload = () => {
+                    // Draw the image on canvas
+                    ctx.drawImage(img, 0, 0, 200, 200);
+                    
+                    // Convert to base64 WebP format
+                    const base64 = canvas.toDataURL('image/webp', 0.8);
+                    console.log('✅ Generated base64 avatar from default.png');
+                    resolve(base64);
+                };
+                
+                img.onerror = () => {
+                    console.log('❌ Failed to load default.png, using simple placeholder');
+                    // Final fallback - simple gray circle
+                    ctx.fillStyle = '#808080';
+                    ctx.fillRect(0, 0, 200, 200);
+                    ctx.fillStyle = '#FFF8F5';
+                    ctx.beginPath();
+                    ctx.arc(100, 100, 80, 0, 2 * Math.PI);
+                    ctx.fill();
+                    const base64 = canvas.toDataURL('image/webp', 0.8);
+                    console.log('✅ Generated fallback placeholder');
+                    resolve(base64);
+                };
+                
+                // Load default.png directly
+                img.src = 'https://polor.org/Avatars/default.png';
+            });
+        }
+
+        // Update last login
+        async function updateLastLogin(user) {
+            try {
+                await firestore.collection('users').doc(user.uid).update({
+                    lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
+                    isActive: true
+                });
+            } catch (error) {
+                console.error('Error updating last login:', error);
+            }
+        }
+
+        // Account cleanup function (to be called by a scheduled function)
+        async function cleanupInactiveAccounts() {
+            try {
+                const thirtyDaysAgo = new Date();
+                thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+                
+                const inactiveUsers = await firestore.collection('users')
+                    .where('lastLogin', '<', thirtyDaysAgo)
+                    .where('isActive', '==', true)
+                    .get();
+                
+                console.log(`Found ${inactiveUsers.size} inactive accounts to clean up`);
+                
+                const batch = firestore.batch();
+                
+                inactiveUsers.forEach(doc => {
+                    // Mark as inactive instead of deleting to preserve data integrity
+                    batch.update(doc.ref, { 
+                        isActive: false,
+                        deactivatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                });
+                
+                if (inactiveUsers.size > 0) {
+                    await batch.commit();
+                    console.log(`Marked ${inactiveUsers.size} accounts as inactive`);
+                }
+                
+            } catch (error) {
+                console.error('Error cleaning up inactive accounts:', error);
+            }
+        }
+
+        // Check for username availability
+        async function checkUsernameAvailability(username) {
+            try {
+                console.log('🔍 Checking username availability for:', username);
+                
+                const snapshot = await firestore.collection('users')
+                    .where('username', '==', username)
+                    .get();
+                
+                const isAvailable = snapshot.empty;
+                console.log('📊 Username available:', isAvailable, 'Found docs:', snapshot.size);
+                
+                return isAvailable;
+            } catch (error) {
+                console.error('❌ Error checking username:', error);
+                // If there's an error checking, assume it's available to not block signup
+                console.log('⚠️ Error occurred, allowing username to proceed');
+                return true;
+            }
+        }
+
+        // Handle login
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            clearErrors();
+            
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            
+            // Basic validation
+            if (!email || !password) {
+                if (!email) showError('login-email', 'Email is required');
+                if (!password) showError('login-password', 'Password is required');
+                return;
+            }
+            
+            setLoading('login-btn', true);
+            
+            try {
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                await updateLastLogin(userCredential.user);
+                // Redirect handled by auth state change
+            } catch (error) {
+                console.error('Login error:', error);
+                let message = 'Login failed. Please try again.';
+                
+                switch (error.code) {
+                    case 'auth/user-not-found':
+                        message = 'No account found with this email.';
+                        showError('login-email', message);
+                        break;
+                    case 'auth/wrong-password':
+                        message = 'Incorrect password.';
+                        showError('login-password', message);
+                        break;
+                    case 'auth/invalid-email':
+                        message = 'Invalid email address.';
+                        showError('login-email', message);
+                        break;
+                    case 'auth/too-many-requests':
+                        message = 'Too many failed attempts. Please try again later.';
+                        showError('login-email', message);
+                        break;
+                    default:
+                        showError('login-email', message);
+                }
+            } finally {
+                setLoading('login-btn', false);
+            }
+        });
+
+        // Handle signup
+        document.getElementById('signup-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            clearErrors();
+            
+            const username = document.getElementById('signup-username').value.trim();
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+            
+            // Validation
+            if (!username || !email || !password) {
+                if (!username) showError('signup-username', 'Username is required');
+                if (!email) showError('signup-email', 'Email is required');
+                if (!password) showError('signup-password', 'Password is required');
+                return;
+            }
+            
+            if (username.length < 3) {
+                showError('signup-username', 'Username must be at least 3 characters');
+                return;
+            }
+            
+            if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+                showError('signup-username', 'Username can only contain letters, numbers, and underscores');
+                return;
+            }
+            
+            if (password.length < 6) {
+                showError('signup-password', 'Password must be at least 6 characters');
+                return;
+            }
+            
+            setLoading('signup-btn', true);
+            
+            try {
+                // Check username availability
+                const isUsernameAvailable = await checkUsernameAvailability(username);
+                if (!isUsernameAvailable) {
+                    showError('signup-username', 'Username is already taken');
+                    setLoading('signup-btn', false);
+                    return;
+                }
+                
+                // Create user account
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                
+                // Create user profile in Firestore
+                await createUserProfile(userCredential.user, username);
+                
+                // Show success message
+                document.getElementById('success-message').classList.add('show');
+                
+                // Redirect after a short delay
+                setTimeout(() => {
+                    window.location.href = 'home.html';
+                }, 1500);
+                
+            } catch (error) {
+                console.error('Signup error:', error);
+                let message = 'Account creation failed. Please try again.';
+                
+                switch (error.code) {
+                    case 'auth/email-already-in-use':
+                        message = 'An account with this email already exists.';
+                        showError('signup-email', message);
+                        break;
+                    case 'auth/invalid-email':
+                        message = 'Invalid email address.';
+                        showError('signup-email', message);
+                        break;
+                    case 'auth/weak-password':
+                        message = 'Password is too weak. Use at least 6 characters.';
+                        showError('signup-password', message);
+                        break;
+                    default:
+                        showError('signup-email', message);
+                }
+            } finally {
+                setLoading('signup-btn', false);
+            }
+        });
+
+        // Handle Google Sign In - Simplified and debugged
+        async function signInWithGoogle() {
+            try {
+                console.log('🚀 Starting Google sign in...');
+                
+                // Disable buttons during sign in
+                const googleButtons = document.querySelectorAll('.btn-google');
+                googleButtons.forEach(btn => {
+                    btn.disabled = true;
+                    btn.innerHTML = '<span class="spinner"></span> Signing in...';
+                });
+                
+                // Try popup first, fallback to redirect
+                try {
+                    console.log('🔄 Attempting popup method...');
+                    const result = await auth.signInWithPopup(googleProvider);
+                    console.log('✅ Popup successful:', result.user.email);
+                    
+                    // Handle the result immediately
+                    await handleGoogleSignInResult(result);
+                    
+                } catch (popupError) {
+                    console.log('❌ Popup failed, trying redirect...', popupError.code);
+                    
+                    if (popupError.code === 'auth/popup-blocked' || 
+                        popupError.code === 'auth/popup-closed-by-user') {
+                        // Fall back to redirect
+                        console.log('🔄 Using redirect method...');
+                        await auth.signInWithRedirect(googleProvider);
+                        return; // Don't re-enable buttons, redirect will handle
+                    } else {
+                        throw popupError; // Re-throw other errors
+                    }
+                }
+                
+            } catch (error) {
+                console.error('❌ Google sign in error:', error);
+                
+                // Re-enable buttons
+                const googleButtons = document.querySelectorAll('.btn-google');
+                googleButtons.forEach((btn, index) => {
+                    btn.disabled = false;
+                    btn.innerHTML = index === 0 ? 
+                        'Sign up with Google' : 
+                        'Continue with Google';
+                });
+                
+                let message = 'Google sign in failed. Please try again.';
+                
+                switch (error.code) {
+                    case 'auth/network-request-failed':
+                        message = 'Network error. Please check your connection.';
+                        break;
+                    case 'auth/too-many-requests':
+                        message = 'Too many requests. Please wait and try again.';
+                        break;
+                    case 'auth/operation-not-allowed':
+                        message = 'Google sign-in is not enabled. Please contact support.';
+                        break;
+                    case 'auth/unauthorized-domain':
+                        message = 'This domain is not authorized for Google sign-in.';
+                        break;
+                }
+                
+                alert('Google Sign-In Error: ' + message);
+                console.error('Full error details:', error);
+            }
+        }
+
+        // Handle Google sign in result
+        async function handleGoogleSignInResult(result) {
+            try {
+                console.log('🔄 Processing Google sign in result...');
+                const user = result.user;
+                
+                // Show success message immediately
+                document.getElementById('success-message').innerHTML = '<strong>✅ Google sign in successful!</strong> Setting up your account...';
+                document.getElementById('success-message').classList.add('show');
+                
+                console.log('👤 User info:', {
+                    uid: user.uid,
+                    email: user.email,
+                    displayName: user.displayName
+                });
+                
+                // Check if user profile exists
+                console.log('🔍 Checking if user profile exists...');
+                const userDoc = await firestore.collection('users').doc(user.uid).get();
+                
+                if (!userDoc.exists) {
+                    console.log('📝 Creating new user profile...');
+                    document.getElementById('success-message').innerHTML = '<strong>✅ Creating your account...</strong> Almost done!';
+                    
+                    const profile = await createUserProfile(user);
+                    console.log('✅ Profile created:', profile);
+                    
+                    document.getElementById('success-message').innerHTML = '<strong>✅ Account created!</strong> Redirecting...';
+                } else {
+                    console.log('👋 Existing user, updating login...');
+                    document.getElementById('success-message').innerHTML = '<strong>✅ Welcome back!</strong> Redirecting...';
+                    await updateLastLogin(user);
+                }
+                
+                // Redirect after success
+                setTimeout(() => {
+                    console.log('🏠 Redirecting to home...');
+                    window.location.href = 'home.html';
+                }, 1500);
+                
+            } catch (error) {
+                console.error('❌ Error processing Google result:', error);
+                document.getElementById('success-message').classList.remove('show');
+                alert('Failed to complete sign in: ' + error.message);
+            }
+        }
+
+        // Handle redirect result from Google Sign In
+        auth.getRedirectResult().then(async (result) => {
+            console.log('🔄 Checking redirect result...', result);
+            
+            if (result && result.user) {
+                console.log('✅ Redirect result found!');
+                await handleGoogleSignInResult(result);
+            } else {
+                console.log('ℹ️ No redirect result found');
+            }
+        }).catch((error) => {
+            console.error('❌ Redirect result error:', error);
+            if (error.code !== 'auth/redirect-cancelled-by-user') {
+                alert('Google sign in failed: ' + error.message);
+            }
+        });
+
+        // Run cleanup on page load (in production, this should be a scheduled cloud function)
+        // Commented out for now - implement as a cloud function for production
+        // cleanupInactiveAccounts();
+    </script>
+</body>
+</html>
