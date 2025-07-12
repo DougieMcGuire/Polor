@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Polor Quiz AI</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #e1f5fe;
+      color: #222;
+      padding: 2rem;
+    }
+    h1 {
+      color: #0288d1;
+    }
+    label {
+      display: block;
+      margin-top: 1rem;
+    }
+    input, select {
+      padding: 0.5rem;
+      width: 100%;
+      max-width: 400px;
+    }
+    button {
+      margin-top: 1rem;
+      padding: 0.7rem 1.5rem;
+      background: #0288d1;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .quiz-container {
+      margin-top: 2rem;
+    }
+    .quiz-question {
+      margin-bottom: 2rem;
+      background: #ffffff;
+      border-radius: 10px;
+      padding: 1rem;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    img {
+      max-width: 100%;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Polor AI Quiz Generator</h1>
+
+  <form id="quiz-form">
+    <label>Topic: <input type="text" name="topic" required></label>
+    <label>Number of Questions: <input type="number" name="count" value="3"></label>
+    <label>Tone: <input type="text" name="tone" placeholder="funny, serious, simple"></label>
+    <label>Target Age: <input type="number" name="age" placeholder="12"></label>
+    <button type="submit">Generate Quiz</button>
+  </form>
+
+  <div class="quiz-container" id="quiz"></div>
+
+  <script>
+    function getParamsFromURL() {
+      const params = new URLSearchParams(window.location.search);
+      return {
+        topic: params.get('topic'),
+        count: params.get('count') || 3,
+        tone: params.get('tone') || 'default',
+        age: params.get('age') || 'all',
+      };
+    }
+
+    async function generateQuizFromPollinations(params) {
+      const prompt = `Make a ${params.count}-question quiz about ${params.topic}, tone: ${params.tone}, for age ${params.age}, format: JSON with Question1, Image1, Question1answer1... etc`;
+      const url = `https://text.pollinations.ai/${encodeURIComponent(prompt)}`;
+      const response = await fetch(url);
+      const text = await response.text();
+
+      try {
+        const json = JSON.parse(text);
+        displayQuiz(json);
+      } catch (e) {
+        document.getElementById('quiz').innerHTML = '<p>⚠️ Failed to parse quiz data.</p><pre>' + text + '</pre>';
+      }
+    }
+
+    function displayQuiz(data) {
+      const container = document.getElementById('quiz');
+      container.innerHTML = '';
+
+      for (let i = 1; data[`Question${i}`]; i++) {
+        const question = data[`Question${i}`];
+        const imagePrompt = data[`Image${i}`] || data[`Question${i}`];
+        const imageUrl = `https://image.pollinations.ai/${encodeURIComponent(imagePrompt)}?nologo=true`;
+
+        const answers = [1,2,3,4].map(n => data[`Question${i}answer${n}`]).filter(Boolean);
+
+        const block = document.createElement('div');
+        block.className = 'quiz-question';
+        block.innerHTML = `
+          <h2>Q${i}: ${question}</h2>
+          <img src="${imageUrl}" alt="Question Image">
+          <ul>
+            ${answers.map(a => `<li>${a}</li>`).join('')}
+          </ul>
+        `;
+        container.appendChild(block);
+      }
+    }
+
+    document.getElementById('quiz-form').addEventListener('submit', e => {
+      e.preventDefault();
+      const form = new FormData(e.target);
+      const search = new URLSearchParams({
+        topic: form.get('topic'),
+        count: form.get('count'),
+        tone: form.get('tone'),
+        age: form.get('age'),
+      }).toString();
+      window.location.search = '?' + search;
+    });
+
+    const params = getParamsFromURL();
+    if (params.topic) {
+      generateQuizFromPollinations(params);
+    }
+  </script>
+</body>
+</html>
