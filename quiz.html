@@ -36,22 +36,37 @@
       margin-top: 2rem;
     }
     .quiz-question {
-      margin-bottom: 2rem;
       background: #ffffff;
       border-radius: 10px;
       padding: 1rem;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      display: none;
+    }
+    .quiz-question.active {
+      display: block;
     }
     img {
       max-width: 100%;
       border-radius: 8px;
+    }
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+    li {
+      background: #0288d1;
+      color: white;
+      padding: 0.5rem;
+      border-radius: 6px;
+      margin-top: 0.5rem;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
   <h1>Polor AI Quiz Generator</h1>
 
-  <form id="quiz-form">
+  <form id="quiz-form" style="display: none;">
     <label>Topic: <input type="text" name="topic" required></label>
     <label>Number of Questions: <input type="number" name="count" value="3"></label>
     <label>Tone: <input type="text" name="tone" placeholder="funny, serious, simple"></label>
@@ -78,7 +93,6 @@
       const response = await fetch(url);
       const text = await response.text();
 
-      // Try to extract JSON from inside possible text wrapping
       const jsonMatch = text.match(/\{[\s\S]*\}/);
       if (!jsonMatch) {
         document.getElementById('quiz').innerHTML = '<p>⚠️ Failed to parse quiz data.</p><pre>' + text + '</pre>';
@@ -87,34 +101,50 @@
 
       try {
         const json = JSON.parse(jsonMatch[0]);
-        displayQuiz(json);
+        runQuiz(json);
       } catch (e) {
         document.getElementById('quiz').innerHTML = '<p>⚠️ JSON Parse Error</p><pre>' + jsonMatch[0] + '</pre>';
       }
     }
 
-    function displayQuiz(data) {
+    function runQuiz(data) {
       const container = document.getElementById('quiz');
       container.innerHTML = '';
 
+      const questions = [];
       for (let i = 1; data[`Question${i}`]; i++) {
-        const question = data[`Question${i}`];
-
+        const questionText = data[`Question${i}`];
         const answers = [1, 2, 3, 4].map(n => data[`Question${i}answer${n}`]).filter(Boolean);
-        const imagePrompt = answers[0] || question;
-        const imageUrl = `https://image.pollinations.ai/${encodeURIComponent(imagePrompt)}?nologo=true`;
+        const imagePrompt = answers[0] || questionText;
+        const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(imagePrompt)}?nologo=true`;
 
         const block = document.createElement('div');
         block.className = 'quiz-question';
         block.innerHTML = `
-          <h2>Q${i}: ${question}</h2>
+          <h2>${questionText}</h2>
           <img src="${imageUrl}" alt="Question Image">
           <ul>
             ${answers.map(a => `<li>${a}</li>`).join('')}
           </ul>
         `;
         container.appendChild(block);
+        questions.push(block);
       }
+
+      let currentIndex = 0;
+      questions[currentIndex].classList.add('active');
+
+      container.addEventListener('click', function (e) {
+        if (e.target.tagName.toLowerCase() === 'li') {
+          questions[currentIndex].classList.remove('active');
+          currentIndex++;
+          if (currentIndex < questions.length) {
+            questions[currentIndex].classList.add('active');
+          } else {
+            container.innerHTML = '<h2>✅ Quiz complete!</h2>';
+          }
+        }
+      });
     }
 
     document.getElementById('quiz-form').addEventListener('submit', e => {
@@ -131,7 +161,10 @@
 
     const params = getParamsFromURL();
     if (params.topic) {
+      document.getElementById('quiz-form').style.display = 'none';
       generateQuizFromPollinations(params);
+    } else {
+      document.getElementById('quiz-form').style.display = 'block';
     }
   </script>
 </body>
