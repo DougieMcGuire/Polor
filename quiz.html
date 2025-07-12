@@ -88,7 +88,7 @@
     }
 
     async function generateQuizFromPollinations(params) {
-      const prompt = `Make a ${params.count}-question quiz about ${params.topic}, tone: ${params.tone}, for age ${params.age}, format: JSON with Question1, Question1answer1-4, etc.`;
+      const prompt = `Make a ${params.count}-question multiple choice quiz about ${params.topic}, tone: ${params.tone}, for age ${params.age}, format: JSON with Question1, Question1answer1, Question1answer2, Question1answer3, Question1answer4 (if available)`;
       const url = `https://text.pollinations.ai/${encodeURIComponent(prompt)}`;
       const response = await fetch(url);
       const text = await response.text();
@@ -115,7 +115,10 @@
       for (let i = 1; data[`Question${i}`]; i++) {
         const questionText = data[`Question${i}`];
         const answers = [1, 2, 3, 4].map(n => data[`Question${i}answer${n}`]).filter(Boolean);
-        const imagePrompt = answers[0] || questionText;
+
+        if (answers.length === 0) continue; // skip if no answers at all
+
+        const imagePrompt = questionText + ' ' + answers[0];
         const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(imagePrompt)}?nologo=true`;
 
         const block = document.createElement('div');
@@ -129,6 +132,11 @@
         `;
         container.appendChild(block);
         questions.push(block);
+      }
+
+      if (questions.length === 0) {
+        container.innerHTML = '<p>⚠️ No valid quiz questions returned.</p>';
+        return;
       }
 
       let currentIndex = 0;
