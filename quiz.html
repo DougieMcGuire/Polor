@@ -73,16 +73,23 @@
     }
 
     async function generateQuizFromPollinations(params) {
-      const prompt = `Make a ${params.count}-question quiz about ${params.topic}, tone: ${params.tone}, for age ${params.age}, format: JSON with Question1, Image1, Question1answer1... etc`;
+      const prompt = `Make a ${params.count}-question quiz about ${params.topic}, tone: ${params.tone}, for age ${params.age}, format: JSON with Question1, Question1answer1-4, etc.`;
       const url = `https://text.pollinations.ai/${encodeURIComponent(prompt)}`;
       const response = await fetch(url);
       const text = await response.text();
 
+      // Try to extract JSON from inside possible text wrapping
+      const jsonMatch = text.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) {
+        document.getElementById('quiz').innerHTML = '<p>⚠️ Failed to parse quiz data.</p><pre>' + text + '</pre>';
+        return;
+      }
+
       try {
-        const json = JSON.parse(text);
+        const json = JSON.parse(jsonMatch[0]);
         displayQuiz(json);
       } catch (e) {
-        document.getElementById('quiz').innerHTML = '<p>⚠️ Failed to parse quiz data.</p><pre>' + text + '</pre>';
+        document.getElementById('quiz').innerHTML = '<p>⚠️ JSON Parse Error</p><pre>' + jsonMatch[0] + '</pre>';
       }
     }
 
@@ -92,10 +99,10 @@
 
       for (let i = 1; data[`Question${i}`]; i++) {
         const question = data[`Question${i}`];
-        const imagePrompt = data[`Image${i}`] || data[`Question${i}`];
-        const imageUrl = `https://image.pollinations.ai/${encodeURIComponent(imagePrompt)}?nologo=true`;
 
-        const answers = [1,2,3,4].map(n => data[`Question${i}answer${n}`]).filter(Boolean);
+        const answers = [1, 2, 3, 4].map(n => data[`Question${i}answer${n}`]).filter(Boolean);
+        const imagePrompt = answers[0] || question;
+        const imageUrl = `https://image.pollinations.ai/${encodeURIComponent(imagePrompt)}?nologo=true`;
 
         const block = document.createElement('div');
         block.className = 'quiz-question';
