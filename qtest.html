@@ -1,117 +1,87 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Google Form JSON Fetcher</title>
-<script src="https://accounts.google.com/gsi/client" async defer></script>
-<style>
-  body { font-family: Arial, sans-serif; margin: 2rem; }
-  input { width: 100%; max-width: 600px; font-size: 1rem; padding: 0.5rem; }
-  button { font-size: 1rem; padding: 0.5rem 1rem; margin-top: 0.5rem; }
-  pre { background: #f7f7f7; padding: 1rem; max-height: 500px; overflow-y: auto; white-space: pre-wrap; }
-  #status { margin-top: 1rem; font-weight: bold; }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Polor Form Import</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f2f5;
+      padding: 2rem;
+      text-align: center;
+    }
+    textarea, input {
+      width: 100%;
+      max-width: 600px;
+      padding: 1rem;
+      margin: 1rem auto;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+    button {
+      padding: 0.75rem 1.5rem;
+      background-color: #008cff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    pre {
+      text-align: left;
+      max-width: 600px;
+      margin: 2rem auto;
+      background: #1e1e1e;
+      color: #0f0;
+      padding: 1rem;
+      border-radius: 8px;
+      overflow-x: auto;
+    }
+  </style>
 </head>
 <body>
+  <h1>Import Google Form</h1>
+  <p>Paste a Google Forms link (any public or responder link)</p>
+  <input type="text" id="formUrl" placeholder="Paste Google Form URL..." />
+  <button onclick="handleImport()">Continue</button>
+  
+  <pre id="output" style="display:none;"></pre>
 
-<h1>Google Form JSON Fetcher</h1>
-
-<label for="urlInput">Paste Google Form URL:</label><br/>
-<input type="text" id="urlInput" placeholder="e.g. https://docs.google.com/forms/d/e/FORM_ID/viewform" />
-<br/>
-<button id="authFetchBtn">Sign In & Fetch Form JSON</button>
-
-<div id="status"></div>
-<pre id="output"></pre>
-
-<script>
-  const CLIENT_ID = "232986823513-c8rsg486ajmis1stpci6r8ui55dah4t2.apps.googleusercontent.com";
-  const SCOPES = "https://www.googleapis.com/auth/forms.body.readonly";
-
-  let tokenClient;
-  let accessToken = "";
-
-  // Extract form ID using multiple regex patterns for robustness
-  function extractFormId(url) {
-    try {
-      const patterns = [
-        /\/forms\/d\/e\/([a-zA-Z0-9_-]{30,})/,  // /d/e/FORM_ID
-        /\/forms\/d\/([a-zA-Z0-9_-]{30,})/,    // /d/FORM_ID
-      ];
-      for (const pattern of patterns) {
-        const match = url.match(pattern);
-        if (match && match[1]) {
-          return match[1];
-        }
+  <script>
+    function extractFormIdFromUrl(url) {
+      try {
+        const u = new URL(url);
+        const parts = u.pathname.split("/");
+        const likelyId = parts.find(p => /^[a-zA-Z0-9_-]{30,}$/.test(p));
+        return likelyId || null;
+      } catch (e) {
+        return null;
       }
-      // Fallback: split by / and pick longest segment matching pattern
-      const parts = url.split('/').filter(Boolean);
-      const candidates = parts.filter(p => /^[a-zA-Z0-9_-]{30,}$/.test(p));
-      if (candidates.length) {
-        // Return longest candidate
-        return candidates.reduce((a,b) => a.length >= b.length ? a : b);
-      }
-    } catch {
-      // ignore errors
     }
-    return null;
-  }
 
-  function setStatus(msg) {
-    document.getElementById('status').textContent = msg;
-  }
+    async function handleImport() {
+      const url = document.getElementById("formUrl").value.trim();
+      const formId = extractFormIdFromUrl(url);
+      const output = document.getElementById("output");
 
-  async function fetchFormJSON(formId) {
-    setStatus("Fetching form JSON...");
-    document.getElementById('output').textContent = "";
-    try {
-      const res = await fetch(`https://forms.googleapis.com/v1/forms/${formId}`, {
-        headers: { Authorization: `Bearer ${accessToken}` }
-      });
-      if (!res.ok) {
-        const errText = await res.text();
-        setStatus("Error fetching form: " + res.status + " " + res.statusText);
-        document.getElementById('output').textContent = errText;
+      if (!formId) {
+        output.style.display = "block";
+        output.textContent = "❌ Could not extract form ID from that URL.";
         return;
       }
-      const json = await res.json();
-      setStatus("Form JSON fetched successfully!");
-      document.getElementById('output').textContent = JSON.stringify(json, null, 2);
-    } catch (e) {
-      setStatus("Fetch error: " + e.message);
+
+      // Display fake JSON as a placeholder
+      const fakeJson = {
+        formId: formId,
+        status: "🟢 ID extracted successfully",
+        next: "Later this will become a real quiz"
+      };
+
+      output.style.display = "block";
+      output.textContent = JSON.stringify(fakeJson, null, 2);
     }
-  }
-
-  // Google Identity Services OAuth
-  function initTokenClient() {
-    tokenClient = google.accounts.oauth2.initTokenClient({
-      client_id: CLIENT_ID,
-      scope: SCOPES,
-      callback: (resp) => {
-        if (resp.error) {
-          setStatus("OAuth error: " + resp.error);
-          return;
-        }
-        accessToken = resp.access_token;
-        const url = document.getElementById('urlInput').value.trim();
-        const formId = extractFormId(url);
-        if (!formId) {
-          setStatus("❌ Invalid or no form ID found in URL.");
-          return;
-        }
-        fetchFormJSON(formId);
-      }
-    });
-  }
-
-  document.getElementById('authFetchBtn').addEventListener('click', () => {
-    if (!tokenClient) {
-      initTokenClient();
-    }
-    tokenClient.requestAccessToken();
-  });
-</script>
-
+  </script>
 </body>
 </html>
