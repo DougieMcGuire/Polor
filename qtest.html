@@ -1,86 +1,73 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Polor Form Import</title>
+  <title>Google Form JSON Importer</title>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f0f2f5;
-      padding: 2rem;
-      text-align: center;
-    }
-    textarea, input {
-      width: 100%;
-      max-width: 600px;
-      padding: 1rem;
-      margin: 1rem auto;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      font-size: 1rem;
-    }
-    button {
-      padding: 0.75rem 1.5rem;
-      background-color: #008cff;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      font-size: 1rem;
-      cursor: pointer;
-    }
-    pre {
-      text-align: left;
-      max-width: 600px;
-      margin: 2rem auto;
-      background: #1e1e1e;
-      color: #0f0;
-      padding: 1rem;
-      border-radius: 8px;
-      overflow-x: auto;
-    }
+    body { font-family: Arial, sans-serif; margin: 2rem; }
+    input { width: 500px; padding: 0.5rem; font-size: 1rem; }
+    button { padding: 0.5rem 1rem; font-size: 1rem; margin-left: 0.5rem; }
+    pre { background: #f0f0f0; padding: 1rem; max-height: 500px; overflow: auto; white-space: pre-wrap; }
   </style>
 </head>
 <body>
-  <h1>Import Google Form</h1>
-  <p>Paste a Google Forms link (any public or responder link)</p>
-  <input type="text" id="formUrl" placeholder="Paste Google Form URL..." />
-  <button onclick="handleImport()">Continue</button>
-  
-  <pre id="output" style="display:none;"></pre>
+  <h1>Google Form JSON Importer</h1>
+  <input type="text" id="formUrl" placeholder="Paste Google Form URL (viewform link)" />
+  <button onclick="authorize()">Sign In & Fetch Form</button>
+  <pre id="output">Paste a Google Form URL and click the button.</pre>
 
   <script>
-    function extractFormIdFromUrl(url) {
-      try {
-        const u = new URL(url);
-        const parts = u.pathname.split("/");
-        const likelyId = parts.find(p => /^[a-zA-Z0-9_-]{30,}$/.test(p));
-        return likelyId || null;
-      } catch (e) {
-        return null;
-      }
+    const CLIENT_ID = "232986823513-c8rsg486ajmis1stpci6r8ui55dah4t2.apps.googleusercontent.com"; // Replace with yours
+    const SCOPES = "https://www.googleapis.com/auth/forms.body.readonly";
+
+    let tokenClient;
+    let accessToken = "";
+
+    function authorize() {
+      tokenClient = google.accounts.oauth2.initTokenClient({
+        client_id: CLIENT_ID,
+        scope: SCOPES,
+        callback: async (tokenResponse) => {
+          if (tokenResponse.error) {
+            document.getElementById('output').textContent = '❌ Auth error: ' + tokenResponse.error;
+            return;
+          }
+          accessToken = tokenResponse.access_token;
+          const url = document.getElementById('formUrl').value.trim();
+          const formId = extractFormId(url);
+          if (!formId) {
+            document.getElementById('output').textContent = "❌ Invalid Google Form URL.";
+            return;
+          }
+          await fetchFormJSON(formId);
+        }
+      });
+      tokenClient.requestAccessToken();
     }
 
-    async function handleImport() {
-      const url = document.getElementById("formUrl").value.trim();
-      const formId = extractFormIdFromUrl(url);
-      const output = document.getElementById("output");
+    function extractFormId(url) {
+      // Supports responder links like /viewform
+      const eMatch = url.match(/\/forms\/d\/e\/([a-zA-Z0-9_-]+)/);
+      const regularMatch = url.match(/\/forms\/d\/([a-zA-Z0-9_-]+)/);
+      return (eMatch && eMatch[1]) || (regularMatch && regularMatch[1]) || null;
+    }
 
-      if (!formId) {
-        output.style.display = "block";
-        output.textContent = "❌ Could not extract form ID from that URL.";
-        return;
+    async function fetchFormJSON(formId) {
+      document.getElementById('output').textContent = "📥 Fetching form JSON...";
+      try {
+        const response = await fetch(`https://forms.googleapis.com/v1/forms/${formId}`, {
+          headers: { Authorization: `Bearer ${accessToken}` }
+        });
+        if (!response.ok) {
+          const errorText = await response.text();
+          document.getElementById('output').textContent = "❌ Error fetching form:\n" + errorText;
+          return;
+        }
+        const data = await response.json();
+        document.getElementById('output').textContent = JSON.stringify(data, null, 2);
+      } catch (err) {
+        document.getElementById('output').textContent = "❌ Fetch error: " + err.message;
       }
-
-      // Display fake JSON as a placeholder
-      const fakeJson = {
-        formId: formId,
-        status: "🟢 ID extracted successfully",
-        next: "Later this will become a real quiz"
-      };
-
-      output.style.display = "block";
-      output.textContent = JSON.stringify(fakeJson, null, 2);
     }
   </script>
 </body>
