@@ -46,10 +46,21 @@
     }
 
     function extractFormId(url) {
-      // Support different Google Form URL patterns
-      const match = url.match(/\/forms\/d\/e\/([a-zA-Z0-9_-]+)/) || url.match(/\/forms\/d\/([a-zA-Z0-9_-]+)/);
-      return match ? match[1] : null;
+  try {
+    const parts = url.split('/').filter(Boolean);
+    // Sort descending by length
+    parts.sort((a, b) => b.length - a.length);
+    for (const segment of parts) {
+      // Accept only if segment matches Google Form ID pattern
+      if (/^[a-zA-Z0-9_-]{30,}$/.test(segment)) {
+        return segment;
+      }
     }
+  } catch {
+    // ignore errors
+  }
+  return null;
+}
 
     async function fetchFormJSON(formId) {
       document.getElementById('output').textContent = "Fetching form JSON...";
