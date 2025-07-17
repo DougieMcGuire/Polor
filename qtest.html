@@ -1,84 +1,117 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Google Form JSON Importer</title>
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 2rem; }
-    input { width: 500px; padding: 0.5rem; font-size: 1rem; }
-    button { padding: 0.5rem 1rem; font-size: 1rem; margin-left: 0.5rem; }
-    pre { background: #f0f0f0; padding: 1rem; max-height: 500px; overflow: auto; white-space: pre-wrap; }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Google Form JSON Fetcher</title>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+  body { font-family: Arial, sans-serif; margin: 2rem; }
+  input { width: 100%; max-width: 600px; font-size: 1rem; padding: 0.5rem; }
+  button { font-size: 1rem; padding: 0.5rem 1rem; margin-top: 0.5rem; }
+  pre { background: #f7f7f7; padding: 1rem; max-height: 500px; overflow-y: auto; white-space: pre-wrap; }
+  #status { margin-top: 1rem; font-weight: bold; }
+</style>
 </head>
 <body>
-  <h1>Google Form JSON Importer</h1>
-  <input type="text" id="formUrl" placeholder="Paste Google Form URL here" />
-  <button onclick="authorize()">Sign In & Fetch Form</button>
-  <pre id="output">Enter a Google Form URL and click the button.</pre>
 
-  <script>
-    const CLIENT_ID = "232986823513-c8rsg486ajmis1stpci6r8ui55dah4t2.apps.googleusercontent.com";
-    const SCOPES = "https://www.googleapis.com/auth/forms.body.readonly";
+<h1>Google Form JSON Fetcher</h1>
 
-    let tokenClient;
-    let accessToken = "";
+<label for="urlInput">Paste Google Form URL:</label><br/>
+<input type="text" id="urlInput" placeholder="e.g. https://docs.google.com/forms/d/e/FORM_ID/viewform" />
+<br/>
+<button id="authFetchBtn">Sign In & Fetch Form JSON</button>
 
-    function authorize() {
-      tokenClient = google.accounts.oauth2.initTokenClient({
-        client_id: CLIENT_ID,
-        scope: SCOPES,
-        callback: async (tokenResponse) => {
-          if (tokenResponse.error) {
-            document.getElementById('output').textContent = 'Error: ' + tokenResponse.error;
-            return;
-          }
-          accessToken = tokenResponse.access_token;
-          const url = document.getElementById('formUrl').value.trim();
-          const formId = extractFormId(url);
-          if (!formId) {
-            document.getElementById('output').textContent = "❌ Invalid Google Form URL.";
-            return;
-          }
-          await fetchFormJSON(formId);
+<div id="status"></div>
+<pre id="output"></pre>
+
+<script>
+  const CLIENT_ID = "232986823513-c8rsg486ajmis1stpci6r8ui55dah4t2.apps.googleusercontent.com";
+  const SCOPES = "https://www.googleapis.com/auth/forms.body.readonly";
+
+  let tokenClient;
+  let accessToken = "";
+
+  // Extract form ID using multiple regex patterns for robustness
+  function extractFormId(url) {
+    try {
+      const patterns = [
+        /\/forms\/d\/e\/([a-zA-Z0-9_-]{30,})/,  // /d/e/FORM_ID
+        /\/forms\/d\/([a-zA-Z0-9_-]{30,})/,    // /d/FORM_ID
+      ];
+      for (const pattern of patterns) {
+        const match = url.match(pattern);
+        if (match && match[1]) {
+          return match[1];
         }
-      });
-      tokenClient.requestAccessToken();
-    }
-
-    function extractFormId(url) {
-  try {
-    const parts = url.split('/').filter(Boolean);
-    // Sort descending by length
-    parts.sort((a, b) => b.length - a.length);
-    for (const segment of parts) {
-      // Accept only if segment matches Google Form ID pattern
-      if (/^[a-zA-Z0-9_-]{30,}$/.test(segment)) {
-        return segment;
       }
+      // Fallback: split by / and pick longest segment matching pattern
+      const parts = url.split('/').filter(Boolean);
+      const candidates = parts.filter(p => /^[a-zA-Z0-9_-]{30,}$/.test(p));
+      if (candidates.length) {
+        // Return longest candidate
+        return candidates.reduce((a,b) => a.length >= b.length ? a : b);
+      }
+    } catch {
+      // ignore errors
     }
-  } catch {
-    // ignore errors
+    return null;
   }
-  return null;
-}
 
-    async function fetchFormJSON(formId) {
-      document.getElementById('output').textContent = "Fetching form JSON...";
-      try {
-        const response = await fetch(`https://forms.googleapis.com/v1/forms/${formId}`, {
-          headers: { Authorization: `Bearer ${accessToken}` }
-        });
-        if (!response.ok) {
-          const errorText = await response.text();
-          document.getElementById('output').textContent = "Error fetching form:\n" + errorText;
+  function setStatus(msg) {
+    document.getElementById('status').textContent = msg;
+  }
+
+  async function fetchFormJSON(formId) {
+    setStatus("Fetching form JSON...");
+    document.getElementById('output').textContent = "";
+    try {
+      const res = await fetch(`https://forms.googleapis.com/v1/forms/${formId}`, {
+        headers: { Authorization: `Bearer ${accessToken}` }
+      });
+      if (!res.ok) {
+        const errText = await res.text();
+        setStatus("Error fetching form: " + res.status + " " + res.statusText);
+        document.getElementById('output').textContent = errText;
+        return;
+      }
+      const json = await res.json();
+      setStatus("Form JSON fetched successfully!");
+      document.getElementById('output').textContent = JSON.stringify(json, null, 2);
+    } catch (e) {
+      setStatus("Fetch error: " + e.message);
+    }
+  }
+
+  // Google Identity Services OAuth
+  function initTokenClient() {
+    tokenClient = google.accounts.oauth2.initTokenClient({
+      client_id: CLIENT_ID,
+      scope: SCOPES,
+      callback: (resp) => {
+        if (resp.error) {
+          setStatus("OAuth error: " + resp.error);
           return;
         }
-        const data = await response.json();
-        document.getElementById('output').textContent = JSON.stringify(data, null, 2);
-      } catch (err) {
-        document.getElementById('output').textContent = "Fetch error: " + err.message;
+        accessToken = resp.access_token;
+        const url = document.getElementById('urlInput').value.trim();
+        const formId = extractFormId(url);
+        if (!formId) {
+          setStatus("❌ Invalid or no form ID found in URL.");
+          return;
+        }
+        fetchFormJSON(formId);
       }
+    });
+  }
+
+  document.getElementById('authFetchBtn').addEventListener('click', () => {
+    if (!tokenClient) {
+      initTokenClient();
     }
-  </script>
+    tokenClient.requestAccessToken();
+  });
+</script>
+
 </body>
 </html>
