@@ -1,74 +1,138 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Google Form JSON Importer</title>
+  <title>Google Forms Picker + JSON Fetcher</title>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script src="https://apis.google.com/js/api.js"></script>
   <style>
     body { font-family: Arial, sans-serif; margin: 2rem; }
-    input { width: 500px; padding: 0.5rem; font-size: 1rem; }
-    button { padding: 0.5rem 1rem; font-size: 1rem; margin-left: 0.5rem; }
+    button { font-size: 1.2rem; padding: 0.5rem 1rem; }
     pre { background: #f0f0f0; padding: 1rem; max-height: 500px; overflow: auto; white-space: pre-wrap; }
   </style>
 </head>
 <body>
-  <h1>Google Form JSON Importer</h1>
-  <input type="text" id="formUrl" placeholder="Paste Google Form URL (viewform link)" />
-  <button onclick="authorize()">Sign In & Fetch Form</button>
-  <pre id="output">Paste a Google Form URL and click the button.</pre>
+
+  <h1>Select a Google Form and see its JSON</h1>
+  <button id="authorize_button">Authorize & Pick a Form</button>
+  <pre id="output">Waiting for authorization...</pre>
 
   <script>
-    const CLIENT_ID = "232986823513-c8rsg486ajmis1stpci6r8ui55dah4t2.apps.googleusercontent.com"; // Replace with yours
-    const SCOPES = "https://www.googleapis.com/auth/forms.body.readonly";
+    // ==== CONFIG ====
+    const CLIENT_ID = '232986823513-c8rsg486ajmis1stpci6r8ui55dah4t2.apps.googleusercontent.com';
+    const API_KEY = 'AIzaSyA8HcTDiCQtJHRiMES2p1iUlA30AkZPx1Y';
+
+    const SCOPES = 'https://www.googleapis.com/auth/drive.readonly https://www.googleapis.com/auth/forms.body.readonly';
 
     let tokenClient;
-    let accessToken = "";
+    let accessToken = '';
+    let pickerApiLoaded = false;
+    let gapiInited = false;
 
-    function authorize() {
+    const authorizeButton = document.getElementById('authorize_button');
+    const output = document.getElementById('output');
+
+    authorizeButton.onclick = handleAuthClick;
+
+    // Load the APIs
+    function gapiLoaded() {
+      gapi.load('client:picker', initializeGapiClient);
+    }
+
+    async function initializeGapiClient() {
+      await gapi.client.init({
+        apiKey: API_KEY,
+        discoveryDocs: ['https://forms.googleapis.com/$discovery/rest?version=v1']
+      });
+      gapiInited = true;
+      maybeEnableButton();
+    }
+
+    function pickerApiLoadedFunc() {
+      pickerApiLoaded = true;
+      maybeEnableButton();
+    }
+
+    function maybeEnableButton() {
+      if (gapiInited && pickerApiLoaded) {
+        authorizeButton.disabled = false;
+        output.textContent = 'Click the button to authorize and pick a form.';
+      }
+    }
+
+    function handleAuthClick() {
       tokenClient = google.accounts.oauth2.initTokenClient({
         client_id: CLIENT_ID,
         scope: SCOPES,
         callback: async (tokenResponse) => {
           if (tokenResponse.error) {
-            document.getElementById('output').textContent = '❌ Auth error: ' + tokenResponse.error;
+            output.textContent = 'Error: ' + tokenResponse.error;
             return;
           }
           accessToken = tokenResponse.access_token;
-          const url = document.getElementById('formUrl').value.trim();
-          const formId = extractFormId(url);
-          if (!formId) {
-            document.getElementById('output').textContent = "❌ Invalid Google Form URL.";
-            return;
-          }
-          await fetchFormJSON(formId);
-        }
+          createPicker();
+        },
       });
       tokenClient.requestAccessToken();
     }
 
-    function extractFormId(url) {
-      // Supports responder links like /viewform
-      const eMatch = url.match(/\/forms\/d\/e\/([a-zA-Z0-9_-]+)/);
-      const regularMatch = url.match(/\/forms\/d\/([a-zA-Z0-9_-]+)/);
-      return (eMatch && eMatch[1]) || (regularMatch && regularMatch[1]) || null;
+    function createPicker() {
+      if (!pickerApiLoaded) {
+        output.textContent = 'Picker API not loaded yet.';
+        return;
+      }
+      const view = new google.picker.DocsView(google.picker.ViewId.FORMS);
+      view.setMimeTypes('application/vnd.google-apps.form');
+      view.setSelectFolderEnabled(false);
+
+      const picker = new google.picker.PickerBuilder()
+        .enableFeature(google.picker.Feature.NAV_HIDDEN)
+        .enableFeature(google.picker.Feature.MULTISELECT_ENABLED)
+        .setOAuthToken(accessToken)
+        .setDeveloperKey(API_KEY)
+        .addView(view)
+        .setCallback(pickerCallback)
+        .build();
+      picker.setVisible(true);
     }
 
-    async function fetchFormJSON(formId) {
-      document.getElementById('output').textContent = "📥 Fetching form JSON...";
-      try {
-        const response = await fetch(`https://forms.googleapis.com/v1/forms/${formId}`, {
-          headers: { Authorization: `Bearer ${accessToken}` }
-        });
-        if (!response.ok) {
-          const errorText = await response.text();
-          document.getElementById('output').textContent = "❌ Error fetching form:\n" + errorText;
-          return;
+    async function pickerCallback(data) {
+      if (data.action === google.picker.Action.PICKED) {
+        const doc = data.docs[0];
+        const formId = doc.id;
+        output.textContent = 'Fetching form JSON for ID: ' + formId + ' ...';
+
+        try {
+          const response = await fetch(`https://forms.googleapis.com/v1/forms/${formId}`, {
+            headers: { Authorization: `Bearer ${accessToken}` },
+          });
+          if (!response.ok) {
+            const errText = await response.text();
+            output.textContent = 'Error fetching form JSON:\n' + errText;
+            return;
+          }
+          const formJson = await response.json();
+          output.textContent = JSON.stringify(formJson, null, 2);
+        } catch (err) {
+          output.textContent = 'Fetch error: ' + err.message;
         }
-        const data = await response.json();
-        document.getElementById('output').textContent = JSON.stringify(data, null, 2);
-      } catch (err) {
-        document.getElementById('output').textContent = "❌ Fetch error: " + err.message;
+      } else if (data.action === google.picker.Action.CANCEL) {
+        output.textContent = 'Picker closed without selection.';
       }
     }
+
+    // Load picker API
+    function loadPicker() {
+      const script = document.createElement('script');
+      script.src = 'https://apis.google.com/js/api.js';
+      script.onload = () => {
+        gapi.load('picker', pickerApiLoadedFunc);
+        gapiLoaded();
+      };
+      document.body.appendChild(script);
+    }
+
+    loadPicker();
+
   </script>
 </body>
 </html>
