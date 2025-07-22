@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>YouTube Transcript Viewer</title>
+</head>
+<body style="font-family:sans-serif;padding:2rem">
+  <h1>Transcript Viewer</h1>
+  <input id="videoInput" placeholder="Enter YouTube URL or ID" style="width:400px">
+  <button onclick="fetchTranscript()">Fetch Transcript</button>
+
+  <pre id="output" style="white-space:pre-wrap;margin-top:2rem;background:#f0f0f0;padding:1rem;border-radius:6px"></pre>
+
+  <script>
+    function extractVideoID(url) {
+      try {
+        const u = new URL(url);
+        if (u.hostname === 'youtu.be') return u.pathname.slice(1);
+        return u.searchParams.get('v');
+      } catch {
+        return url; // raw ID
+      }
+    }
+
+    async function fetchTranscript() {
+      const input = document.getElementById('videoInput').value.trim();
+      const id = extractVideoID(input);
+      const out = document.getElementById('output');
+      out.textContent = 'Loading...';
+
+      try {
+        const res = await fetch(`https://youtube-transcript-api.vercel.app/api/transcript/${id}`);
+        const data = await res.json();
+
+        if (!Array.isArray(data)) {
+          out.textContent = 'No transcript found or not supported.';
+          return;
+        }
+
+        out.textContent = data.map(line => line.text).join('\n');
+      } catch (err) {
+        out.textContent = 'Error: ' + err.message;
+      }
+    }
+  </script>
+</body>
+</html>
