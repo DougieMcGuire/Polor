@@ -18,11 +18,9 @@
       output.textContent = "⏳ Fetching...";
 
       try {
-        const response = await fetch("https://corsproxy.io/?https://free-api-call.aiseo.ai/youtube-video-transcript", {
+        const response = await fetch("https://poloryt.dtm2210.workers.dev/", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ url: urlInput })
         });
 
