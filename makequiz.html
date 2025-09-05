@@ -605,11 +605,13 @@
       try {
         let prompt;
         if (params.mode === 'magic') {
-          prompt = `Create a ${params.difficulty} ${params.count}-question multiple choice quiz about "${params.topic}" with a ${params.tone} tone for age ${params.age}. 
+          prompt = `Create a ${params.difficulty} difficulty quiz with exactly ${params.count} multiple choice questions about the topic: "${params.topic}". The quiz should have a ${params.tone} tone and be appropriate for someone who is ${params.age} years old.
 
-Return ONLY valid JSON in this exact format:
+IMPORTANT: The quiz must be specifically about "${params.topic}" - do not change the topic.
+
+Return ONLY a valid JSON object in this exact format (no extra text, no markdown):
 {
-  "title": "Quiz Title",
+  "title": "Quiz about ${params.topic}",
   "questions": [
     {
       "question": "Question text here?",
@@ -619,7 +621,12 @@ Return ONLY valid JSON in this exact format:
   ]
 }
 
-Make sure to include exactly ${params.count} questions. Each question should have 4 answer choices and the correct answer index (0-3).`;
+Requirements:
+- Include exactly ${params.count} questions
+- Each question must have exactly 4 answer choices
+- The "correct" field should be the index (0-3) of the correct answer
+- All questions must be about "${params.topic}"
+- Return only the JSON object, nothing else`;
         } else {
           prompt = `Based on these study notes, create a ${params.difficulty} ${params.count}-question multiple choice quiz:
 
