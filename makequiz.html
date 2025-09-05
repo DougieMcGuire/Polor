@@ -653,6 +653,7 @@ Make sure to include exactly ${params.count} questions based on the provided not
         
         // Validate the quiz data
         if (!quizData.questions || !Array.isArray(quizData.questions) || quizData.questions.length === 0) {
+          console.error('Invalid quiz format:', quizData);
           throw new Error('Invalid quiz format - no questions found');
         }
 
@@ -662,13 +663,17 @@ Make sure to include exactly ${params.count} questions based on the provided not
         );
 
         if (quizData.questions.length === 0) {
+          console.error('No valid questions after filtering:', quizData);
           throw new Error('No valid questions found');
         }
+
+        console.log('Final validated quiz:', quizData); // Debug log
 
         currentQuiz = quizData;
         currentQuestion = 0;
         userAnswers = new Array(quizData.questions.length).fill(null);
         
+        showLoading(false);
         showQuiz();
         
       } catch (error) {
