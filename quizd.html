@@ -317,7 +317,10 @@
   <!-- Loading State -->
   <div class="loading" id="loading">
     <div class="spinner"></div>
-    <p>Loading your quiz...</p>
+    <p id="loading-text">Loading your quiz and images...</p>
+    <div style="margin-top: 1rem; font-size: 0.9rem; opacity: 0.8;" id="loading-progress">
+      Preparing quiz experience...
+    </div>
   </div>
 
   <!-- Error State -->
@@ -387,13 +390,28 @@
         const decodedQuiz = atob(encodedQuiz);
         quizData = JSON.parse(decodedQuiz);
         
+        // If we got raw text instead of proper JSON, try to parse it here
+        if (quizData.raw) {
+          console.log('Got raw text, attempting to parse:', quizData.raw);
+          quizData = parseRawQuizText(quizData.raw);
+        }
+        
         if (!quizData || !quizData.questions || quizData.questions.length === 0) {
           throw new Error('Invalid quiz format');
         }
 
         userAnswers = new Array(quizData.questions.length).fill(null);
-        hideLoading();
-        startQuiz();
+        
+        // Preload all images before starting the quiz
+        preloadImages().then(() => {
+          hideLoading();
+          startQuiz();
+        }).catch((error) => {
+          console.warn('Some images failed to load:', error);
+          // Start quiz anyway, images will load individually
+          hideLoading();
+          startQuiz();
+        });
         
       } catch (error) {
         console.error('Error loading quiz:', error);
@@ -432,10 +450,23 @@
       // Display question text
       document.getElementById('question-text').textContent = question.question;
       
-      // Generate and display image
+      // Generate and display image (should already be preloaded)
       const imagePrompt = `${question.question} ${question.answers[0]}`;
       const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(imagePrompt)}?width=600&height=300&nologo=true`;
-      document.getElementById('question-image').src = imageUrl;
+      const imageElement = document.getElementById('question-image');
+      
+      // Set image with loading fallback
+      imageElement.src = imageUrl;
+      imageElement.style.opacity = '0.5'; // Show loading state
+      
+      imageElement.onload = () => {
+        imageElement.style.opacity = '1'; // Full opacity when loaded
+      };
+      
+      imageElement.onerror = () => {
+        imageElement.style.opacity = '1';
+        imageElement.alt = 'Image could not be loaded';
+      };
       
       // Display answers
       const answersContainer = document.getElementById('answers-grid');
@@ -578,6 +609,135 @@
           prompt('Copy this link to share the quiz:', shareUrl);
         });
       }
+    }
+
+    // Preload all question images
+    function preloadImages() {
+      return new Promise((resolve, reject) => {
+        document.getElementById('loading-text').textContent = 'Loading quiz images...';
+        
+        const imagePromises = quizData.questions.map((question, index) => {
+          return new Promise((imageResolve, imageReject) => {
+            const imagePrompt = `${question.question} ${question.answers[0]}`;
+            const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(imagePrompt)}?width=600&height=300&nologo=true`;
+            
+            const img = new Image();
+            
+            img.onload = () => {
+              console.log(`Image ${index + 1} loaded successfully`);
+              document.getElementById('loading-progress').textContent = 
+                `Loaded ${index + 1} of ${quizData.questions.length} images...`;
+              imageResolve(imageUrl);
+            };
+            
+            img.onerror = () => {
+              console.warn(`Image ${index + 1} failed to load`);
+              imageReject(new Error(`Failed to load image ${index + 1}`));
+            };
+            
+            // Set timeout to prevent hanging on slow images
+            setTimeout(() => {
+              if (!img.complete) {
+                console.warn(`Image ${index + 1} timed out`);
+                imageReject(new Error(`Image ${index + 1} timed out`));
+              }
+            }, 10000); // 10 second timeout
+            
+            img.src = imageUrl;
+          });
+        });
+
+        // Wait for all images to load (or fail)
+        Promise.allSettled(imagePromises).then((results) => {
+          const successful = results.filter(result => result.status === 'fulfilled').length;
+          const failed = results.filter(result => result.status === 'rejected').length;
+          
+          console.log(`Image preloading complete: ${successful} successful, ${failed} failed`);
+          document.getElementById('loading-progress').textContent = 
+            `Images loaded! Starting quiz...`;
+          
+          if (successful > 0) {
+            resolve(results);
+          } else {
+            reject(new Error('All images failed to load'));
+          }
+        });
+      });
+    }
+
+    // Parse raw quiz text as a fallback
+    function parseRawQuizText(rawText) {
+      try {
+        // Clean up the text
+        let cleanText = rawText.trim();
+        cleanText = cleanText.replace(/```json\s*/g, '').replace(/```\s*/g, '');
+        
+        // Try direct JSON parse first
+        try {
+          return JSON.parse(cleanText);
+        } catch (e) {
+          // Try extracting JSON
+          const jsonMatch = cleanText.match(/\{[\s\S]*\}/);
+          if (jsonMatch) {
+            return JSON.parse(jsonMatch[0]);
+          }
+        }
+        
+        // If all else fails, try to parse old format
+        if (rawText.includes('Question1')) {
+          return convertOldFormat(rawText);
+        }
+        
+        throw new Error('Could not parse quiz text');
+      } catch (error) {
+        console.error('Failed to parse raw quiz text:', error);
+        throw error;
+      }
+    }
+
+    // Convert old format to new format
+    function convertOldFormat(text) {
+      try {
+        const questions = [];
+        let questionNum = 1;
+        
+        while (text.includes(`Question${questionNum}`)) {
+          const questionKey = `Question${questionNum}`;
+          const questionMatch = text.match(new RegExp(`"${questionKey}"\\s*:\\s*"([^"]+)"`));
+          
+          if (questionMatch) {
+            const questionText = questionMatch[1];
+            const answers = [];
+            
+            for (let i = 1; i <= 4; i++) {
+              const answerKey = `${questionKey}answer${i}`;
+              const answerMatch = text.match(new RegExp(`"${answerKey}"\\s*:\\s*"([^"]+)"`));
+              if (answerMatch) {
+                answers.push(answerMatch[1]);
+              }
+            }
+            
+            if (answers.length >= 2) {
+              questions.push({
+                question: questionText,
+                answers: answers,
+                correct: 0 // Default to first answer as correct
+              });
+            }
+          }
+          questionNum++;
+        }
+        
+        if (questions.length > 0) {
+          return {
+            title: "Generated Quiz",
+            questions: questions
+          };
+        }
+      } catch (e) {
+        console.log('Failed to convert old format:', e);
+      }
+      return null;
     }
 
     // Initialize quiz when page loads
