@@ -406,11 +406,6 @@
         preloadImages().then(() => {
           hideLoading();
           startQuiz();
-        }).catch((error) => {
-          console.warn('Some images failed to load:', error);
-          // Start quiz anyway, images will load individually
-          hideLoading();
-          startQuiz();
         });
         
       } catch (error) {
@@ -738,6 +733,30 @@
         console.log('Failed to convert old format:', e);
       }
       return null;
+    }
+
+    // Generate optimized image prompt without text
+    function generateImagePrompt(question, answers) {
+      // Extract key concepts from question and answers
+      const questionWords = question.toLowerCase()
+        .replace(/[?.,!]/g, ' ')
+        .split(' ')
+        .filter(word => word.length > 3 && !['what', 'which', 'where', 'when', 'how', 'who', 'why', 'the', 'and', 'for', 'are', 'was', 'were', 'been', 'have', 'has', 'had', 'will', 'would', 'could', 'should', 'this', 'that', 'with', 'from', 'they', 'them', 'their'].includes(word));
+      
+      const answerWords = answers.join(' ').toLowerCase()
+        .replace(/[?.,!]/g, ' ')
+        .split(' ')
+        .filter(word => word.length > 3)
+        .slice(0, 3); // Only take first 3 relevant answer words
+      
+      // Combine and prioritize the most relevant terms
+      const allWords = [...questionWords, ...answerWords];
+      const uniqueWords = [...new Set(allWords)].slice(0, 4); // Max 4 unique concepts
+      
+      // Create a clean, descriptive prompt
+      const basePrompt = uniqueWords.join(' ');
+      
+      return `${basePrompt} illustration, clean simple design, no text, no words, no letters, educational graphic, minimalist style`;
     }
 
     // Initialize quiz when page loads
