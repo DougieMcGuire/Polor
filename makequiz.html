@@ -669,12 +669,9 @@ Make sure to include exactly ${params.count} questions based on the provided not
 
         console.log('Final validated quiz:', quizData); // Debug log
 
-        currentQuiz = quizData;
-        currentQuestion = 0;
-        userAnswers = new Array(quizData.questions.length).fill(null);
-        
-        showLoading(false);
-        showQuiz();
+        // Encode quiz data as base64 and redirect to quiz player
+        const encodedQuiz = btoa(JSON.stringify(quizData));
+        window.location.href = `quizd.html?quiz=${encodedQuiz}`;
         
       } catch (error) {
         console.error('Quiz generation error:', error);
