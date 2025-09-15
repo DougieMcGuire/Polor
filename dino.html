@@ -18,6 +18,7 @@
       height: 100vh;
       display: flex;
       flex-direction: column;
+      user-select: none;
     }
 
     .game-header {
@@ -64,6 +65,7 @@
       display: block;
       margin: 0 auto;
       flex: 1;
+      cursor: pointer;
     }
 
     .game-instructions {
@@ -115,6 +117,32 @@
       transform: translateY(-2px);
       box-shadow: 0 5px 15px rgba(66, 165, 245, 0.4);
       border-color: #1565C0;
+    }
+
+    .tap-to-start {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(255,255,255,0.95);
+      padding: 2rem;
+      border-radius: 20px;
+      text-align: center;
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #1565C0;
+      border: 3px solid #42A5F5;
+      z-index: 5;
+      animation: pulse 2s infinite;
+    }
+
+    .tap-to-start.hidden {
+      display: none;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: translate(-50%, -50%) scale(1); }
+      50% { transform: translate(-50%, -50%) scale(1.05); }
     }
 
     /* Quiz Modal */
@@ -216,6 +244,10 @@
       border-color: #D32F2F;
     }
 
+    .answer-btn:disabled {
+      cursor: not-allowed;
+    }
+
     .quiz-result {
       font-size: 1.2rem;
       font-weight: bold;
@@ -251,6 +283,12 @@
     .continue-btn:hover {
       transform: translateY(-2px);
       box-shadow: 0 5px 15px rgba(66, 165, 245, 0.4);
+    }
+
+    .continue-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
     }
 
     .game-over-screen {
@@ -347,19 +385,24 @@
   <!-- Game Canvas -->
   <canvas id="gameCanvas"></canvas>
 
+  <!-- Tap to Start Overlay -->
+  <div class="tap-to-start hidden" id="tapToStart">
+    Tap to Start Running!
+  </div>
+
   <!-- Start Instructions -->
   <div class="game-instructions" id="startScreen">
     <div class="polar-bear-logo">🐻‍❄️</div>
     <h2>Welcome to Polor Bear Runner!</h2>
     <p>Help the polar bear jump over icebergs and answer questions when you crash!</p>
-    <p><strong>Controls:</strong> SPACEBAR or UP ARROW to jump</p>
+    <p><strong>Controls:</strong> TAP anywhere to jump</p>
     <button class="start-btn" onclick="startGame()">Start Running</button>
   </div>
 
   <!-- Quiz Modal -->
   <div class="quiz-modal hidden" id="quizModal">
     <div class="quiz-card">
-      <div class="quiz-title">🧠 Answer to Continue Running!</div>
+      <div class="quiz-title">🧠 Answer Correctly to Continue!</div>
       <div class="question-text" id="questionText">Loading question...</div>
       <div class="answers-grid" id="answersGrid">
         <!-- Answers will be populated here -->
@@ -367,7 +410,7 @@
       <div class="quiz-result hidden" id="quizResult">
         <!-- Result will be shown here -->
       </div>
-      <button class="continue-btn hidden" id="continueBtn" onclick="continueGame()">Continue Running</button>
+      <button class="continue-btn hidden" id="continueBtn" onclick="continueGame()" disabled>Continue Running</button>
     </div>
   </div>
 
@@ -386,6 +429,7 @@
     // Game variables
     let canvas, ctx;
     let gameRunning = false;
+    let gamePaused = false;
     let gameSpeed = 5;
     let gravity = 0.6;
     let score = 0;
@@ -393,6 +437,7 @@
     let questionsAnswered = 0;
     let quizData = null;
     let currentQuestionIndex = 0;
+    let lastCorrectAnswer = false;
 
     // Polar bear object
     let polarBear = {
@@ -448,9 +493,12 @@
       // Update high score display
       document.getElementById('highScore').textContent = highScore;
       
-      // Set up controls
+      // Set up click/tap controls
+      canvas.addEventListener('click', handleCanvasClick);
+      canvas.addEventListener('touchstart', handleCanvasTouch);
+      
+      // Set up keyboard controls as backup
       document.addEventListener('keydown', handleKeyPress);
-      document.addEventListener('keyup', handleKeyUp);
     }
 
     function resizeCanvas() {
@@ -536,20 +584,72 @@
 
     function startGame() {
       document.getElementById('startScreen').classList.add('hidden');
+      showTapToStart();
+    }
+
+    function showTapToStart() {
+      document.getElementById('tapToStart').classList.remove('hidden');
+      gamePaused = true;
+      gameRunning = false;
+    }
+
+    function hideTapToStart() {
+      document.getElementById('tapToStart').classList.add('hidden');
+      gamePaused = false;
       gameRunning = true;
+    }
+
+    function actuallyStartGame() {
+      hideTapToStart();
       score = 0;
       gameSpeed = 5;
       obstacles = [];
       currentQuestionIndex = 0;
       questionsAnswered = 0;
       polarBear.animFrame = 0;
+      lastCorrectAnswer = false;
+      
+      // Reset bear position
+      polarBear.y = ground.y - polarBear.height;
+      polarBear.jumping = false;
+      polarBear.grounded = true;
+      polarBear.jumpForce = 0;
       
       updateScore();
       gameLoop();
     }
 
+    function handleCanvasClick(e) {
+      e.preventDefault();
+      if (gamePaused && !gameRunning) {
+        actuallyStartGame();
+      } else if (gameRunning) {
+        jump();
+      }
+    }
+
+    function handleCanvasTouch(e) {
+      e.preventDefault();
+      if (gamePaused && !gameRunning) {
+        actuallyStartGame();
+      } else if (gameRunning) {
+        jump();
+      }
+    }
+
+    function handleKeyPress(event) {
+      if (event.code === 'Space' || event.code === 'ArrowUp') {
+        event.preventDefault();
+        if (gamePaused && !gameRunning) {
+          actuallyStartGame();
+        } else if (gameRunning) {
+          jump();
+        }
+      }
+    }
+
     function gameLoop() {
-      if (!gameRunning) return;
+      if (!gameRunning || gamePaused) return;
       
       update();
       draw();
@@ -774,23 +874,6 @@
       }
     }
 
-    function handleKeyPress(event) {
-      if (event.code === 'Space' || event.code === 'ArrowUp') {
-        event.preventDefault();
-        if (gameRunning) {
-          jump();
-        } else if (!document.getElementById('quizModal').classList.contains('hidden')) {
-          return;
-        }
-      }
-    }
-
-    function handleKeyUp(event) {
-      if (event.code === 'Space' || event.code === 'ArrowUp') {
-        event.preventDefault();
-      }
-    }
-
     function gameOver() {
       gameRunning = false;
       
@@ -826,12 +909,15 @@
       
       document.getElementById('quizResult').classList.add('hidden');
       document.getElementById('continueBtn').classList.add('hidden');
+      document.getElementById('continueBtn').disabled = true;
+      lastCorrectAnswer = false;
       document.getElementById('quizModal').classList.remove('hidden');
     }
 
     function selectAnswer(selectedIndex, correctIndex) {
       const buttons = document.querySelectorAll('.answer-btn');
       const resultDiv = document.getElementById('quizResult');
+      const continueBtn = document.getElementById('continueBtn');
       
       buttons.forEach(btn => btn.style.pointerEvents = 'none');
       
@@ -841,16 +927,32 @@
       }
       
       const isCorrect = selectedIndex === correctIndex;
-      resultDiv.textContent = isCorrect ? '🎉 Correct! Great job!' : '❄️ Incorrect. The correct answer was highlighted.';
+      lastCorrectAnswer = isCorrect;
+      
+      resultDiv.textContent = isCorrect ? '🎉 Correct! You can continue running!' : '❄️ Incorrect. Try again to continue!';
       resultDiv.className = `quiz-result ${isCorrect ? 'correct' : 'incorrect'}`;
       resultDiv.classList.remove('hidden');
       
       if (isCorrect) {
         score += 50;
         updateScore();
+        continueBtn.disabled = false;
+        continueBtn.textContent = 'Continue Running';
+      } else {
+        continueBtn.disabled = true;
+        continueBtn.textContent = 'Answer Correctly to Continue';
+        // Reset buttons for another attempt
+        setTimeout(() => {
+          buttons.forEach(btn => {
+            btn.style.pointerEvents = 'auto';
+            btn.classList.remove('correct', 'incorrect');
+          });
+          resultDiv.classList.add('hidden');
+        }, 2000);
+        return;
       }
       
-      document.getElementById('continueBtn').classList.remove('hidden');
+      continueBtn.classList.remove('hidden');
       
       currentQuestionIndex++;
       questionsAnswered++;
@@ -858,6 +960,8 @@
     }
 
     function continueGame() {
+      if (!lastCorrectAnswer) return;
+      
       document.getElementById('quizModal').classList.add('hidden');
       
       polarBear.y = ground.y - polarBear.height;
@@ -867,8 +971,7 @@
       
       obstacles = obstacles.filter(obstacle => obstacle.x > polarBear.x + 100);
       
-      gameRunning = true;
-      gameLoop();
+      showTapToStart();
     }
 
     function showGameOverScreen() {
@@ -880,7 +983,7 @@
     function restartGame() {
       document.getElementById('gameOverScreen').classList.add('hidden');
       document.getElementById('quizModal').classList.add('hidden');
-      startGame();
+      showTapToStart();
     }
 
     function updateScore() {
@@ -889,21 +992,3 @@
     }
 
     window.addEventListener('load', initGame);
-
-    // Touch controls for mobile
-    let touchStartY = 0;
-    canvas.addEventListener('touchstart', (e) => {
-      touchStartY = e.touches[0].clientY;
-    });
-
-    canvas.addEventListener('touchend', (e) => {
-      const touchEndY = e.changedTouches[0].clientY;
-      if (touchStartY - touchEndY > 30) {
-        if (gameRunning) {
-          jump();
-        }
-      }
-    });
-  </script>
-</body>
-</html>
