@@ -18,6 +18,7 @@ class QuizModule {
       wrongAnswerDelay: options.wrongAnswerDelay || 3000,
       bonusPoints: options.bonusPoints || 50,
       enableStats: options.enableStats !== false,
+      playerId: options.playerId || null, // Custom player identifier (UUID, username, etc.)
       ...options
     };
 
@@ -404,7 +405,9 @@ class QuizModule {
     this.modalElement.classList.remove('hidden');
 
     if (this.callbacks.onQuizShow) {
-      this.callbacks.onQuizShow();
+      this.callbacks.onQuizShow({
+        playerId: this.config.playerId
+      });
     }
   }
 
@@ -417,7 +420,9 @@ class QuizModule {
     this.modalElement.classList.add('hidden');
 
     if (this.callbacks.onQuizHide) {
-      this.callbacks.onQuizHide();
+      this.callbacks.onQuizHide({
+        playerId: this.config.playerId
+      });
     }
   }
 
@@ -545,7 +550,8 @@ class QuizModule {
       this.stats.correctAnswers.push({
         question: this.currentQuestion.question,
         answer: this.currentQuestion.answers[selectedIndex],
-        timestamp: Date.now()
+        timestamp: Date.now(),
+        playerId: this.config.playerId
       });
       this.correctAnswersInSession++;
     } else {
@@ -555,7 +561,8 @@ class QuizModule {
         question: this.currentQuestion.question,
         selectedAnswer: this.currentQuestion.answers[selectedIndex],
         correctAnswer: this.currentQuestion.answers[correctIndex],
-        timestamp: Date.now()
+        timestamp: Date.now(),
+        playerId: this.config.playerId
       });
     }
 
@@ -577,6 +584,7 @@ class QuizModule {
 
       if (this.callbacks.onCorrectAnswer) {
         this.callbacks.onCorrectAnswer({
+          playerId: this.config.playerId,
           question: this.currentQuestion,
           points: this.config.bonusPoints,
           stats: this.getStats()
@@ -588,6 +596,7 @@ class QuizModule {
 
       if (this.callbacks.onWrongAnswer) {
         this.callbacks.onWrongAnswer({
+          playerId: this.config.playerId,
           question: this.currentQuestion,
           selectedAnswer: this.currentQuestion.answers[selectedIndex],
           correctAnswer: this.currentQuestion.answers[correctIndex],
@@ -617,6 +626,7 @@ class QuizModule {
    */
   completeSession() {
     const sessionData = {
+      playerId: this.config.playerId,
       correctAnswers: this.correctAnswersInSession,
       required: this.config.requiredCorrect,
       pointsEarned: this.correctAnswersInSession * this.config.bonusPoints,
