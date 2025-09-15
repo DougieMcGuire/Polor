@@ -119,14 +119,14 @@
 
     .tap-to-start {
       position: absolute;
-      top: 50%;
+      bottom: 20%;
       left: 50%;
-      transform: translate(-50%, -50%);
+      transform: translateX(-50%);
       background: rgba(255,255,255,0.95);
-      padding: 2rem;
+      padding: 1.5rem 3rem;
       border-radius: 20px;
       text-align: center;
-      font-size: 1.5rem;
+      font-size: 1.3rem;
       font-weight: bold;
       color: #1565C0;
       border: 3px solid #42A5F5;
@@ -139,8 +139,8 @@
     }
 
     @keyframes pulse {
-      0%, 100% { transform: translate(-50%, -50%) scale(1); }
-      50% { transform: translate(-50%, -50%) scale(1.05); }
+      0%, 100% { transform: translateX(-50%) scale(1); }
+      50% { transform: translateX(-50%) scale(1.05); }
     }
 
     .quiz-modal {
@@ -165,7 +165,7 @@
       background: white;
       border-radius: 20px;
       padding: 2rem;
-      max-width: 600px;
+      max-width: 700px;
       width: 90%;
       text-align: center;
       box-shadow: 0 20px 50px rgba(0,0,0,0.3);
@@ -177,6 +177,16 @@
       color: #1565C0;
       margin-bottom: 1.5rem;
       font-weight: bold;
+    }
+
+    .question-image {
+      width: 100%;
+      max-width: 400px;
+      height: 200px;
+      object-fit: cover;
+      border-radius: 15px;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     }
 
     .question-text {
@@ -332,6 +342,7 @@
   <div class="quiz-modal hidden" id="quizModal">
     <div class="quiz-card">
       <div class="quiz-title">Answer Correctly to Continue!</div>
+      <img id="questionImage" class="question-image" src="" alt="Question illustration" style="display: none;">
       <div class="question-text" id="questionText">Loading question...</div>
       <div class="answers-grid" id="answersGrid"></div>
       <div class="quiz-result hidden" id="quizResult"></div>
@@ -353,14 +364,16 @@
     let canvas, ctx;
     let gameRunning = false;
     let gamePaused = false;
-    let gameSpeed = 5;
+    let gameSpeed = 3; // Start slower
     let gravity = 0.6;
     let score = 0;
     let highScore = localStorage.getItem('polorBearHighScore') || 0;
     let questionsAnswered = 0;
     let quizData = null;
     let currentQuestionIndex = 0;
+    let usedQuestionIndices = [];
     let lastCorrectAnswer = false;
+    let playerSprite = null;
 
     // Polar bear object
     let polarBear = {
@@ -382,6 +395,14 @@
       canvas = document.getElementById('gameCanvas');
       ctx = canvas.getContext('2d');
       
+      // Load player sprite
+      playerSprite = new Image();
+      playerSprite.src = 'assets/dinogamerun1.png';
+      playerSprite.onerror = () => {
+        console.log('Could not load sprite, using fallback drawing');
+        playerSprite = null;
+      };
+      
       resizeCanvas();
       window.addEventListener('resize', resizeCanvas);
       
@@ -389,7 +410,7 @@
       ground.width = canvas.width;
       polarBear.y = ground.y - polarBear.height;
       
-      for (let i = 0; i < 20; i++) {
+      for (let i = 0; i < 30; i++) {
         snowflakes.push({
           x: Math.random() * canvas.width,
           y: Math.random() * canvas.height,
@@ -404,6 +425,11 @@
       canvas.addEventListener('click', handleCanvasClick);
       canvas.addEventListener('touchstart', handleCanvasTouch);
       document.addEventListener('keydown', handleKeyPress);
+      
+      // Start with paused preview
+      gamePaused = true;
+      gameRunning = false;
+      showGamePreview();
     }
 
     function resizeCanvas() {
@@ -450,6 +476,11 @@
             question: "Where do polar bears primarily live?",
             answers: ["Antarctica", "Arctic", "Alaska", "Canada"],
             correct: 1
+          },
+          {
+            question: "What do polar bears mainly eat?",
+            answers: ["Fish", "Seals", "Berries", "Honey"],
+            correct: 1
           }
         ]
       };
@@ -460,10 +491,33 @@
       showTapToStart();
     }
 
+    function showGamePreview() {
+      // Generate some preview obstacles
+      obstacles = [];
+      for (let i = 0; i < 3; i++) {
+        obstacles.push({
+          x: canvas.width + (i * 400) + 200,
+          y: ground.y - (25 + Math.random() * 15),
+          width: 20 + Math.random() * 15,
+          height: 25 + Math.random() * 15,
+          type: Math.random() > 0.7 ? 'group' : 'single'
+        });
+      }
+      drawPreview();
+    }
+
+    function drawPreview() {
+      draw();
+      if (!gameRunning) {
+        requestAnimationFrame(drawPreview);
+      }
+    }
+
     function showTapToStart() {
       document.getElementById('tapToStart').classList.remove('hidden');
       gamePaused = true;
       gameRunning = false;
+      showGamePreview();
     }
 
     function hideTapToStart() {
@@ -474,13 +528,16 @@
 
     function actuallyStartGame() {
       hideTapToStart();
-      score = 0;
-      gameSpeed = 5;
-      obstacles = [];
-      currentQuestionIndex = 0;
-      questionsAnswered = 0;
-      polarBear.animFrame = 0;
-      lastCorrectAnswer = false;
+      
+      // Only reset on first start
+      if (score === 0 && questionsAnswered === 0) {
+        gameSpeed = 3;
+        obstacles = [];
+        currentQuestionIndex = 0;
+        usedQuestionIndices = [];
+        polarBear.animFrame = 0;
+        lastCorrectAnswer = false;
+      }
       
       polarBear.y = ground.y - polarBear.height;
       polarBear.jumping = false;
@@ -543,13 +600,33 @@
         }
       }
       
-      if (obstacles.length === 0 || obstacles[obstacles.length - 1].x < canvas.width - 300 - Math.random() * 200) {
-        obstacles.push({
-          x: canvas.width,
-          y: ground.y - 25,
-          width: 20 + Math.random() * 15,
-          height: 25 + Math.random() * 15
-        });
+      // Generate obstacles with better spacing and variety
+      if (obstacles.length === 0 || obstacles[obstacles.length - 1].x < canvas.width - (400 + Math.random() * 300)) {
+        const obstacleType = Math.random();
+        const baseY = ground.y - 25;
+        
+        if (obstacleType > 0.7) {
+          // Create grouped icebergs
+          const groupX = canvas.width;
+          for (let i = 0; i < 2 + Math.floor(Math.random() * 2); i++) {
+            obstacles.push({
+              x: groupX + (i * 30),
+              y: baseY - Math.random() * 10,
+              width: 15 + Math.random() * 10,
+              height: 20 + Math.random() * 15,
+              type: 'group'
+            });
+          }
+        } else {
+          // Single iceberg
+          obstacles.push({
+            x: canvas.width,
+            y: baseY - Math.random() * 15,
+            width: 20 + Math.random() * 20,
+            height: 25 + Math.random() * 20,
+            type: 'single'
+          });
+        }
       }
       
       for (let i = obstacles.length - 1; i >= 0; i--) {
@@ -573,16 +650,17 @@
       });
       
       for (let obstacle of obstacles) {
-        if (polarBear.x + 10 < obstacle.x + obstacle.width &&
-            polarBear.x + polarBear.width - 10 > obstacle.x &&
-            polarBear.y + 10 < obstacle.y + obstacle.height &&
+        if (polarBear.x + 8 < obstacle.x + obstacle.width &&
+            polarBear.x + polarBear.width - 8 > obstacle.x &&
+            polarBear.y + 8 < obstacle.y + obstacle.height &&
             polarBear.y + polarBear.height - 5 > obstacle.y) {
           gameOver();
           break;
         }
       }
       
-      gameSpeed += 0.002;
+      // Gradually increase speed
+      gameSpeed += 0.001;
     }
 
     function draw() {
@@ -592,6 +670,7 @@
       ctx.fillStyle = gradient;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       
+      // Draw snowflakes
       ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
       snowflakes.forEach(flake => {
         ctx.beginPath();
@@ -599,8 +678,17 @@
         ctx.fill();
       });
       
+      // Draw ground with ice texture
       ctx.fillStyle = '#E8F4FD';
       ctx.fillRect(0, ground.y, ground.width, ground.height);
+      
+      // Ice surface details
+      ctx.fillStyle = '#B3E5FC';
+      const icePattern = Math.floor((-score / 3) % 80);
+      for (let i = icePattern; i < canvas.width; i += 80) {
+        ctx.fillRect(i, ground.y + 5, 40, 8);
+        ctx.fillRect(i + 20, ground.y + 15, 25, 6);
+      }
       
       drawPolarBear();
       obstacles.forEach(obstacle => drawIceberg(obstacle));
@@ -609,30 +697,56 @@
     function drawPolarBear() {
       const x = polarBear.x;
       const y = polarBear.y;
-      const bounce = Math.sin(polarBear.animFrame) * 2;
       
-      ctx.fillStyle = '#FFFFFF';
-      ctx.strokeStyle = '#1565C0';
-      ctx.lineWidth = 2;
-      
-      ctx.beginPath();
-      ctx.ellipse(x + 20, y + 25 + bounce, 18, 12, 0, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.stroke();
-      
-      ctx.beginPath();
-      ctx.arc(x + 20, y + 12 + bounce, 12, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.stroke();
-      
-      ctx.fillStyle = '#1A1A1A';
-      ctx.beginPath();
-      ctx.arc(x + 17, y + 10 + bounce, 2, 0, Math.PI * 2);
-      ctx.fill();
-      
-      ctx.beginPath();
-      ctx.arc(x + 23, y + 10 + bounce, 2, 0, Math.PI * 2);
-      ctx.fill();
+      if (playerSprite && playerSprite.complete) {
+        // Draw sprite
+        ctx.drawImage(playerSprite, x, y, polarBear.width, polarBear.height);
+      } else {
+        // Fallback drawing - improved version
+        const bounce = Math.sin(polarBear.animFrame) * 2;
+        
+        ctx.fillStyle = '#FFFFFF';
+        ctx.strokeStyle = '#1565C0';
+        ctx.lineWidth = 2;
+        
+        // Body
+        ctx.beginPath();
+        ctx.ellipse(x + 20, y + 25 + bounce, 18, 12, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        
+        // Head
+        ctx.beginPath();
+        ctx.arc(x + 20, y + 12 + bounce, 12, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        
+        // Ears
+        ctx.beginPath();
+        ctx.arc(x + 14, y + 6 + bounce, 4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        
+        ctx.beginPath();
+        ctx.arc(x + 26, y + 6 + bounce, 4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        
+        // Eyes
+        ctx.fillStyle = '#1A1A1A';
+        ctx.beginPath();
+        ctx.arc(x + 17, y + 10 + bounce, 2, 0, Math.PI * 2);
+        ctx.fill();
+        
+        ctx.beginPath();
+        ctx.arc(x + 23, y + 10 + bounce, 2, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Nose
+        ctx.beginPath();
+        ctx.ellipse(x + 20, y + 14 + bounce, 2, 1.5, 0, 0, Math.PI * 2);
+        ctx.fill();
+      }
     }
 
     function drawIceberg(obstacle) {
@@ -641,17 +755,35 @@
       const w = obstacle.width;
       const h = obstacle.height;
       
-      ctx.fillStyle = '#E1F5FE';
-      ctx.strokeStyle = '#0277BD';
+      // Enhanced iceberg with more detail
+      const gradient = ctx.createLinearGradient(x, y, x + w, y + h);
+      gradient.addColorStop(0, '#F0F8FF');
+      gradient.addColorStop(0.5, '#E1F5FE');
+      gradient.addColorStop(1, '#B3E5FC');
+      
+      ctx.fillStyle = gradient;
+      ctx.strokeStyle = obstacle.type === 'group' ? '#0288D1' : '#0277BD';
       ctx.lineWidth = 2;
       
       ctx.beginPath();
       ctx.moveTo(x, y + h);
-      ctx.lineTo(x + w * 0.2, y);
-      ctx.lineTo(x + w * 0.8, y);
+      ctx.lineTo(x + w * 0.15, y + h * 0.1);
+      ctx.lineTo(x + w * 0.35, y);
+      ctx.lineTo(x + w * 0.65, y + h * 0.05);
+      ctx.lineTo(x + w * 0.85, y + h * 0.15);
       ctx.lineTo(x + w, y + h);
       ctx.closePath();
       ctx.fill();
+      ctx.stroke();
+      
+      // Ice cracks/details
+      ctx.strokeStyle = 'rgba(2, 119, 189, 0.3)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(x + w * 0.2, y + h * 0.3);
+      ctx.lineTo(x + w * 0.8, y + h * 0.7);
+      ctx.moveTo(x + w * 0.6, y + h * 0.2);
+      ctx.lineTo(x + w * 0.4, y + h * 0.9);
       ctx.stroke();
     }
 
@@ -675,15 +807,54 @@
       showQuizModal();
     }
 
-    function showQuizModal() {
+    function getNextQuestion() {
       if (!quizData || !quizData.questions || quizData.questions.length === 0) {
+        return null;
+      }
+      
+      // If we've used all questions, reset the used list
+      if (usedQuestionIndices.length >= quizData.questions.length) {
+        usedQuestionIndices = [];
+      }
+      
+      // Find an unused question
+      let questionIndex;
+      do {
+        questionIndex = Math.floor(Math.random() * quizData.questions.length);
+      } while (usedQuestionIndices.includes(questionIndex));
+      
+      usedQuestionIndices.push(questionIndex);
+      currentQuestionIndex = questionIndex;
+      
+      return quizData.questions[questionIndex];
+    }
+
+    function showQuizModal() {
+      const question = getNextQuestion();
+      
+      if (!question) {
         showGameOverScreen();
         return;
       }
       
-      const question = quizData.questions[currentQuestionIndex % quizData.questions.length];
-      
       document.getElementById('questionText').textContent = question.question;
+      
+      // Load question image
+      const imagePrompt = `${question.question} ${question.answers[0]}`;
+      const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(imagePrompt)}?width=400&height=200&nologo=true`;
+      const imageElement = document.getElementById('questionImage');
+      
+      imageElement.src = imageUrl;
+      imageElement.style.display = 'block';
+      imageElement.style.opacity = '0.5';
+      
+      imageElement.onload = () => {
+        imageElement.style.opacity = '1';
+      };
+      
+      imageElement.onerror = () => {
+        imageElement.style.display = 'none';
+      };
       
       const answersGrid = document.getElementById('answersGrid');
       answersGrid.innerHTML = '';
@@ -692,7 +863,7 @@
         const btn = document.createElement('button');
         btn.className = 'answer-btn';
         btn.textContent = answer;
-        btn.onclick = () => selectAnswer(index, question.correct);
+        btn.onclick = () => selectAnswer(index, question.correct, question.answers);
         answersGrid.appendChild(btn);
       });
       
@@ -703,7 +874,7 @@
       document.getElementById('quizModal').classList.remove('hidden');
     }
 
-    function selectAnswer(selectedIndex, correctIndex) {
+    function selectAnswer(selectedIndex, correctIndex, answers) {
       const buttons = document.querySelectorAll('.answer-btn');
       const resultDiv = document.getElementById('quizResult');
       const continueBtn = document.getElementById('continueBtn');
@@ -718,42 +889,48 @@
       const isCorrect = selectedIndex === correctIndex;
       lastCorrectAnswer = isCorrect;
       
-      resultDiv.textContent = isCorrect ? 'Correct! You can continue running!' : 'Incorrect. Try again to continue!';
-      resultDiv.className = `quiz-result ${isCorrect ? 'correct' : 'incorrect'}`;
-      resultDiv.classList.remove('hidden');
-      
       if (isCorrect) {
+        resultDiv.textContent = '🎉 Correct! You can continue running!';
+        resultDiv.className = 'quiz-result correct';
+        resultDiv.classList.remove('hidden');
+        
         score += 50;
         updateScore();
         continueBtn.disabled = false;
+        continueBtn.textContent = 'Continue Running';
         continueBtn.classList.remove('hidden');
         
-        currentQuestionIndex++;
         questionsAnswered++;
         updateScore();
       } else {
-        continueBtn.disabled = true;
+        resultDiv.textContent = `❌ Incorrect! The correct answer was: ${answers[correctIndex]}`;
+        resultDiv.className = 'quiz-result incorrect';
+        resultDiv.classList.remove('hidden');
+        
+        continueBtn.disabled = false;
+        continueBtn.textContent = 'Try Next Question';
+        
+        // Show continue button after 3 seconds
         setTimeout(() => {
-          buttons.forEach(btn => {
-            btn.style.pointerEvents = 'auto';
-            btn.classList.remove('correct', 'incorrect');
-          });
-          resultDiv.classList.add('hidden');
-        }, 2000);
+          continueBtn.classList.remove('hidden');
+        }, 3000);
+        
+        questionsAnswered++;
+        updateScore();
       }
     }
 
     function continueGame() {
-      if (!lastCorrectAnswer) return;
-      
       document.getElementById('quizModal').classList.add('hidden');
       
+      // Reset bear position
       polarBear.y = ground.y - polarBear.height;
       polarBear.jumping = false;
       polarBear.grounded = true;
       polarBear.jumpForce = 0;
       
-      obstacles = obstacles.filter(obstacle => obstacle.x > polarBear.x + 100);
+      // Clear nearby obstacles
+      obstacles = obstacles.filter(obstacle => obstacle.x > polarBear.x + 150);
       
       showTapToStart();
     }
@@ -767,6 +944,16 @@
     function restartGame() {
       document.getElementById('gameOverScreen').classList.add('hidden');
       document.getElementById('quizModal').classList.add('hidden');
+      
+      // Reset everything
+      score = 0;
+      questionsAnswered = 0;
+      gameSpeed = 3;
+      obstacles = [];
+      usedQuestionIndices = [];
+      lastCorrectAnswer = false;
+      
+      updateScore();
       showTapToStart();
     }
 
