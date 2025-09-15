@@ -517,10 +517,11 @@ class QuizModule {
     // Create answer buttons
     this.createAnswerButtons(question);
 
-    // Hide result and continue button
+    // Hide/reset all interactive elements
     this.modalElement.querySelector('.quiz-module-result').classList.add('hidden');
     this.modalElement.querySelector('.quiz-module-continue').classList.add('hidden');
     this.modalElement.querySelector('.quiz-module-continue').disabled = true;
+    this.modalElement.querySelector('.quiz-module-timer').classList.remove('active');
 
     this.stats.totalQuestionsAsked++;
   }
@@ -653,9 +654,12 @@ class QuizModule {
         continueBtn.textContent = 'Next Question';
         continueBtn.disabled = false;
         continueBtn.classList.remove('hidden');
-        continueBtn.onclick = () => {
-          continueBtn.classList.add('hidden');
-          continueBtn.onclick = () => this.handleContinue();
+        
+        // Replace the click handler for wrong answer flow
+        const newContinueBtn = continueBtn.cloneNode(true);
+        continueBtn.parentNode.replaceChild(newContinueBtn, continueBtn);
+        newContinueBtn.onclick = () => {
+          newContinueBtn.classList.add('hidden');
           this.displayQuestion();
         };
       });
@@ -671,6 +675,14 @@ class QuizModule {
     const timerEl = this.modalElement.querySelector('.quiz-module-timer');
     const timerCircle = this.modalElement.querySelector('.quiz-module-timer-circle');
     const timerInner = this.modalElement.querySelector('.quiz-module-timer-inner');
+    
+    console.log('Starting timer...', { timerEl, timerCircle, timerInner });
+    
+    if (!timerEl || !timerCircle || !timerInner) {
+      console.error('Timer elements not found');
+      callback();
+      return;
+    }
     
     timerEl.classList.add('active');
     
@@ -697,7 +709,7 @@ class QuizModule {
       
       if (progress >= 1) {
         timerEl.classList.remove('active');
-        timerCircle.style.background = '';
+        timerCircle.style.background = 'conic-gradient(#f44336 0deg, #ffebee 0deg)';
         callback();
       } else {
         requestAnimationFrame(updateTimer);
@@ -713,6 +725,9 @@ class QuizModule {
   handleContinue() {
     if (this.correctAnswersInSession >= this.config.requiredCorrect) {
       this.completeSession();
+    } else {
+      // This handles the regular continue flow
+      this.displayQuestion();
     }
   }
 
