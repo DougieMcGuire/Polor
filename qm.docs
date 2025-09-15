@@ -1,0 +1,706 @@
+# QuizModule.js Documentation
+
+A modular, reusable quiz system for educational games with advanced features like statistics tracking, voluntary mode, and customizable requirements.
+
+## Features
+
+- 🎯 **Flexible Requirements**: Set how many correct answers needed before continuing
+- 📊 **Statistics Tracking**: Detailed analytics on user performance
+- 🎮 **Voluntary Mode**: Let users choose when to answer questions
+- 🖼️ **Auto-Generated Images**: Questions come with relevant illustrations
+- 🔄 **Smart Question Management**: No repeating questions until all are used
+- 📱 **Responsive Design**: Works on all devices
+- 🎨 **Customizable Styling**: Easy to theme and modify
+
+## Quick Start
+
+```html
+<!-- Include the QuizModule -->
+<script src="QuizModule.js"></script>
+
+<script>
+// Initialize the quiz module
+const quiz = new QuizModule({
+  requiredCorrect: 3,        // User must get 3 questions right
+  bonusPoints: 100,          // Points per correct answer
+  showImages: true           // Show question images
+});
+
+// Set up callbacks
+quiz.on('quizComplete', (data) => {
+  console.log(`Session complete! Points earned: ${data.pointsEarned}`);
+  // Continue game or reward user
+});
+
+quiz.on('correctAnswer', (data) => {
+  console.log('Correct answer!', data);
+});
+
+// Show the quiz
+quiz.show();
+</script>
+```
+
+## Configuration Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `requiredCorrect` | number | 1 | Number of correct answers needed to complete session |
+| `voluntaryMode` | boolean | false | Allow users to close quiz and answer when they want |
+| `showImages` | boolean | true | Display AI-generated images for questions |
+| `imageWidth` | number | 400 | Width of question images |
+| `imageHeight` | number | 200 | Height of question images |
+| `wrongAnswerDelay` | number | 3000 | Delay before showing next question after wrong answer (ms) |
+| `bonusPoints` | number | 50 | Points awarded per correct answer |
+| `enableStats` | boolean | true | Track detailed statistics |
+| `playerId` | string | null | Custom player identifier (UUID, username, etc.) for multiplayer |
+
+## Multiplayer Support
+
+The QuizModule includes simple multiplayer support through player identification:
+
+```javascript
+// Each player gets their own QuizModule instance with unique ID
+const player1Quiz = new QuizModule({
+  playerId: 'player-uuid-123',
+  requiredCorrect: 3
+});
+
+const player2Quiz = new QuizModule({
+  playerId: 'player-uuid-456', 
+  requiredCorrect: 3
+});
+
+// All callbacks include the playerId
+player1Quiz.on('correctAnswer', (data) => {
+  console.log(`Player ${data.playerId} got it right!`);
+  // Route response to correct player using the UUID
+  updatePlayerScore(data.playerId, data.points);
+});
+
+player2Quiz.on('quizComplete', (data) => {
+  console.log(`Player ${data.playerId} completed session`);
+  // Handle completion for specific player
+  notifyPlayer(data.playerId, 'Session complete!');
+});
+```
+
+### Multiplayer Usage Examples
+
+**Turn-based Multiplayer:**
+```javascript
+class TurnBasedQuiz {
+  constructor() {
+    this.players = new Map();
+    this.currentPlayerIndex = 0;
+    this.playerIds = [];
+  }
+  
+  addPlayer(playerId) {
+    const quiz = new QuizModule({
+      playerId: playerId,
+      requiredCorrect: 1
+    });
+    
+    quiz.on('quizComplete', (data) => {
+      this.nextPlayer();
+    });
+    
+    this.players.set(playerId, quiz);
+    this.playerIds.push(playerId);
+  }
+  
+  startCurrentPlayerTurn() {
+    const currentPlayerId = this.playerIds[this.currentPlayerIndex];
+    const quiz = this.players.get(currentPlayerId);
+    quiz.show();
+  }
+  
+  nextPlayer() {
+    this.currentPlayerIndex = (this.currentPlayerIndex + 1) % this.playerIds.length;
+    this.startCurrentPlayerTurn();
+  }
+}
+```
+
+**Real-time Competitive:**
+```javascript
+// Using WebSocket or similar for real-time sync
+const playerQuiz = new QuizModule({
+  playerId: userUUID,
+  requiredCorrect: 5
+});
+
+playerQuiz.on('correctAnswer', (data) => {
+  // Send to server with player identification
+  socket.emit('playerAnswer', {
+    playerId: data.playerId,
+    correct: true,
+    points: data.points,
+    timestamp: Date.now()
+  });
+});
+
+playerQuiz.on('wrongAnswer', (data) => {
+  socket.emit('playerAnswer', {
+    playerId: data.playerId,
+    correct: false,
+    question: data.question.question,
+    timestamp: Date.now()
+  });
+});
+```
+
+**Room-based System:**
+```javascript
+class QuizRoom {
+  constructor(roomId) {
+    this.roomId = roomId;
+    this.players = new Map();
+    this.scores = new Map();
+  }
+  
+  addPlayer(playerId, playerName) {
+    const quiz = new QuizModule({
+      playerId: playerId,
+      requiredCorrect: 3
+    });
+    
+    quiz.on('correctAnswer', (data) => {
+      const currentScore = this.scores.get(data.playerId) || 0;
+      this.scores.set(data.playerId, currentScore + data.points);
+      this.broadcastScores();
+    });
+    
+    this.players.set(playerId, { quiz, name: playerName });
+    this.scores.set(playerId, 0);
+  }
+  
+  startRound() {
+    // Show quiz to all players simultaneously
+    this.players.forEach((player) => {
+      player.quiz.show();
+    });
+  }
+  
+  broadcastScores() {
+    const leaderboard = Array.from(this.scores.entries())
+      .sort(([,a], [,b]) => b - a);
+    // Send leaderboard to all players
+  }
+}
+```
+
+## Methods
+
+### Constructor
+```javascript
+const quiz = new QuizModule(options)
+```
+
+### Core Methods
+
+#### `show(options)`
+Shows the quiz modal with optional runtime configuration.
+
+```javascript
+quiz.show({
+  requiredCorrect: 5,  // Override default for this session
+  bonusPoints: 200     // Extra points for hard mode
+});
+```
+
+#### `hide()`
+Hides the quiz modal.
+
+```javascript
+quiz.hide();
+```
+
+#### `setQuizData(quizData)`
+Manually set quiz questions instead of loading from URL.
+
+```javascript
+quiz.setQuizData({
+  title: "Math Quiz",
+  questions: [
+    {
+      question: "What is 5 + 3?",
+      answers: ["6", "7", "8", "9"],
+      correct: 2  // Index of correct answer (0-based)
+    }
+  ]
+});
+```
+
+### Statistics Methods
+
+#### `getStats()`
+Returns current statistics object.
+
+```javascript
+const stats = quiz.getStats();
+console.log(`Accuracy: ${quiz.getAccuracy()}%`);
+console.log(`Best streak: ${stats.bestStreak}`);
+```
+
+#### `resetStats()`
+Resets all statistics to zero.
+
+```javascript
+quiz.resetStats();
+```
+
+#### `getAccuracy()`
+Returns accuracy percentage (0-100).
+
+```javascript
+const accuracy = quiz.getAccuracy(); // e.g., 85
+```
+
+### Event Handling
+
+#### `on(event, callback)`
+Register callback functions for quiz events.
+
+```javascript
+quiz.on('correctAnswer', (data) => {
+  // Handle correct answer
+});
+```
+
+## Events
+
+### `quizComplete`
+Fired when user completes required number of correct answers.
+
+```javascript
+quiz.on('quizComplete', (data) => {
+  console.log(data);
+  // {
+  //   playerId: 'player-uuid-123',
+  //   correctAnswers: 3,
+  //   required: 3,
+  //   pointsEarned: 150,
+  //   stats: { ... }
+  // }
+});
+```
+
+### `correctAnswer`
+Fired when user answers correctly.
+
+```javascript
+quiz.on('correctAnswer', (data) => {
+  // {
+  //   playerId: 'player-uuid-123',
+  //   question: { question: "...", answers: [...], correct: 0 },
+  //   points: 50,
+  //   stats: { ... }
+  // }
+});
+```
+
+### `wrongAnswer`
+Fired when user answers incorrectly.
+
+```javascript
+quiz.on('wrongAnswer', (data) => {
+  // {
+  //   playerId: 'player-uuid-123',
+  //   question: { ... },
+  //   selectedAnswer: "Wrong answer",
+  //   correctAnswer: "Right answer",
+  //   stats: { ... }
+  // }
+});
+```
+
+### `quizShow` / `quizHide`
+Fired when quiz modal is shown or hidden.
+
+```javascript
+quiz.on('quizShow', (data) => {
+  console.log(`Quiz shown for player: ${data.playerId}`);
+});
+
+quiz.on('quizHide', (data) => {
+  console.log(`Quiz hidden for player: ${data.playerId}`);
+});
+```
+
+## Usage Examples
+
+### Basic Game Integration
+```javascript
+// Simple game where player must answer 1 question to continue
+const quiz = new QuizModule({
+  requiredCorrect: 1,
+  bonusPoints: 50
+});
+
+quiz.on('quizComplete', (data) => {
+  // Player can continue playing
+  resumeGame();
+  addScore(data.pointsEarned);
+});
+
+// Show quiz when player crashes/fails
+function gameOver() {
+  quiz.show();
+}
+```
+
+### Energy System (Voluntary Mode)
+```javascript
+// Fishing game where players build energy by answering questions
+const quiz = new QuizModule({
+  requiredCorrect: 1,
+  voluntaryMode: true,    // Players can close quiz anytime
+  bonusPoints: 1          // 1 energy per correct answer
+});
+
+let playerEnergy = 0;
+
+quiz.on('correctAnswer', (data) => {
+  playerEnergy += data.points;
+  updateEnergyDisplay();
+});
+
+// Players can open quiz anytime to build energy
+document.getElementById('quiz-button').onclick = () => {
+  quiz.show();
+};
+```
+
+### Advanced Statistics Tracking
+```javascript
+const quiz = new QuizModule({
+  requiredCorrect: 5,
+  enableStats: true
+});
+
+quiz.on('quizComplete', (data) => {
+  const stats = data.stats;
+  
+  console.log(`Session complete!`);
+  console.log(`Questions asked: ${stats.totalQuestionsAsked}`);
+  console.log(`Accuracy: ${quiz.getAccuracy()}%`);
+  console.log(`Best streak: ${stats.bestStreak}`);
+  console.log(`Points earned: ${stats.pointsEarned}`);
+  
+  // Track wrong answers for improvement
+  stats.wrongAnswers.forEach(wrong => {
+    console.log(`Missed: ${wrong.question}`);
+    console.log(`Said: ${wrong.selectedAnswer}, Should be: ${wrong.correctAnswer}`);
+  });
+});
+```
+
+### Multiple Difficulty Modes
+```javascript
+const quiz = new QuizModule();
+
+function startEasyMode() {
+  quiz.show({
+    requiredCorrect: 1,
+    bonusPoints: 10
+  });
+}
+
+function startHardMode() {
+  quiz.show({
+    requiredCorrect: 5,
+    bonusPoints: 100,
+    wrongAnswerDelay: 5000  // Longer delay for wrong answers
+  });
+}
+```
+
+## Quiz Data Format
+
+Quiz data should follow this structure:
+
+```javascript
+{
+  "title": "Quiz Title",
+  "questions": [
+    {
+      "question": "Question text?",
+      "answers": ["Option A", "Option B", "Option C", "Option D"],
+      "correct": 0  // Index of correct answer (0 = first option)
+    }
+  ]
+}
+```
+
+The module automatically loads quiz data from URL parameter `?qb64=base64encodeddata`, or you can set it manually with `setQuizData()`.
+
+**URL Parameter Usage:**
+```
+yoursite.com/game.html?qb64=eyJ0aXRsZSI6Ik1hdGggUXVpeiIsInF1ZXN0aW9ucyI6W119
+```
+
+Where `qb64` contains the base64-encoded JSON quiz data.
+
+## Statistics Object
+
+The stats object contains:
+
+```javascript
+{
+  totalQuestionsAsked: 10,
+  totalCorrectAnswers: 8,
+  totalWrongAnswers: 2,
+  correctAnswers: [
+    {
+      question: "Question text",
+      answer: "Selected answer",
+      timestamp: 1234567890
+    }
+  ],
+  wrongAnswers: [
+    {
+      question: "Question text",
+      selectedAnswer: "Wrong answer",
+      correctAnswer: "Right answer", 
+      timestamp: 1234567890
+    }
+  ],
+  streakCount: 3,        // Current consecutive correct answers
+  bestStreak: 5,         // Best streak ever achieved
+  pointsEarned: 400      // Total points earned from correct answers
+}
+```
+
+## Styling
+
+The module includes default styling but can be customized by overriding CSS classes:
+
+- `.quiz-module-modal` - Main modal overlay
+- `.quiz-module-card` - Quiz card container
+- `.quiz-module-question` - Question text
+- `.quiz-module-answer` - Answer buttons
+- `.quiz-module-result` - Result message area
+- `.quiz-module-continue` - Continue button
+
+Example custom styling:
+
+```css
+.quiz-module-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.quiz-module-answer {
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  color: white;
+}
+
+.quiz-module-answer:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+```
+
+## Error Handling
+
+The module includes built-in error handling for common issues:
+
+```javascript
+// Handle initialization errors
+const quiz = new QuizModule();
+
+// Check if quiz is ready
+if (!quiz.isInitialized) {
+  console.error('Quiz failed to initialize');
+}
+
+// Handle missing quiz data
+quiz.on('quizShow', () => {
+  console.log('Quiz displayed successfully');
+});
+
+// Quiz will automatically fall back to default questions if URL loading fails
+```
+
+## Integration with Existing Games
+
+### Replacing Inline Quiz Code
+
+Before (inline quiz code):
+```javascript
+// Old way - quiz code mixed with game code
+function showQuiz() {
+  // 100+ lines of quiz-specific code
+}
+
+function checkAnswer() {
+  // More quiz logic mixed in
+}
+```
+
+After (using QuizModule):
+```javascript
+// New way - clean separation
+const quiz = new QuizModule({ requiredCorrect: 1 });
+
+quiz.on('quizComplete', () => {
+  resumeGame();
+});
+
+function gameOver() {
+  quiz.show(); // That's it!
+}
+```
+
+### Updating Existing Polor Bear Runner
+
+```javascript
+// Replace the existing quiz system
+const quiz = new QuizModule({
+  requiredCorrect: 1,
+  bonusPoints: 50,
+  showImages: true
+});
+
+quiz.on('quizComplete', (data) => {
+  // Add bonus points to game score
+  score += data.pointsEarned;
+  updateScore();
+  
+  // Clear nearby obstacles and resume
+  obstacles = obstacles.filter(obstacle => obstacle.x > polarBear.x + 150);
+  showTapToStart();
+});
+
+quiz.on('correctAnswer', (data) => {
+  // Optional: immediate feedback in game
+  console.log('Player got question right!');
+});
+
+// Replace gameOver function
+function gameOver() {
+  gameRunning = false;
+  
+  if (score > highScore) {
+    highScore = score;
+    localStorage.setItem('polorBearHighScore', highScore);
+    document.getElementById('highScore').textContent = highScore;
+  }
+  
+  // Show quiz instead of custom modal
+  quiz.show();
+}
+```
+
+## Advanced Features
+
+### Custom Question Filtering
+
+```javascript
+const quiz = new QuizModule();
+
+// Filter questions by difficulty before showing
+quiz.setQuizData({
+  title: "Filtered Quiz",
+  questions: allQuestions.filter(q => q.difficulty === 'easy')
+});
+
+quiz.show();
+```
+
+### Progress Tracking Across Sessions
+
+```javascript
+const quiz = new QuizModule();
+
+// Save progress to localStorage
+quiz.on('quizComplete', (data) => {
+  const progress = JSON.parse(localStorage.getItem('quizProgress') || '{}');
+  progress.totalCorrect = (progress.totalCorrect || 0) + data.correctAnswers;
+  progress.totalSessions = (progress.totalSessions || 0) + 1;
+  localStorage.setItem('quizProgress', JSON.stringify(progress));
+});
+
+// Load and display progress
+const progress = JSON.parse(localStorage.getItem('quizProgress') || '{}');
+console.log(`Total correct answers: ${progress.totalCorrect || 0}`);
+```
+
+### Dynamic Difficulty Adjustment
+
+```javascript
+const quiz = new QuizModule();
+let currentDifficulty = 1;
+
+quiz.on('correctAnswer', (data) => {
+  const accuracy = quiz.getAccuracy();
+  
+  // Increase difficulty if accuracy is high
+  if (accuracy > 80 && data.stats.streakCount >= 3) {
+    currentDifficulty = Math.min(currentDifficulty + 1, 5);
+    quiz.show({ requiredCorrect: currentDifficulty });
+  }
+});
+
+quiz.on('wrongAnswer', (data) => {
+  // Decrease difficulty if struggling
+  if (quiz.getAccuracy() < 50) {
+    currentDifficulty = Math.max(currentDifficulty - 1, 1);
+  }
+});
+```
+
+## Troubleshooting
+
+### Common Issues
+
+**Quiz doesn't appear:**
+- Check console for initialization errors
+- Verify quiz data is properly formatted
+- Ensure QuizModule.js is loaded before use
+
+**Images not loading:**
+- Check network connection
+- Verify `showImages: true` in config
+- Images are generated via Pollinations AI (requires internet)
+
+**Questions repeating:**
+- This is normal - questions repeat after all have been used once
+- Use `quiz.usedQuestionIndices = []` to force reset
+
+**Stats not updating:**
+- Ensure `enableStats: true` in configuration
+- Check that callbacks are properly registered
+
+### Debug Mode
+
+```javascript
+const quiz = new QuizModule({
+  debug: true  // Enable console logging
+});
+
+// Check internal state
+console.log('Used questions:', quiz.usedQuestionIndices);
+console.log('Current stats:', quiz.getStats());
+console.log('Is active:', quiz.isActive);
+```
+
+## Browser Compatibility
+
+- **Modern browsers**: Full support (Chrome 60+, Firefox 55+, Safari 12+)
+- **Internet Explorer**: Not supported (uses modern JavaScript features)
+- **Mobile browsers**: Full support with responsive design
+
+## Performance Notes
+
+- Images are loaded asynchronously and don't block quiz display
+- Statistics tracking has minimal performance impact
+- Modal animations use CSS transforms for smooth performance
+- Question selection is O(n) worst case, O(1) average case
+
+
+---
+
+*QuizModule.js v1.0.0 - Built for Polor educational games*
