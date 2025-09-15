@@ -144,6 +144,11 @@ class QuizModule {
         <img class="quiz-module-image" src="" alt="Question illustration" style="display: none;">
         <div class="quiz-module-question">Loading question...</div>
         <div class="quiz-module-answers"></div>
+        <div class="quiz-module-timer">
+          <div class="quiz-module-timer-circle">
+            <div class="quiz-module-timer-inner">3</div>
+          </div>
+        </div>
         <div class="quiz-module-result hidden"></div>
         <div class="quiz-module-actions">
           <button class="quiz-module-continue hidden" disabled>Continue</button>
@@ -225,7 +230,8 @@ class QuizModule {
         height: 200px;
         object-fit: cover;
         border-radius: 15px;
-        margin-bottom: 1.5rem;
+        margin: 0 auto 1.5rem auto;
+        display: block;
         box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         transition: opacity 0.3s ease;
       }
@@ -236,6 +242,43 @@ class QuizModule {
         margin-bottom: 2rem;
         line-height: 1.4;
         font-weight: 500;
+      }
+
+      .quiz-module-timer {
+        position: relative;
+        width: 60px;
+        height: 60px;
+        margin: 0 auto 1rem auto;
+        display: none;
+      }
+
+      .quiz-module-timer.active {
+        display: block;
+      }
+
+      .quiz-module-timer-circle {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: conic-gradient(#f44336 0deg, #ffebee 0deg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.1s ease;
+        position: relative;
+      }
+
+      .quiz-module-timer-inner {
+        width: 40px;
+        height: 40px;
+        background: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+        font-weight: bold;
+        color: #f44336;
       }
 
       .quiz-module-answers {
@@ -531,6 +574,7 @@ class QuizModule {
     const buttons = this.modalElement.querySelectorAll('.quiz-module-answer');
     const resultEl = this.modalElement.querySelector('.quiz-module-result');
     const continueBtn = this.modalElement.querySelector('.quiz-module-continue');
+    const timerEl = this.modalElement.querySelector('.quiz-module-timer');
 
     // Disable all buttons
     buttons.forEach(btn => btn.disabled = true);
@@ -604,12 +648,63 @@ class QuizModule {
         });
       }
 
-      setTimeout(() => {
-        this.displayQuestion();
-      }, this.config.wrongAnswerDelay);
+      // Show timer and wait for user to click continue
+      this.startWrongAnswerTimer(() => {
+        continueBtn.textContent = 'Next Question';
+        continueBtn.disabled = false;
+        continueBtn.classList.remove('hidden');
+        continueBtn.onclick = () => {
+          continueBtn.classList.add('hidden');
+          continueBtn.onclick = () => this.handleContinue();
+          this.displayQuestion();
+        };
+      });
     }
 
     resultEl.classList.remove('hidden');
+  }
+
+  /**
+   * Start the wrong answer timer with circular progress
+   */
+  startWrongAnswerTimer(callback) {
+    const timerEl = this.modalElement.querySelector('.quiz-module-timer');
+    const timerCircle = this.modalElement.querySelector('.quiz-module-timer-circle');
+    const timerInner = this.modalElement.querySelector('.quiz-module-timer-inner');
+    
+    timerEl.classList.add('active');
+    
+    const duration = this.config.wrongAnswerDelay;
+    const startTime = Date.now();
+    let countdown = Math.ceil(duration / 1000);
+    
+    timerInner.textContent = countdown;
+    
+    const updateTimer = () => {
+      const elapsed = Date.now() - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const degrees = progress * 360;
+      
+      // Update circular progress
+      timerCircle.style.background = `conic-gradient(#f44336 ${degrees}deg, #ffebee ${degrees}deg)`;
+      
+      // Update countdown number
+      const newCountdown = Math.ceil((duration - elapsed) / 1000);
+      if (newCountdown !== countdown && newCountdown > 0) {
+        countdown = newCountdown;
+        timerInner.textContent = countdown;
+      }
+      
+      if (progress >= 1) {
+        timerEl.classList.remove('active');
+        timerCircle.style.background = '';
+        callback();
+      } else {
+        requestAnimationFrame(updateTimer);
+      }
+    };
+    
+    requestAnimationFrame(updateTimer);
   }
 
   /**
