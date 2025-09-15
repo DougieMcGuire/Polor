@@ -587,16 +587,6 @@
       showTapToStart();
     }
 
-    function startGame() {
-      document.getElementById('startScreen').classList.add('hidden');
-      showTapToStart();
-    }
-
-    function startGame() {
-      document.getElementById('startScreen').classList.add('hidden');
-      showTapToStart();
-    }
-
     function showTapToStart() {
       document.getElementById('tapToStart').classList.remove('hidden');
       gamePaused = true;
@@ -935,70 +925,3 @@
       if (selectedIndex !== correctIndex) {
         buttons[selectedIndex].classList.add('incorrect');
       }
-      
-      const isCorrect = selectedIndex === correctIndex;
-      lastCorrectAnswer = isCorrect;
-      
-      resultDiv.textContent = isCorrect ? '🎉 Correct! You can continue running!' : '❄️ Incorrect. Try again to continue!';
-      resultDiv.className = `quiz-result ${isCorrect ? 'correct' : 'incorrect'}`;
-      resultDiv.classList.remove('hidden');
-      
-      if (isCorrect) {
-        score += 50;
-        updateScore();
-        continueBtn.disabled = false;
-        continueBtn.textContent = 'Continue Running';
-      } else {
-        continueBtn.disabled = true;
-        continueBtn.textContent = 'Answer Correctly to Continue';
-        // Reset buttons for another attempt
-        setTimeout(() => {
-          buttons.forEach(btn => {
-            btn.style.pointerEvents = 'auto';
-            btn.classList.remove('correct', 'incorrect');
-          });
-          resultDiv.classList.add('hidden');
-        }, 2000);
-        return;
-      }
-      
-      continueBtn.classList.remove('hidden');
-      
-      currentQuestionIndex++;
-      questionsAnswered++;
-      updateScore();
-    }
-
-    function continueGame() {
-      if (!lastCorrectAnswer) return;
-      
-      document.getElementById('quizModal').classList.add('hidden');
-      
-      polarBear.y = ground.y - polarBear.height;
-      polarBear.jumping = false;
-      polarBear.grounded = true;
-      polarBear.jumpForce = 0;
-      
-      obstacles = obstacles.filter(obstacle => obstacle.x > polarBear.x + 100);
-      
-      showTapToStart();
-    }
-
-    function showGameOverScreen() {
-      document.getElementById('finalScore').textContent = `Final Score: ${score}`;
-      document.getElementById('highScoreDisplay').textContent = `High Score: ${highScore}`;
-      document.getElementById('gameOverScreen').classList.remove('hidden');
-    }
-
-    function restartGame() {
-      document.getElementById('gameOverScreen').classList.add('hidden');
-      document.getElementById('quizModal').classList.add('hidden');
-      showTapToStart();
-    }
-
-    function updateScore() {
-      document.getElementById('currentScore').textContent = score;
-      document.getElementById('questionsAnswered').textContent = questionsAnswered;
-    }
-
-    window.addEventListener('load', initGame);
