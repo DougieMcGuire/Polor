@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Polor Bear Runner</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #87CEEB 0%, #64B5F6 100%);
+      overflow: hidden;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .game-header {
+      background: linear-gradient(135deg, #42A5F5 0%, #1E88E5 100%);
+      color: white;
+      padding: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+
+    .score-info {
+      display: flex;
+      gap: 2rem;
+      align-items: center;
+    }
+
+    .score-item {
+      text-align: center;
+    }
+
+    .score-label {
+      font-size: 0.8rem;
+      opacity: 0.8;
+      margin-bottom: 0.2rem;
+    }
+
+    .score-value {
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+
+    #gameCanvas {
+      background: linear-gradient(to bottom, #E3F2FD 0%, #FFFFFF 100%);
+      display: block;
+      margin: 0 auto;
+      flex: 1;
+    }
+
+    .game-instructions {
+      text-align: center;
+      padding: 2rem;
+      background: rgba(255,255,255,0.95);
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      z-index: 10;
+      border: 3px solid #42A5F5;
+    }
+
+    .game-instructions.hidden {
+      display: none;
+    }
+
+    .polar-bear-logo {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 1rem;
+      background: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 3px solid #42A5F5;
+      font-size: 2rem;
+    }
+
+    .start-btn {
+      background: linear-gradient(135deg, #42A5F5, #1E88E5);
+      color: white;
+      border: none;
+      padding: 1rem 2rem;
+      border-radius: 15px;
+      cursor: pointer;
+      font-size: 1.1rem;
+      font-weight: bold;
+      margin-top: 1rem;
+      transition: all 0.3s ease;
+      border: 2px solid transparent;
+    }
+
+    .start-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(66, 165, 245, 0.4);
+      border-color: #1565C0;
+    }
+
+    /* Quiz Modal */
+    .quiz-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      backdrop-filter: blur(5px);
+    }
+
+    .quiz-modal.hidden {
+      display: none;
+    }
+
+    .quiz-card {
+      background: white;
+      border-radius: 20px;
+      padding: 2rem;
+      max-width: 600px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+      animation: modalSlideIn 0.3s ease-out;
+      border: 3px solid #42A5F5;
+    }
+
+    @keyframes modalSlideIn {
+      from {
+        transform: translateY(-50px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .quiz-title {
+      font-size: 1.5rem;
+      color: #1565C0;
+      margin-bottom: 1.5rem;
+      font-weight: bold;
+    }
+
+    .question-text {
+      font-size: 1.2rem;
+      color: #333;
+      margin-bottom: 2rem;
+      line-height: 1.4;
+    }
+
+    .answers-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .answer-btn {
+      background: #F8F9FA;
+      border: 2px solid #E3F2FD;
+      padding: 1rem;
+      border-radius: 15px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 1rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .answer-btn:hover {
+      background: #E3F2FD;
+      border-color: #42A5F5;
+      transform: translateY(-2px);
+    }
+
+    .answer-btn.selected {
+      background: #42A5F5;
+      color: white;
+      border-color: #1E88E5;
+    }
+
+    .answer-btn.correct {
+      background: #4CAF50;
+      color: white;
+      border-color: #388E3C;
+    }
+
+    .answer-btn.incorrect {
+      background: #F44336;
+      color: white;
+      border-color: #D32F2F;
+    }
+
+    .quiz-result {
+      font-size: 1.2rem;
+      font-weight: bold;
+      margin: 1rem 0;
+      padding: 1rem;
+      border-radius: 15px;
+    }
+
+    .quiz-result.correct {
+      background: #E8F5E8;
+      color: #2E7D32;
+      border: 2px solid #4CAF50;
+    }
+
+    .quiz-result.incorrect {
+      background: #FFEBEE;
+      color: #C62828;
+      border: 2px solid #F44336;
+    }
+
+    .continue-btn {
+      background: linear-gradient(135deg, #42A5F5, #1E88E5);
+      color: white;
+      border: none;
+      padding: 1rem 2rem;
+      border-radius: 15px;
+      cursor: pointer;
+      font-size: 1.1rem;
+      font-weight: bold;
+      transition: all 0.3s ease;
+    }
+
+    .continue-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(66, 165, 245, 0.4);
+    }
+
+    .game-over-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+      backdrop-filter: blur(5px);
+    }
+
+    .game-over-screen.hidden {
+      display: none;
+    }
+
+    .game-over-card {
+      background: white;
+      border-radius: 20px;
+      padding: 2rem;
+      text-align: center;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+      max-width: 400px;
+      width: 90%;
+      border: 3px solid #42A5F5;
+    }
+
+    .game-over-title {
+      font-size: 2rem;
+      color: #1565C0;
+      margin-bottom: 1rem;
+      font-weight: bold;
+    }
+
+    .final-score {
+      font-size: 1.5rem;
+      color: #333;
+      margin-bottom: 1.5rem;
+    }
+
+    .high-score {
+      font-size: 1.2rem;
+      color: #42A5F5;
+      margin-bottom: 2rem;
+      font-weight: bold;
+    }
+
+    @media (max-width: 768px) {
+      .answers-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .score-info {
+        gap: 1rem;
+      }
+      
+      .score-value {
+        font-size: 1rem;
+      }
+      
+      .quiz-card {
+        padding: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Game Header -->
+  <div class="game-header">
+    <div class="brand">
+      <span style="font-size: 1.8rem;">🐻‍❄️</span>
+      <span>Polor Bear Runner</span>
+    </div>
+    <div class="score-info">
+      <div class="score-item">
+        <div class="score-label">Score</div>
+        <div class="score-value" id="currentScore">0</div>
+      </div>
+      <div class="score-item">
+        <div class="score-label">High Score</div>
+        <div class="score-value" id="highScore">0</div>
+      </div>
+      <div class="score-item">
+        <div class="score-label">Questions</div>
+        <div class="score-value" id="questionsAnswered">0</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Game Canvas -->
+  <canvas id="gameCanvas"></canvas>
+
+  <!-- Start Instructions -->
+  <div class="game-instructions" id="startScreen">
+    <div class="polar-bear-logo">🐻‍❄️</div>
+    <h2>Welcome to Polor Bear Runner!</h2>
+    <p>Help the polar bear jump over icebergs and answer questions when you crash!</p>
+    <p><strong>Controls:</strong> SPACEBAR or UP ARROW to jump</p>
+    <button class="start-btn" onclick="startGame()">Start Running</button>
+  </div>
+
+  <!-- Quiz Modal -->
+  <div class="quiz-modal hidden" id="quizModal">
+    <div class="quiz-card">
+      <div class="quiz-title">🧠 Answer to Continue Running!</div>
+      <div class="question-text" id="questionText">Loading question...</div>
+      <div class="answers-grid" id="answersGrid">
+        <!-- Answers will be populated here -->
+      </div>
+      <div class="quiz-result hidden" id="quizResult">
+        <!-- Result will be shown here -->
+      </div>
+      <button class="continue-btn hidden" id="continueBtn" onclick="continueGame()">Continue Running</button>
+    </div>
+  </div>
+
+  <!-- Game Over Screen -->
+  <div class="game-over-screen hidden" id="gameOverScreen">
+    <div class="game-over-card">
+      <div class="game-over-title">🏁 Great Run!</div>
+      <div class="final-score" id="finalScore">Final Score: 0</div>
+      <div class="high-score" id="highScoreDisplay">High Score: 0</div>
+      <button class="start-btn" onclick="restartGame()">Run Again</button>
+      <button class="start-btn" onclick="window.history.back()" style="background: #666; margin-left: 1rem;">Back to Polor</button>
+    </div>
+  </div>
+
+  <script>
+    // Game variables
+    let canvas, ctx;
+    let gameRunning = false;
+    let gameSpeed = 5;
+    let gravity = 0.6;
+    let score = 0;
+    let highScore = localStorage.getItem('polorBearHighScore') || 0;
+    let questionsAnswered = 0;
+    let quizData = null;
+    let currentQuestionIndex = 0;
+
+    // Polar bear object
+    let polarBear = {
+      x: 80,
+      y: 0,
+      width: 40,
+      height: 40,
+      jumping: false,
+      jumpForce: 0,
+      grounded: false,
+      animFrame: 0
+    };
+
+    // Obstacles array (icebergs)
+    let obstacles = [];
+    let ground = {
+      x: 0,
+      y: 0,
+      width: 0,
+      height: 30
+    };
+
+    // Snowflakes for atmosphere
+    let snowflakes = [];
+
+    // Initialize game
+    function initGame() {
+      canvas = document.getElementById('gameCanvas');
+      ctx = canvas.getContext('2d');
+      
+      // Set canvas size
+      resizeCanvas();
+      window.addEventListener('resize', resizeCanvas);
+      
+      // Initialize ground
+      ground.y = canvas.height - ground.height;
+      ground.width = canvas.width;
+      polarBear.y = ground.y - polarBear.height;
+      
+      // Initialize snowflakes
+      for (let i = 0; i < 20; i++) {
+        snowflakes.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          size: Math.random() * 3 + 1,
+          speed: Math.random() * 1 + 0.5
+        });
+      }
+      
+      // Load quiz data
+      loadQuizData();
+      
+      // Update high score display
+      document.getElementById('highScore').textContent = highScore;
+      
+      // Set up controls
+      document.addEventListener('keydown', handleKeyPress);
+      document.addEventListener('keyup', handleKeyUp);
+    }
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight - document.querySelector('.game-header').offsetHeight;
+      
+      if (ground.y) {
+        ground.y = canvas.height - ground.height;
+        ground.width = canvas.width;
+        if (!polarBear.jumping) {
+          polarBear.y = ground.y - polarBear.height;
+        }
+      }
+    }
+
+    function loadQuizData() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const encodedQuiz = urlParams.get('quiz');
+      
+      if (encodedQuiz) {
+        try {
+          const decodedQuiz = atob(encodedQuiz);
+          quizData = JSON.parse(decodedQuiz);
+          
+          if (quizData.raw) {
+            quizData = parseRawQuizText(quizData.raw);
+          }
+          
+          console.log('Quiz loaded:', quizData);
+        } catch (error) {
+          console.error('Error loading quiz:', error);
+          useDefaultQuestions();
+        }
+      } else {
+        useDefaultQuestions();
+      }
+    }
+
+    function useDefaultQuestions() {
+      quizData = {
+        title: "Polar Quiz",
+        questions: [
+          {
+            question: "What is the largest type of bear?",
+            answers: ["Polar Bear", "Grizzly Bear", "Black Bear", "Panda Bear"],
+            correct: 0
+          },
+          {
+            question: "Where do polar bears primarily live?",
+            answers: ["Antarctica", "Arctic", "Alaska", "Canada"],
+            correct: 1
+          },
+          {
+            question: "What do polar bears mainly eat?",
+            answers: ["Fish", "Seals", "Berries", "Honey"],
+            correct: 1
+          }
+        ]
+      };
+    }
+
+    function parseRawQuizText(rawText) {
+      try {
+        let cleanText = rawText.trim();
+        cleanText = cleanText.replace(/```json\s*/g, '').replace(/```\s*/g, '');
+        
+        try {
+          return JSON.parse(cleanText);
+        } catch (e) {
+          const jsonMatch = cleanText.match(/\{[\s\S]*\}/);
+          if (jsonMatch) {
+            return JSON.parse(jsonMatch[0]);
+          }
+        }
+        
+        throw new Error('Could not parse quiz text');
+      } catch (error) {
+        console.error('Failed to parse raw quiz text:', error);
+        useDefaultQuestions();
+        return quizData;
+      }
+    }
+
+    function startGame() {
+      document.getElementById('startScreen').classList.add('hidden');
+      gameRunning = true;
+      score = 0;
+      gameSpeed = 5;
+      obstacles = [];
+      currentQuestionIndex = 0;
+      questionsAnswered = 0;
+      polarBear.animFrame = 0;
+      
+      updateScore();
+      gameLoop();
+    }
+
+    function gameLoop() {
+      if (!gameRunning) return;
+      
+      update();
+      draw();
+      requestAnimationFrame(gameLoop);
+    }
+
+    function update() {
+      // Update polar bear animation
+      polarBear.animFrame += 0.2;
+      
+      // Update polar bear physics
+      if (polarBear.jumping) {
+        polarBear.y += polarBear.jumpForce;
+        polarBear.jumpForce += gravity;
+        
+        if (polarBear.y >= ground.y - polarBear.height) {
+          polarBear.y = ground.y - polarBear.height;
+          polarBear.jumping = false;
+          polarBear.grounded = true;
+          polarBear.jumpForce = 0;
+        }
+      }
+      
+      // Generate icebergs
+      if (obstacles.length === 0 || obstacles[obstacles.length - 1].x < canvas.width - 300 - Math.random() * 200) {
+        obstacles.push({
+          x: canvas.width,
+          y: ground.y - 25,
+          width: 20 + Math.random() * 15,
+          height: 25 + Math.random() * 15,
+          type: 'iceberg'
+        });
+      }
+      
+      // Update obstacles
+      for (let i = obstacles.length - 1; i >= 0; i--) {
+        obstacles[i].x -= gameSpeed;
+        
+        if (obstacles[i].x + obstacles[i].width < 0) {
+          obstacles.splice(i, 1);
+          score += 10;
+          updateScore();
+        }
+      }
+      
+      // Update snowflakes
+      snowflakes.forEach(flake => {
+        flake.y += flake.speed;
+        flake.x += Math.sin(flake.y * 0.01) * 0.5;
+        
+        if (flake.y > canvas.height) {
+          flake.y = -10;
+          flake.x = Math.random() * canvas.width;
+        }
+      });
+      
+      // Check collisions
+      for (let obstacle of obstacles) {
+        if (polarBear.x + 10 < obstacle.x + obstacle.width &&
+            polarBear.x + polarBear.width - 10 > obstacle.x &&
+            polarBear.y + 10 < obstacle.y + obstacle.height &&
+            polarBear.y + polarBear.height - 5 > obstacle.y) {
+          gameOver();
+          break;
+        }
+      }
+      
+      // Increase game speed gradually
+      gameSpeed += 0.002;
+    }
+
+    function draw() {
+      // Clear canvas with gradient sky
+      const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+      gradient.addColorStop(0, '#E3F2FD');
+      gradient.addColorStop(1, '#FFFFFF');
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      // Draw snowflakes
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+      snowflakes.forEach(flake => {
+        ctx.beginPath();
+        ctx.arc(flake.x, flake.y, flake.size, 0, Math.PI * 2);
+        ctx.fill();
+      });
+      
+      // Draw ground (ice)
+      ctx.fillStyle = '#E8F4FD';
+      ctx.fillRect(0, ground.y, ground.width, ground.height);
+      
+      // Draw ice surface details
+      ctx.fillStyle = '#B3E5FC';
+      const icePattern = Math.floor((-score / 3) % 60);
+      for (let i = icePattern; i < canvas.width; i += 60) {
+        ctx.fillRect(i, ground.y + 5, 30, 8);
+        ctx.fillRect(i + 15, ground.y + 15, 20, 6);
+      }
+      
+      // Draw polar bear
+      drawPolarBear();
+      
+      // Draw icebergs
+      obstacles.forEach(obstacle => {
+        drawIceberg(obstacle);
+      });
+    }
+
+    function drawPolarBear() {
+      const x = polarBear.x;
+      const y = polarBear.y;
+      const bounce = Math.sin(polarBear.animFrame) * 2;
+      
+      // Shadow
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+      ctx.beginPath();
+      ctx.ellipse(x + 20, ground.y + 25, 15, 5, 0, 0, Math.PI * 2);
+      ctx.fill();
+      
+      // Body
+      ctx.fillStyle = '#FFFFFF';
+      ctx.strokeStyle = '#1565C0';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.ellipse(x + 20, y + 25 + bounce, 18, 12, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      
+      // Head
+      ctx.beginPath();
+      ctx.arc(x + 20, y + 12 + bounce, 12, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      
+      // Ears
+      ctx.beginPath();
+      ctx.arc(x + 14, y + 6 + bounce, 4, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      
+      ctx.beginPath();
+      ctx.arc(x + 26, y + 6 + bounce, 4, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      
+      // Eyes
+      ctx.fillStyle = '#1A1A1A';
+      ctx.beginPath();
+      ctx.arc(x + 17, y + 10 + bounce, 2, 0, Math.PI * 2);
+      ctx.fill();
+      
+      ctx.beginPath();
+      ctx.arc(x + 23, y + 10 + bounce, 2, 0, Math.PI * 2);
+      ctx.fill();
+      
+      // Nose
+      ctx.fillStyle = '#1A1A1A';
+      ctx.beginPath();
+      ctx.ellipse(x + 20, y + 14 + bounce, 2, 1.5, 0, 0, Math.PI * 2);
+      ctx.fill();
+      
+      // Legs
+      ctx.fillStyle = '#FFFFFF';
+      ctx.strokeStyle = '#1565C0';
+      
+      const legBounce = Math.sin(polarBear.animFrame * 2) * 1;
+      
+      // Front legs
+      ctx.beginPath();
+      ctx.ellipse(x + 12, y + 32 + bounce + legBounce, 3, 6, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      
+      ctx.beginPath();
+      ctx.ellipse(x + 20, y + 32 + bounce - legBounce, 3, 6, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      
+      // Back legs  
+      ctx.beginPath();
+      ctx.ellipse(x + 28, y + 32 + bounce + legBounce, 3, 6, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+    }
+
+    function drawIceberg(obstacle) {
+      const x = obstacle.x;
+      const y = obstacle.y;
+      const w = obstacle.width;
+      const h = obstacle.height;
+      
+      // Main iceberg body
+      ctx.fillStyle = '#E1F5FE';
+      ctx.strokeStyle = '#0277BD';
+      ctx.lineWidth = 2;
+      
+      ctx.beginPath();
+      ctx.moveTo(x, y + h);
+      ctx.lineTo(x + w * 0.2, y);
+      ctx.lineTo(x + w * 0.8, y);
+      ctx.lineTo(x + w, y + h);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      
+      // Ice details
+      ctx.fillStyle = '#B3E5FC';
+      ctx.beginPath();
+      ctx.moveTo(x + w * 0.1, y + h * 0.7);
+      ctx.lineTo(x + w * 0.3, y + h * 0.3);
+      ctx.lineTo(x + w * 0.7, y + h * 0.4);
+      ctx.lineTo(x + w * 0.9, y + h * 0.8);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    function jump() {
+      if (polarBear.grounded && !polarBear.jumping) {
+        polarBear.jumping = true;
+        polarBear.grounded = false;
+        polarBear.jumpForce = -13;
+      }
+    }
+
+    function handleKeyPress(event) {
+      if (event.code === 'Space' || event.code === 'ArrowUp') {
+        event.preventDefault();
+        if (gameRunning) {
+          jump();
+        } else if (!document.getElementById('quizModal').classList.contains('hidden')) {
+          return;
+        }
+      }
+    }
+
+    function handleKeyUp(event) {
+      if (event.code === 'Space' || event.code === 'ArrowUp') {
+        event.preventDefault();
+      }
+    }
+
+    function gameOver() {
+      gameRunning = false;
+      
+      if (score > highScore) {
+        highScore = score;
+        localStorage.setItem('polorBearHighScore', highScore);
+        document.getElementById('highScore').textContent = highScore;
+      }
+      
+      showQuizModal();
+    }
+
+    function showQuizModal() {
+      if (!quizData || !quizData.questions || quizData.questions.length === 0) {
+        showGameOverScreen();
+        return;
+      }
+      
+      const question = quizData.questions[currentQuestionIndex % quizData.questions.length];
+      
+      document.getElementById('questionText').textContent = question.question;
+      
+      const answersGrid = document.getElementById('answersGrid');
+      answersGrid.innerHTML = '';
+      
+      question.answers.forEach((answer, index) => {
+        const btn = document.createElement('button');
+        btn.className = 'answer-btn';
+        btn.textContent = answer;
+        btn.onclick = () => selectAnswer(index, question.correct);
+        answersGrid.appendChild(btn);
+      });
+      
+      document.getElementById('quizResult').classList.add('hidden');
+      document.getElementById('continueBtn').classList.add('hidden');
+      document.getElementById('quizModal').classList.remove('hidden');
+    }
+
+    function selectAnswer(selectedIndex, correctIndex) {
+      const buttons = document.querySelectorAll('.answer-btn');
+      const resultDiv = document.getElementById('quizResult');
+      
+      buttons.forEach(btn => btn.style.pointerEvents = 'none');
+      
+      buttons[correctIndex].classList.add('correct');
+      if (selectedIndex !== correctIndex) {
+        buttons[selectedIndex].classList.add('incorrect');
+      }
+      
+      const isCorrect = selectedIndex === correctIndex;
+      resultDiv.textContent = isCorrect ? '🎉 Correct! Great job!' : '❄️ Incorrect. The correct answer was highlighted.';
+      resultDiv.className = `quiz-result ${isCorrect ? 'correct' : 'incorrect'}`;
+      resultDiv.classList.remove('hidden');
+      
+      if (isCorrect) {
+        score += 50;
+        updateScore();
+      }
+      
+      document.getElementById('continueBtn').classList.remove('hidden');
+      
+      currentQuestionIndex++;
+      questionsAnswered++;
+      updateScore();
+    }
+
+    function continueGame() {
+      document.getElementById('quizModal').classList.add('hidden');
+      
+      polarBear.y = ground.y - polarBear.height;
+      polarBear.jumping = false;
+      polarBear.grounded = true;
+      polarBear.jumpForce = 0;
+      
+      obstacles = obstacles.filter(obstacle => obstacle.x > polarBear.x + 100);
+      
+      gameRunning = true;
+      gameLoop();
+    }
+
+    function showGameOverScreen() {
+      document.getElementById('finalScore').textContent = `Final Score: ${score}`;
+      document.getElementById('highScoreDisplay').textContent = `High Score: ${highScore}`;
+      document.getElementById('gameOverScreen').classList.remove('hidden');
+    }
+
+    function restartGame() {
+      document.getElementById('gameOverScreen').classList.add('hidden');
+      document.getElementById('quizModal').classList.add('hidden');
+      startGame();
+    }
+
+    function updateScore() {
+      document.getElementById('currentScore').textContent = score;
+      document.getElementById('questionsAnswered').textContent = questionsAnswered;
+    }
+
+    window.addEventListener('load', initGame);
+
+    // Touch controls for mobile
+    let touchStartY = 0;
+    canvas.addEventListener('touchstart', (e) => {
+      touchStartY = e.touches[0].clientY;
+    });
+
+    canvas.addEventListener('touchend', (e) => {
+      const touchEndY = e.changedTouches[0].clientY;
+      if (touchStartY - touchEndY > 30) {
+        if (gameRunning) {
+          jump();
+        }
+      }
+    });
+  </script>
+</body>
+</html>
