@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Login - Polor</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=OpenDyslexic:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Polor - Main Stylesheet */
+
+        /* CSS Variables */
+        :root {
+            /* Primary Colors */
+            --primary-blue: #52C4F5;
+            --primary-blue-dark: #3BA8D1;
+            
+            /* Answer Button Colors */
+            --answer-red: #FF6B6B;
+            --answer-yellow: #FFE66D;
+            --answer-blue: #4ECDC4;
+            --answer-green: #45B7D1;
+            
+            /* Accent Colors */
+            --success-green: #51CF66;
+            --error-red: #FF6B6B;
+            --warning-orange: #FF922B;
+            --purple-accent: #9775FA;
+            --pink-accent: #F783AC;
+            
+            /* Neutrals */
+            --white: #FFFFFF;
+            --black: #000000;
+            --light-blue: #E3F2FD;
+            --gray-100: #F8F9FA;
+            --gray-200: #E9ECEF;
+            --gray-300: #DEE2E6;
+            --gray-400: #CED4DA;
+            --gray-500: #ADB5BD;
+            --gray-600: #6C757D;
+            --gray-700: #495057;
+            --gray-800: #343A40;
+            --gray-900: #212529;
+            
+            /* Typography */
+            --font-primary: 'Fredoka', sans-serif;
+            --font-dyslexia: 'OpenDyslexic', sans-serif;
+            
+            /* Spacing */
+            --spacing-xs: 0.25rem;
+            --spacing-sm: 0.5rem;
+            --spacing-md: 1rem;
+            --spacing-lg: 1.5rem;
+            --spacing-xl: 2rem;
+            --spacing-2xl: 3rem;
+            
+            /* Border Radius */
+            --radius-sm: 0.375rem;
+            --radius-md: 0.5rem;
+            --radius-lg: 0.75rem;
+            --radius-xl: 1rem;
+            --radius-2xl: 1.5rem;
+            
+            /* Shadows */
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        /* Global Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            background: linear-gradient(135deg, var(--primary-blue) 0%, #87CEEB 100%);
+            min-height: 100vh;
+            color: var(--black);
+            overflow-x: hidden;
+        }
+
+        /* Dyslexia Font Toggle */
+        body.dyslexia-font {
+            font-family: var(--font-dyslexia);
+        }
+
+        /* Auth Container */
+        .auth-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--spacing-lg);
+            position: relative;
+        }
+
+        .back-btn {
+            position: absolute;
+            top: var(--spacing-lg);
+            left: var(--spacing-lg);
+            background: var(--white);
+            border: 2px solid var(--gray-300);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-sm) var(--spacing-md);
+            font-family: var(--font-primary);
+            font-weight: 500;
+            color: var(--gray-700);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            background: var(--gray-100);
+        }
+
+        .auth-card {
+            background: var(--white);
+            border-radius: var(--radius-2xl);
+            padding: var(--spacing-2xl);
+            box-shadow: var(--shadow-xl);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .auth-header h1 {
+            color: var(--primary-blue);
+            margin-bottom: var(--spacing-sm);
+            font-size: 2.5rem;
+        }
+
+        .auth-header p {
+            color: var(--gray-600);
+            margin-bottom: var(--spacing-xl);
+            font-size: 1.1rem;
+        }
+
+        .auth-content {
+            margin-bottom: var(--spacing-xl);
+        }
+
+        /* Button Styles */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--spacing-md) var(--spacing-lg);
+            border: 2px solid transparent;
+            border-radius: var(--radius-lg);
+            font-family: var(--font-primary);
+            font-weight: 500;
+            font-size: 1rem;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-sm);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-large {
+            padding: var(--spacing-lg) var(--spacing-xl);
+            font-size: 1.1rem;
+            min-width: 200px;
+        }
+
+        .btn-google {
+            background: var(--white);
+            border-color: var(--gray-300);
+            color: var(--gray-700);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-google:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+            background: var(--gray-100);
+        }
+
+        .btn-icon {
+            margin-right: var(--spacing-sm);
+            display: flex;
+            align-items: center;
+        }
+
+        .auth-features {
+            margin-top: var(--spacing-xl);
+            text-align: left;
+        }
+
+        .auth-features h3 {
+            color: var(--gray-700);
+            margin-bottom: var(--spacing-md);
+            font-size: 1.2rem;
+        }
+
+        .auth-features ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .auth-features li {
+            padding: var(--spacing-sm) 0;
+            color: var(--gray-600);
+            position: relative;
+            padding-left: var(--spacing-lg);
+        }
+
+        .auth-features li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: var(--success-green);
+            font-weight: bold;
+        }
+
+        /* Loading Screen */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .loading-content {
+            text-align: center;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--gray-300);
+            border-top: 4px solid var(--primary-blue);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto var(--spacing-md);
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        #loading-text {
+            color: var(--gray-700);
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        /* Notification System */
+        .notification-container {
+            position: fixed;
+            top: var(--spacing-lg);
+            right: var(--spacing-lg);
+            z-index: 10000;
+            max-width: 400px;
+        }
+
+        .notification {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-md) var(--spacing-lg);
+            margin-bottom: var(--spacing-sm);
+            box-shadow: var(--shadow-lg);
+            border-left: 4px solid var(--primary-blue);
+            transform: translateX(100%);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        .notification-success {
+            border-left-color: var(--success-green);
+        }
+
+        .notification-error {
+            border-left-color: var(--error-red);
+        }
+
+        .notification-warning {
+            border-left-color: var(--warning-orange);
+        }
+
+        .logged-in-section {
+            text-align: center;
+            padding: var(--spacing-xl);
+        }
+
+        .success-icon {
+            font-size: 4rem;
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .logged-in-section h2 {
+            color: var(--success-green);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .logged-in-section p {
+            color: var(--gray-700);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .auth-actions {
+            display: flex;
+            gap: var(--spacing-md);
+            margin-top: var(--spacing-lg);
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <!-- Back Button -->
+        <button class="back-btn" onclick="window.location.href='landing.html'">
+            ← Back to Home
+        </button>
+
+        <!-- Auth Card -->
+        <div class="auth-card">
+            <div class="auth-header">
+                <h1>Teacher Login</h1>
+                <p>Sign in to create and host quizzes</p>
+            </div>
+            
+            <div class="auth-content login-section">
+                <button id="google-login-btn" class="btn btn-google btn-large">
+                    <span class="btn-icon"><img src="assets/google-logo.svg" alt="Google logo" style="width: 24px; height: 24px; vertical-align: middle;"></span>
+                    Sign in with Google
+                </button>
+                
+                <div class="auth-features">
+                    <h3>What you can do:</h3>
+                    <ul>
+                        <li>Create quizzes with AI assistance</li>
+                        <li>Import from Google Drive</li>
+                        <li>Host real-time multiplayer games</li>
+                        <li>Manage your quiz library</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="loading-overlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <p id="loading-text">Loading...</p>
+        </div>
+    </div>
+
+    <!-- Notification System -->
+    <div id="notification-container" class="notification-container"></div>
+
+    <!-- Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+    
+    <script>
+        // Polor Configuration
+        const CONFIG = {
+            // Firebase Configuration
+            firebase: {
+                apiKey: "AIzaSyBYcuke7uz4kAQzMjUpEqbY6zvwOiY9C1k",
+                authDomain: "polorapi.firebaseapp.com",
+                databaseURL: "https://polorapi-default-rtdb.firebaseio.com",
+                projectId: "polorapi",
+                storageBucket: "polorapi.firebasestorage.app",
+                messagingSenderId: "945305666819",
+                appId: "1:945305666819:web:a3c535e6cb9273882a1536",
+                measurementId: "G-PQ0J44YZTN"
+            },
+            
+            // Pollinations API
+            pollinations: {
+                textApi: "https://text.pollinations.ai/",
+                imageApi: "https://image.pollinations.ai/prompt/",
+                imageParams: "?nologo=true&width=800&height=600&token=",
+                // Tokens will be loaded from keys.txt
+                tokens: []
+            },
+            
+            // Game Settings
+            game: {
+                maxQuestions: 50,
+                questionTimeLimit: 30, // seconds
+                roomCodeLength: 6,
+                maxStudentsPerGame: 50,
+                scoreUpdateInterval: 5000, // 5 seconds
+                maxNameLength: 20
+            },
+            
+            // Avatar Settings
+            avatar: {
+                categories: [
+                    'backgrounds', 'bases', 'brows', 'eyes', 'glasses', 
+                    'hair', 'hats', 'mouths', 'neck', 'noses', 'tops'
+                ],
+                defaultConfig: "bg:1,base:1,brow:1,eye:1,glass:0,hair:1,hat:0,mouth:1,neck:0,nose:1,top:1",
+                imageSize: 200
+            },
+            
+            // UI Settings
+            ui: {
+                animationDuration: 300,
+                notificationDuration: 3000,
+                loadingTimeout: 10000
+            },
+            
+            // Languages
+            languages: {
+                en: { name: "English", flag: "🇺🇸" },
+                es: { name: "Español", flag: "🇪🇸" },
+                fr: { name: "Français", flag: "🇫🇷" },
+                ru: { name: "Русский", flag: "🇷🇺" },
+                de: { name: "Deutsch", flag: "🇩🇪" },
+                it: { name: "Italiano", flag: "🇮🇹" },
+                pt: { name: "Português", flag: "🇵🇹" },
+                ja: { name: "日本語", flag: "🇯🇵" },
+                ko: { name: "한국어", flag: "🇰🇷" },
+                zh: { name: "中文", flag: "🇨🇳" }
+            },
+            
+            // Quiz Settings
+            quiz: {
+                tones: [
+                    { value: "educational", label: "Educational" },
+                    { value: "fun", label: "Fun & Playful" },
+                    { value: "formal", label: "Formal" },
+                    { value: "simplified", label: "Simplified" }
+                ],
+                ageLevels: [
+                    { value: "5-7", label: "Ages 5-7" },
+                    { value: "8-10", label: "Ages 8-10" },
+                    { value: "11-13", label: "Ages 11-13" },
+                    { value: "14-16", label: "Ages 14-16" },
+                    { value: "17+", label: "Ages 17+" }
+                ]
+            },
+            
+            // Storage Keys
+            storage: {
+                studentName: "polor_student_name",
+                studentAvatar: "polor_student_avatar",
+                studentLanguage: "polor_student_language",
+                savedTeachers: "polor_saved_teachers",
+                teacherAuth: "polor_teacher_auth",
+                dyslexiaFont: "polor_dyslexia_font"
+            },
+            
+            // API Endpoints
+            api: {
+                googleDrive: "https://www.googleapis.com/drive/v3",
+                googleDocs: "https://docs.googleapis.com/v1",
+                googleForms: "https://forms.googleapis.com/v1"
+            }
+        };
+
+        // Load API keys from keys.txt
+        async function loadApiKeys() {
+            try {
+                const response = await fetch('keys.txt');
+                if (response.ok) {
+                    const keys = await response.text();
+                    CONFIG.pollinations.tokens = keys.trim().split('\n').filter(key => key.trim());
+                }
+            } catch (error) {
+                console.warn('Could not load API keys from keys.txt:', error);
+            }
+        }
+
+        // Initialize configuration
+        loadApiKeys();
+
+        // Polor Utility Functions
+        // DOM Utilities
+        const $ = (selector) => document.querySelector(selector);
+        const $$ = (selector) => document.querySelectorAll(selector);
+
+        // Page Management
+        class PageManager {
+            static showPage(pageId) {
+                // Hide all pages
+                $$('.page').forEach(page => page.classList.remove('active'));
+                
+                // Show target page
+                const targetPage = $(`#${pageId}`);
+                if (targetPage) {
+                    targetPage.classList.add('active');
+                }
+            }
+            
+            static getCurrentPage() {
+                const activePage = $('.page.active');
+                return activePage ? activePage.id : null;
+            }
+        }
+
+        // Notification System
+        class NotificationManager {
+            static show(message, type = 'info', duration = CONFIG.ui.notificationDuration) {
+                const container = $('#notification-container');
+                if (!container) return;
+                
+                const notification = document.createElement('div');
+                notification.className = `notification notification-${type}`;
+                notification.textContent = message;
+                
+                container.appendChild(notification);
+                
+                // Auto remove after duration
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, duration);
+            }
+            
+            static success(message) {
+                this.show(message, 'success');
+            }
+            
+            static error(message) {
+                this.show(message, 'error');
+            }
+            
+            static warning(message) {
+                this.show(message, 'warning');
+            }
+        }
+
+        // Loading Screen
+        class LoadingManager {
+            static show(text = 'Loading...') {
+                const loadingScreen = $('#loading-screen');
+                const loadingText = $('#loading-text');
+                
+                if (loadingScreen) {
+                    loadingScreen.style.display = 'flex';
+                    if (loadingText) {
+                        loadingText.textContent = text;
+                    }
+                }
+            }
+            
+            static hide() {
+                const loadingScreen = $('#loading-screen');
+                if (loadingScreen) {
+                    loadingScreen.style.display = 'none';
+                }
+            }
+        }
+
+        // Local Storage Utilities
+        class StorageManager {
+            static get(key, defaultValue = null) {
+                try {
+                    const item = localStorage.getItem(key);
+                    return item ? JSON.parse(item) : defaultValue;
+                } catch (error) {
+                    console.warn(`Error reading from localStorage key "${key}":`, error);
+                    return defaultValue;
+                }
+            }
+            
+            static set(key, value) {
+                try {
+                    localStorage.setItem(key, JSON.stringify(value));
+                    return true;
+                } catch (error) {
+                    console.warn(`Error writing to localStorage key "${key}":`, error);
+                    return false;
+                }
+            }
+            
+            static remove(key) {
+                try {
+                    localStorage.removeItem(key);
+                    return true;
+                } catch (error) {
+                    console.warn(`Error removing localStorage key "${key}":`, error);
+                    return false;
+                }
+            }
+            
+            static clear() {
+                try {
+                    localStorage.clear();
+                    return true;
+                } catch (error) {
+                    console.warn('Error clearing localStorage:', error);
+                    return false;
+                }
+            }
+        }
+
+        // Polor Firebase Integration
+        class FirebaseManager {
+            constructor() {
+                this.app = null;
+                this.auth = null;
+                this.database = null;
+                this.storage = null;
+                this.currentUser = null;
+                this.init();
+            }
+            
+            init() {
+                // Check if Firebase is available
+                if (typeof firebase === 'undefined') {
+                    console.warn('Firebase not loaded, retrying in 100ms...');
+                    setTimeout(() => this.init(), 100);
+                    return;
+                }
+                
+                try {
+                    // Initialize Firebase
+                    this.app = firebase.initializeApp(CONFIG.firebase);
+                    this.auth = firebase.auth();
+                    this.database = firebase.database();
+                    this.storage = firebase.storage();
+                    
+                    // Set up auth state listener
+                    this.auth.onAuthStateChanged((user) => {
+                        this.currentUser = user;
+                        this.handleAuthStateChange(user);
+                    });
+                    
+                    console.log('Firebase initialized successfully');
+                } catch (error) {
+                    console.error('Failed to initialize Firebase:', error);
+                    // Retry initialization
+                    setTimeout(() => this.init(), 1000);
+                }
+            }
+            
+            // Handle authentication state changes
+            handleAuthStateChange(user) {
+                if (user) {
+                    console.log('User signed in:', user.uid);
+                    this.updateTeacherUI(user);
+                } else {
+                    console.log('User signed out');
+                    this.clearTeacherUI();
+                }
+            }
+            
+            // Update teacher UI with user info
+            updateTeacherUI(user) {
+                const teacherName = $('#teacher-name');
+                const teacherAvatar = $('#teacher-avatar');
+                
+                if (teacherName) {
+                    teacherName.textContent = user.displayName || user.email;
+                }
+                
+                if (teacherAvatar) {
+                    // Set teacher avatar (could be profile picture or default)
+                    teacherAvatar.style.backgroundImage = user.photoURL ? 
+                        `url(${user.photoURL})` : 
+                        'linear-gradient(135deg, #52C4F5, #87CEEB)';
+                }
+                
+                // Show teacher dashboard
+                PageManager.showPage('teacher-dashboard');
+            }
+            
+            // Clear teacher UI
+            clearTeacherUI() {
+                const teacherName = $('#teacher-name');
+                const teacherAvatar = $('#teacher-avatar');
+                
+                if (teacherName) {
+                    teacherName.textContent = '';
+                }
+                
+                if (teacherAvatar) {
+                    teacherAvatar.style.backgroundImage = '';
+                }
+            }
+            
+            // Get current user
+            getCurrentUser() {
+                return this.currentUser;
+            }
+            
+            // Check if user is authenticated
+            isAuthenticated() {
+                return !!this.currentUser;
+            }
+        }
+
+        // Initialize global Firebase manager
+        window.firebaseManager = new FirebaseManager();
+
+        // Auth.js - Fixed authentication and redirect
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, starting auth initialization...');
+            // Wait for all dependencies to load
+            waitForDependencies().then(() => {
+                console.log('All dependencies loaded, initializing auth...');
+                initializeAuth();
+            }).catch(error => {
+                console.error('Error waiting for dependencies:', error);
+                LoadingManager.hide();
+                if (NotificationManager) {
+                    NotificationManager.show('Failed to load required components. Please refresh the page.', 'error');
+                }
+            });
+        });
+
+        async function waitForDependencies() {
+            console.log('Waiting for Firebase...');
+            // Wait for Firebase to be available
+            while (typeof firebase === 'undefined') {
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+            console.log('Firebase loaded');
+            
+            console.log('Waiting for utils...');
+            // Wait for utils to be available
+            while (typeof LoadingManager === 'undefined' || typeof NotificationManager === 'undefined') {
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+            console.log('Utils loaded');
+            
+            console.log('Waiting for Firebase manager...');
+            // Wait for Firebase to be initialized
+            while (!window.firebaseManager || !window.firebaseManager.app) {
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+            console.log('Firebase manager loaded');
+        }
+
+        function initializeAuth() {
+            try {
+                // Check if user is already logged in
+                firebase.auth().onAuthStateChanged(function(user) {
+                    if (user) {
+                        // User is already signed in, show option to go to dashboard
+                        console.log('User already authenticated');
+                        LoadingManager.hide();
+                        setupGoogleLogin();
+                        showLoggedInState(user);
+                    } else {
+                        // No user, show login button
+                        LoadingManager.hide();
+                        setupGoogleLogin();
+                    }
+                });
+            } catch (error) {
+                console.error('Error initializing auth:', error);
+                LoadingManager.hide();
+                if (NotificationManager) {
+                    NotificationManager.show('Failed to initialize authentication. Please refresh the page.', 'error');
+                }
+            }
+        }
+
+        function showLoggedInState(user) {
+            const authCard = document.querySelector('.auth-card');
+            const loginSection = document.querySelector('.login-section');
+            
+            // Hide login section
+            if (loginSection) {
+                loginSection.style.display = 'none';
+            }
+            
+            // Show logged in state
+            const loggedInSection = document.createElement('div');
+            loggedInSection.className = 'logged-in-section';
+            loggedInSection.innerHTML = `
+                <div class="success-icon">✅</div>
+                <h2>Welcome back!</h2>
+                <p>You're signed in as <strong>${user.displayName || user.email}</strong></p>
+                <div class="auth-actions">
+                    <button class="btn btn-primary" onclick="window.location.href='dashboard.html'">
+                        Go to Dashboard
+                    </button>
+                    <button class="btn btn-secondary" onclick="signOut()">
+                        Sign Out
+                    </button>
+                </div>
+            `;
+            
+            authCard.appendChild(loggedInSection);
+        }
+
+        function signOut() {
+            firebase.auth().signOut().then(() => {
+                // Reload the page to show login form again
+                window.location.reload();
+            }).catch((error) => {
+                console.error('Sign out error:', error);
+                NotificationManager.show('Error signing out', 'error');
+            });
+        }
+
+        function setupGoogleLogin() {
+            console.log('Setting up Google login...');
+            const googleLoginBtn = document.getElementById('google-login-btn');
+            
+            if (!googleLoginBtn) {
+                console.error('Google login button not found');
+                console.log('Available elements with IDs:', Array.from(document.querySelectorAll('[id]')).map(el => el.id));
+                if (NotificationManager) {
+                    NotificationManager.show('Login button not found. Please refresh the page.', 'error');
+                }
+                return;
+            }
+            
+            console.log('Google login button found:', googleLoginBtn);
+            console.log('Button classes:', googleLoginBtn.className);
+            console.log('Button disabled:', googleLoginBtn.disabled);
+            
+            // Remove any existing event listeners to prevent duplicates
+            googleLoginBtn.removeEventListener('click', signInWithGoogle);
+            
+            googleLoginBtn.addEventListener('click', function(event) {
+                event.preventDefault();
+                console.log('Google login button clicked');
+                console.log('Button element:', googleLoginBtn);
+                console.log('Event:', event);
+                signInWithGoogle();
+            });
+            
+            console.log('Google login button setup complete');
+            
+            // Test if the button is clickable
+            googleLoginBtn.style.pointerEvents = 'auto';
+            googleLoginBtn.style.cursor = 'pointer';
+        }
+
+        function signInWithGoogle() {
+            try {
+                // Check if Firebase is available
+                if (typeof firebase === 'undefined') {
+                    throw new Error('Firebase is not loaded');
+                }
+                
+                // Check if Firebase auth is available
+                if (!firebase.auth) {
+                    throw new Error('Firebase Auth is not available');
+                }
+                
+                LoadingManager.show('Signing in with Google...');
+                
+                const provider = new firebase.auth.GoogleAuthProvider();
+                
+                firebase.auth().signInWithPopup(provider)
+                    .then((result) => {
+                        // User signed in successfully
+                        const user = result.user;
+                        console.log('User signed in:', user.email);
+                        
+                        // Create or update user profile in database
+                        saveUserProfile(user);
+                        
+                        // Show success and option to go to dashboard
+                        NotificationManager.show('Successfully signed in!', 'success');
+                        showLoggedInState(user);
+                    })
+                    .catch((error) => {
+                        console.error('Authentication error:', error);
+                        LoadingManager.hide();
+                        
+                        let errorMessage = 'Failed to sign in';
+                        
+                        switch (error.code) {
+                            case 'auth/popup-closed-by-user':
+                                errorMessage = 'Sign in cancelled';
+                                break;
+                            case 'auth/popup-blocked':
+                                errorMessage = 'Pop-up blocked. Please allow pop-ups for this site.';
+                                break;
+                            case 'auth/network-request-failed':
+                                errorMessage = 'Network error. Please check your connection.';
+                                break;
+                            case 'auth/operation-not-allowed':
+                                errorMessage = 'Google sign-in is not enabled. Please contact support.';
+                                break;
+                            default:
+                                errorMessage = error.message || 'An unknown error occurred';
+                        }
+                        
+                        NotificationManager.show(errorMessage, 'error');
+                    });
+            } catch (error) {
+                console.error('Error in signInWithGoogle:', error);
+                LoadingManager.hide();
+                NotificationManager.show('Failed to initialize sign-in. Please refresh the page.', 'error');
+            }
+        }
+
+        async function saveUserProfile(user) {
+            try {
+                // Check if Firebase database is available
+                if (!firebase.database) {
+                    console.warn('Firebase Database not available, skipping profile save');
+                    return;
+                }
+                
+                const db = firebase.database();
+                const userRef = db.ref(`users/${user.uid}`);
+                
+                // Check if user profile exists
+                const snapshot = await userRef.once('value');
+                
+                if (!snapshot.exists()) {
+                    // Create new user profile
+                    await userRef.set({
+                        email: user.email,
+                        displayName: user.displayName,
+                        photoURL: user.photoURL,
+                        createdAt: Date.now(),
+                        lastLogin: Date.now()
+                    });
+                    console.log('User profile created');
+                } else {
+                    // Update last login
+                    await userRef.update({
+                        lastLogin: Date.now()
+                    });
+                    console.log('User profile updated');
+                }
+            } catch (error) {
+                console.error('Error saving user profile:', error);
+                // Don't show error to user as this is not critical for sign-in
+            }
+        }
+
+        // Fallback to hide loading screen after 3 seconds
+        setTimeout(() => {
+            if (document.getElementById('loading-screen')) {
+                LoadingManager.hide();
+            }
+        }, 3000);
+        
+        // Test function to verify button is clickable
+        window.testAuthButton = function() {
+            const button = document.getElementById('google-login-btn');
+            if (button) {
+                console.log('Button found, testing click...');
+                button.click();
+            } else {
+                console.error('Button not found!');
+            }
+        };
+        
+        // Add a test button for debugging
+        setTimeout(() => {
+            const testBtn = document.createElement('button');
+            testBtn.textContent = 'Test Auth Button';
+            testBtn.style.position = 'fixed';
+            testBtn.style.top = '10px';
+            testBtn.style.right = '10px';
+            testBtn.style.zIndex = '9999';
+            testBtn.onclick = window.testAuthButton;
+            document.body.appendChild(testBtn);
+        }, 2000);
+    </script>
+</body>
+</html>
