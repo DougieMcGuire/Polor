@@ -359,21 +359,21 @@
         ];
 
         const sections = [
-            { id: 'hair', name: 'Hair', icon: 'https://polor.org/Avatars/characters/icons/hair.png' },
-            { id: 'skintone', name: 'Skin', icon: 'https://polor.org/Avatars/characters/icons/skin.png' },
-            { id: 'eyes', name: 'Eyes', icon: 'https://polor.org/Avatars/characters/icons/eyes.png' },
-            { id: 'brows', name: 'Brows', icon: 'https://polor.org/Avatars/characters/icons/brows.png' },
-            { id: 'mouths', name: 'Mouth', icon: 'https://polor.org/Avatars/characters/icons/mouth.png' },
-            { id: 'noses', name: 'Nose', icon: 'https://polor.org/Avatars/characters/icons/nose.png' },
-            { id: 'tops', name: 'Clothes', icon: 'https://polor.org/Avatars/characters/icons/clothes.png' },
-            { id: 'glasses', name: 'Glasses', icon: 'https://polor.org/Avatars/characters/icons/glasses.png' },
-            { id: 'hats', name: 'Hats', icon: 'https://polor.org/Avatars/characters/icons/hats.png' },
-            { id: 'background', name: 'Background', icon: 'https://polor.org/Avatars/characters/icons/background.png' }
+            { id: 'hair', name: 'Hair', icon: 'https://polor.org/Avatars/icons/hair.png' },
+            { id: 'skintone', name: 'Skin', icon: 'https://polor.org/Avatars/icons/skin.png' },
+            { id: 'eyes', name: 'Eyes', icon: 'https://polor.org/Avatars/icons/eyes.png' },
+            { id: 'brows', name: 'Brows', icon: 'https://polor.org/Avatars/icons/brows.png' },
+            { id: 'mouths', name: 'Mouth', icon: 'https://polor.org/Avatars/icons/mouth.png' },
+            { id: 'noses', name: 'Nose', icon: 'https://polor.org/Avatars/icons/nose.png' },
+            { id: 'tops', name: 'Clothes', icon: 'https://polor.org/Avatars/icons/clothes.png' },
+            { id: 'glasses', name: 'Glasses', icon: 'https://polor.org/Avatars/icons/glasses.png' },
+            { id: 'hats', name: 'Hats', icon: 'https://polor.org/Avatars/icons/hats.png' },
+            { id: 'background', name: 'Background', icon: 'https://polor.org/Avatars/icons/background.png' }
         ];
 
         async function initialize() {
             try {
-                const response = await fetch('Avatars/characters/manifest.json');
+                const response = await fetch('Avatars/manifest.json');
                 manifest = await response.json();
                 loadFromStorage();
                 buildInterface();
@@ -566,9 +566,9 @@
                             <feComposite in="nonGreenAreas" in2="coloredGreens" operator="over"/>
                         </filter>
                     </defs>
-                    <image href="Avatars/characters/${category}/${item}" 
+                    <image href="Avatars/${category}/${item}" 
                            x="0" y="0" width="60" height="60" filter="url(#filter_${svgId})"/>
-                    <image href="Avatars/characters/${category}/${overlayFile}" 
+                    <image href="Avatars/${category}/${overlayFile}" 
                            x="0" y="0" width="60" height="60"/>
                 </svg>`;
         }
@@ -597,12 +597,12 @@
                     const selectedItem = selectedParts[baseCategory];
                     if (selectedItem) {
                         const overlayFile = selectedItem.replace('.png', 'overlay.png');
-                        layers.push(`<image href="Avatars/characters/${baseCategory}/${overlayFile}" x="0" y="0" width="140" height="140"/>`);
+                        layers.push(`<image href="Avatars/${baseCategory}/${overlayFile}" x="0" y="0" width="140" height="140"/>`);
                     }
                 } else {
                     const selectedItem = selectedParts[layerName];
                     if (selectedItem) {
-                        layers.push(`<image href="Avatars/characters/${layerName}/${selectedItem}" x="0" y="0" width="140" height="140" filter="url(#greenFilter_${layerName})"/>`);
+                        layers.push(`<image href="Avatars/${layerName}/${selectedItem}" x="0" y="0" width="140" height="140" filter="url(#greenFilter_${layerName})"/>`);
                     }
                 }
             });
@@ -809,7 +809,7 @@
                     resolve();
                 };
                 
-                img.src = `Avatars/characters/${category}/${overlayFile}`;
+                img.src = `Avatars/${category}/${overlayFile}`;
             });
         }
 
@@ -888,7 +888,4 @@
         initialize();
     </script>
 </body>
-
 </html>
-
-
