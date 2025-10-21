@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Lobby - Polor</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-blue: #52C4F5;
+            --primary-blue-dark: #3BA8D1;
+            --success-green: #51CF66;
+            --error-red: #FF6B6B;
+            --white: #FFFFFF;
+            --black: #000000;
+            --gray-100: #F8F9FA;
+            --gray-200: #E9ECEF;
+            --gray-300: #DEE2E6;
+            --gray-600: #6C757D;
+            --gray-700: #495057;
+            --gray-800: #343A40;
+            --font-primary: 'Fredoka', sans-serif;
+            --spacing-sm: 0.5rem;
+            --spacing-md: 1rem;
+            --spacing-lg: 1.5rem;
+            --spacing-xl: 2rem;
+            --spacing-2xl: 3rem;
+            --radius-lg: 0.75rem;
+            --radius-xl: 1rem;
+            --radius-2xl: 1.5rem;
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: var(--font-primary);
+            background: linear-gradient(135deg, var(--primary-blue) 0%, #87CEEB 100%);
+            min-height: 100vh;
+            color: var(--black);
+            padding: var(--spacing-xl);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .lobby-header {
+            text-align: center;
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .quiz-title {
+            color: var(--white);
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: var(--spacing-md);
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .room-code-display {
+            background: var(--white);
+            border: 4px solid var(--black);
+            border-radius: var(--radius-2xl);
+            padding: var(--spacing-xl);
+            display: inline-block;
+            box-shadow: var(--shadow-xl);
+        }
+
+        .code-label {
+            font-size: 1rem;
+            color: var(--gray-600);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .room-code {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--primary-blue);
+            letter-spacing: 0.5rem;
+            font-family: monospace;
+        }
+
+        .code-separator {
+            display: inline-block;
+            width: 2rem;
+        }
+
+        .lobby-content {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: var(--spacing-xl);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .players-section {
+            background: var(--white);
+            border: 4px solid var(--black);
+            border-radius: var(--radius-2xl);
+            padding: var(--spacing-xl);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--gray-800);
+        }
+
+        .player-count {
+            background: var(--primary-blue);
+            color: var(--white);
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-radius: var(--radius-lg);
+            font-weight: 600;
+        }
+
+        .players-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: var(--spacing-md);
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .player-card {
+            background: var(--gray-100);
+            border: 2px solid var(--gray-300);
+            border-radius: var(--radius-xl);
+            padding: var(--spacing-md);
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .player-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary-blue);
+        }
+
+        .player-card.host {
+            border-color: var(--success-green);
+            background: #e8f5e9;
+        }
+
+        .player-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin: 0 auto var(--spacing-sm);
+            background: var(--gray-300);
+            border: 3px solid var(--white);
+            box-shadow: var(--shadow-md);
+            background-size: cover;
+            background-position: center;
+        }
+
+        .player-name {
+            font-weight: 600;
+            color: var(--gray-800);
+            font-size: 0.9rem;
+            word-wrap: break-word;
+        }
+
+        .host-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: var(--success-green);
+            color: var(--white);
+            padding: 0.25rem 0.5rem;
+            border-radius: var(--radius-lg);
+            font-size: 0.7rem;
+            font-weight: 700;
+            border: 2px solid var(--white);
+            box-shadow: var(--shadow-md);
+        }
+
+        .kick-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 107, 107, 0.95);
+            border-radius: var(--radius-xl);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .player-card:hover .kick-overlay {
+            display: flex;
+        }
+
+        .player-card.host:hover .kick-overlay {
+            display: none;
+        }
+
+        .info-panel {
+            background: var(--white);
+            border: 4px solid var(--black);
+            border-radius: var(--radius-2xl);
+            padding: var(--spacing-xl);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .info-section {
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .info-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .info-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--gray-800);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: var(--spacing-sm) 0;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .info-item:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            color: var(--gray-600);
+            font-weight: 500;
+        }
+
+        .info-value {
+            color: var(--gray-800);
+            font-weight: 600;
+        }
+
+        .game-mode-badge {
+            display: inline-block;
+            background: var(--primary-blue);
+            color: var(--white);
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-radius: var(--radius-lg);
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .start-button {
+            width: 100%;
+            padding: var(--spacing-lg);
+            background: var(--success-green);
+            color: var(--white);
+            border: 3px solid var(--black);
+            border-radius: var(--radius-xl);
+            font-family: var(--font-primary);
+            font-size: 1.2rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-lg);
+            margin-top: var(--spacing-lg);
+        }
+
+        .start-button:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-xl);
+            background: #45a555;
+        }
+
+        .start-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .waiting-message {
+            text-align: center;
+            padding: var(--spacing-xl);
+            color: var(--gray-600);
+            font-size: 1.1rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: var(--spacing-2xl);
+            color: var(--gray-600);
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .notification-container {
+            position: fixed;
+            top: var(--spacing-lg);
+            right: var(--spacing-lg);
+            z-index: 10001;
+            max-width: 400px;
+        }
+
+        .notification {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-md) var(--spacing-lg);
+            margin-bottom: var(--spacing-sm);
+            box-shadow: var(--shadow-lg);
+            border-left: 4px solid var(--primary-blue);
+            transform: translateX(100%);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        .notification-success {
+            border-left-color: var(--success-green);
+        }
+
+        .notification-error {
+            border-left-color: var(--error-red);
+        }
+
+        @media (max-width: 1024px) {
+            .lobby-content {
+                grid-template-columns: 1fr;
+            }
+
+            .players-grid {
+                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .room-code {
+                font-size: 2rem;
+            }
+
+            .players-grid {
+                grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="lobby-header">
+            <h1 class="quiz-title" id="quiz-title">Loading...</h1>
+            <div class="room-code-display">
+                <div class="code-label">Join Code</div>
+                <div class="room-code" id="room-code">
+                    <span id="code-part-1">000</span>
+                    <span class="code-separator"></span>
+                    <span id="code-part-2">000</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="lobby-content">
+            <div class="players-section">
+                <div class="section-header">
+                    <h2 class="section-title">Players</h2>
+                    <div class="player-count" id="player-count">0 / 50</div>
+                </div>
+                <div class="players-grid" id="players-grid">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">👥</div>
+                        <p>Waiting for players to join...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-panel">
+                <div class="info-section">
+                    <h3 class="info-title">Game Info</h3>
+                    <div class="info-item">
+                        <span class="info-label">Mode</span>
+                        <span class="game-mode-badge" id="game-mode">Classic</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Questions</span>
+                        <span class="info-value" id="question-count">10</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Timer</span>
+                        <span class="info-value" id="timer-value">20s</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Max Players</span>
+                        <span class="info-value" id="max-players">50</span>
+                    </div>
+                </div>
+
+                <div class="info-section" id="host-controls" style="display: none;">
+                    <button class="start-button" id="start-game-btn" disabled>
+                        🚀 Start Game
+                    </button>
+                </div>
+
+                <div class="info-section" id="player-waiting" style="display: none;">
+                    <div class="waiting-message">
+                        Waiting for host to start the game...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="notification-container" class="notification-container"></div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+    <script>
+        const CONFIG = {
+            firebase: {
+                apiKey: "AIzaSyBYcuke7uz4kAQzMjUpEqbY6zvwOiY9C1k",
+                authDomain: "polorapi.firebaseapp.com",
+                databaseURL: "https://polorapi-default-rtdb.firebaseio.com",
+                projectId: "polorapi",
+                storageBucket: "polorapi.firebasestorage.app",
+                messagingSenderId: "945305666819",
+                appId: "1:945305666819:web:a3c535e6cb9273882a1536",
+                measurementId: "G-PQ0J44YZTN"
+            }
+        };
+
+        firebase.initializeApp(CONFIG.firebase);
+        const auth = firebase.auth();
+        const database = firebase.database();
+
+        let currentUser = null;
+        let roomCode = null;
+        let roomData = null;
+        let isHost = false;
+        let playerId = null;
+        let roomRef = null;
+
+        const NotificationManager = {
+            show: function(message, type = 'info') {
+                const container = document.getElementById('notification-container');
+                const notification = document.createElement('div');
+                notification.className = `notification notification-${type}`;
+                notification.textContent = message;
+                container.appendChild(notification);
+                
+                setTimeout(() => notification.classList.add('show'), 10);
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                    setTimeout(() => notification.remove(), 300);
+                }, 3000);
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', init);
+
+        function init() {
+            const urlParams = new URLSearchParams(window.location.search);
+            roomCode = urlParams.get('room');
+
+            if (!roomCode) {
+                NotificationManager.show('No room code provided', 'error');
+                setTimeout(() => window.location.href = 'dashboard.html', 2000);
+                return;
+            }
+
+            roomRef = database.ref(`rooms/${roomCode}`);
+
+            // Check if user is authenticated (host)
+            auth.onAuthStateChanged(user => {
+                if (user) {
+                    currentUser = user;
+                    checkIfHost();
+                } else {
+                    // Not authenticated - must be a student joining
+                    joinAsStudent();
+                }
+            });
+        }
+
+        async function checkIfHost() {
+            try {
+                const snapshot = await roomRef.once('value');
+                
+                if (!snapshot.exists()) {
+                    NotificationManager.show('Room not found', 'error');
+                    setTimeout(() => window.location.href = 'dashboard.html', 2000);
+                    return;
+                }
+
+                roomData = snapshot.val();
+                
+                if (roomData.hostId === currentUser.uid) {
+                    isHost = true;
+                    playerId = 'host_' + currentUser.uid;
+                    
+                    // Add host as a player
+                    const hostPlayerData = {
+                        id: playerId,
+                        name: roomData.hostName || currentUser.displayName || 'Host',
+                        avatar: localStorage.getItem('polor_avatar_image') || '',
+                        joinedAt: Date.now(),
+                        score: 0,
+                        isHost: true
+                    };
+                    
+                    await database.ref(`rooms/${roomCode}/players/${playerId}`).set(hostPlayerData);
+                    
+                    setupHostView();
+                } else {
+                    // Authenticated but not host - treat as student
+                    joinAsStudent();
+                }
+
+                displayRoomInfo();
+                listenToPlayers();
+                listenToGameStart();
+            } catch (error) {
+                console.error('Error checking host:', error);
+                NotificationManager.show('Failed to load room', 'error');
+            }
+        }
+
+        function setupHostView() {
+            document.getElementById('host-controls').style.display = 'block';
+            document.getElementById('player-waiting').style.display = 'none';
+            
+            const startBtn = document.getElementById('start-game-btn');
+            startBtn.addEventListener('click', startGame);
+        }
+
+        async function joinAsStudent() {
+            try {
+                const snapshot = await roomRef.once('value');
+                
+                if (!snapshot.exists()) {
+                    NotificationManager.show('Room not found', 'error');
+                    setTimeout(() => window.location.href = 'join.html', 2000);
+                    return;
+                }
+
+                roomData = snapshot.val();
+
+                // Get student info from localStorage
+                const studentName = localStorage.getItem('polor_student_name');
+                const avatarImage = localStorage.getItem('polor_avatar_image');
+
+                if (!studentName) {
+                    // Redirect to join page to set name
+                    localStorage.setItem('polor_pending_room', roomCode);
+                    window.location.href = 'join.html';
+                    return;
+                }
+
+                // Check max players
+                const playerCount = Object.keys(roomData.players || {}).length;
+                if (playerCount >= roomData.settings.maxPlayers) {
+                    NotificationManager.show('Room is full', 'error');
+                    return;
+                }
+
+                // Generate player ID
+                playerId = 'player_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+
+                // Add player to room
+                const playerData = {
+                    id: playerId,
+                    name: studentName,
+                    avatar: avatarImage || '',
+                    joinedAt: Date.now(),
+                    score: 0
+                };
+
+                await database.ref(`rooms/${roomCode}/players/${playerId}`).set(playerData);
+
+                // Show player waiting view
+                document.getElementById('host-controls').style.display = 'none';
+                document.getElementById('player-waiting').style.display = 'block';
+
+                displayRoomInfo();
+                listenToPlayers();
+                listenToGameStart();
+
+                NotificationManager.show('Joined game!', 'success');
+
+            } catch (error) {
+                console.error('Error joining as student:', error);
+                NotificationManager.show('Failed to join game', 'error');
+            }
+        }
+
+        function displayRoomInfo() {
+            if (!roomData) return;
+
+            // Display room code
+            const code = roomData.code;
+            document.getElementById('code-part-1').textContent = code.substring(0, 3);
+            document.getElementById('code-part-2').textContent = code.substring(3, 6);
+
+            // Display quiz title
+            document.getElementById('quiz-title').textContent = roomData.quizTitle || 'Quiz Game';
+
+            // Display game info
+            document.getElementById('game-mode').textContent = capitalizeFirst(roomData.gameMode);
+            document.getElementById('question-count').textContent = roomData.questions?.length || 0;
+            document.getElementById('timer-value').textContent = roomData.settings.questionTimer + 's';
+            document.getElementById('max-players').textContent = roomData.settings.maxPlayers;
+        }
+
+        function listenToPlayers() {
+            const playersRef = database.ref(`rooms/${roomCode}/players`);
+
+            playersRef.on('value', (snapshot) => {
+                const players = snapshot.val() || {};
+                console.log('Players updated:', players);
+                displayPlayers(players);
+                updatePlayerCount(Object.keys(players).length);
+
+                // Enable start button if host and at least 2 players (host + 1 student)
+                if (isHost) {
+                    const startBtn = document.getElementById('start-game-btn');
+                    const playerCount = Object.keys(players).length;
+                    startBtn.disabled = playerCount < 2; // Need at least host + 1 player
+                }
+            });
+        }
+
+        function displayPlayers(players) {
+            const grid = document.getElementById('players-grid');
+            grid.innerHTML = '';
+
+            if (Object.keys(players).length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">👥</div>
+                        <p>Waiting for players to join...</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Display all players (including host)
+            Object.entries(players).forEach(([id, player]) => {
+                const playerCard = createPlayerCard({
+                    ...player,
+                    id: id
+                });
+                grid.appendChild(playerCard);
+            });
+        }
+
+        function createPlayerCard(player) {
+            const card = document.createElement('div');
+            card.className = 'player-card';
+            if (player.isHost) card.classList.add('host');
+
+            const avatarDiv = document.createElement('div');
+            avatarDiv.className = 'player-avatar';
+            
+            console.log('Creating player card for:', player.name, 'Avatar:', player.avatar ? 'Yes' : 'No');
+            
+            if (player.avatar && player.avatar.trim() !== '') {
+                avatarDiv.style.backgroundImage = `url(${player.avatar})`;
+                avatarDiv.style.backgroundSize = 'cover';
+                avatarDiv.style.backgroundPosition = 'center';
+            } else {
+                avatarDiv.textContent = player.name.charAt(0).toUpperCase();
+                avatarDiv.style.display = 'flex';
+                avatarDiv.style.alignItems = 'center';
+                avatarDiv.style.justifyContent = 'center';
+                avatarDiv.style.fontSize = '2rem';
+                avatarDiv.style.fontWeight = '700';
+                avatarDiv.style.color = 'var(--primary-blue)';
+            }
+
+            const nameDiv = document.createElement('div');
+            nameDiv.className = 'player-name';
+            nameDiv.textContent = player.name;
+
+            card.appendChild(avatarDiv);
+            card.appendChild(nameDiv);
+
+            if (player.isHost) {
+                const badge = document.createElement('div');
+                badge.className = 'host-badge';
+                badge.textContent = 'HOST';
+                card.appendChild(badge);
+            } else if (isHost) {
+                // Add kick overlay for non-host players (only visible to host)
+                const kickOverlay = document.createElement('div');
+                kickOverlay.className = 'kick-overlay';
+                kickOverlay.textContent = '🚫 Kick';
+                kickOverlay.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    kickPlayer(player.id, player.name);
+                });
+                card.appendChild(kickOverlay);
+            }
+
+            return card;
+        }
+
+        function updatePlayerCount(count) {
+            const maxPlayers = roomData?.settings?.maxPlayers || 50;
+            document.getElementById('player-count').textContent = `${count} / ${maxPlayers}`;
+        }
+
+        async function kickPlayer(playerId, playerName) {
+            if (!isHost) return;
+
+            if (confirm(`Kick ${playerName} from the game?`)) {
+                try {
+                    await database.ref(`rooms/${roomCode}/players/${playerId}`).remove();
+                    NotificationManager.show(`${playerName} has been kicked`, 'success');
+                } catch (error) {
+                    console.error('Error kicking player:', error);
+                    NotificationManager.show('Failed to kick player', 'error');
+                }
+            }
+        }
+
+        function listenToGameStart() {
+            database.ref(`rooms/${roomCode}/status`).on('value', (snapshot) => {
+                const status = snapshot.val();
+                if (status === 'playing') {
+                    // Game started! Redirect to game page
+                    window.location.href = `game.html?room=${roomCode}`;
+                }
+            });
+        }
+
+        async function startGame() {
+            if (!isHost) return;
+
+            try {
+                // Update room status to playing
+                await database.ref(`rooms/${roomCode}/status`).set('playing');
+                await database.ref(`rooms/${roomCode}/startedAt`).set(Date.now());
+
+                // Will redirect via listener
+            } catch (error) {
+                console.error('Error starting game:', error);
+                NotificationManager.show('Failed to start game', 'error');
+            }
+        }
+
+        function capitalizeFirst(str) {
+            return str.charAt(0).toUpperCase() + str.slice(1);
+        }
+
+        // Clean up when leaving
+        window.addEventListener('beforeunload', () => {
+            if (playerId && !isHost) {
+                // Remove player from room when they leave
+                database.ref(`rooms/${roomCode}/players/${playerId}`).remove();
+            }
+        });
+    </script>
+</body>
+</html>

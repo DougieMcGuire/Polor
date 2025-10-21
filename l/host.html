@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Host Game - Polor</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-blue: #52C4F5;
+            --primary-blue-dark: #3BA8D1;
+            --success-green: #51CF66;
+            --error-red: #FF6B6B;
+            --white: #FFFFFF;
+            --black: #000000;
+            --gray-100: #F8F9FA;
+            --gray-200: #E9ECEF;
+            --gray-300: #DEE2E6;
+            --gray-600: #6C757D;
+            --gray-700: #495057;
+            --gray-800: #343A40;
+            --font-primary: 'Fredoka', sans-serif;
+            --spacing-sm: 0.5rem;
+            --spacing-md: 1rem;
+            --spacing-lg: 1.5rem;
+            --spacing-xl: 2rem;
+            --spacing-2xl: 3rem;
+            --radius-lg: 0.75rem;
+            --radius-xl: 1rem;
+            --radius-2xl: 1.5rem;
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: var(--font-primary);
+            background: linear-gradient(135deg, var(--primary-blue) 0%, #87CEEB 100%);
+            min-height: 100vh;
+            color: var(--black);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--spacing-lg);
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .back-btn {
+            background: var(--white);
+            border: 2px solid var(--gray-300);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-sm) var(--spacing-md);
+            font-family: var(--font-primary);
+            font-weight: 500;
+            color: var(--gray-700);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-md);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .host-card {
+            background: var(--white);
+            border-radius: var(--radius-2xl);
+            padding: var(--spacing-2xl);
+            box-shadow: var(--shadow-xl);
+            border: 4px solid var(--black);
+        }
+
+        .card-header {
+            text-align: center;
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .card-header h1 {
+            font-size: 2rem;
+            color: var(--gray-800);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .quiz-title {
+            font-size: 1.2rem;
+            color: var(--primary-blue);
+            font-weight: 600;
+        }
+
+        .settings-section {
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--gray-800);
+            margin-bottom: var(--spacing-lg);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .game-modes {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .mode-option {
+            position: relative;
+        }
+
+        .mode-option input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+        }
+
+        .mode-card {
+            padding: var(--spacing-lg);
+            border: 3px solid var(--gray-300);
+            border-radius: var(--radius-xl);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: var(--white);
+        }
+
+        .mode-option input[type="radio"]:checked + .mode-card {
+            border-color: var(--primary-blue);
+            background: #E3F2FD;
+            transform: scale(1.05);
+        }
+
+        .mode-icon {
+            font-size: 2.5rem;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .mode-title {
+            font-weight: 600;
+            color: var(--gray-800);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .mode-desc {
+            font-size: 0.875rem;
+            color: var(--gray-600);
+        }
+
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .setting-item {
+            background: var(--gray-100);
+            padding: var(--spacing-lg);
+            border-radius: var(--radius-xl);
+            border: 2px solid var(--gray-300);
+        }
+
+        .setting-label {
+            font-weight: 600;
+            color: var(--gray-700);
+            margin-bottom: var(--spacing-sm);
+            display: block;
+        }
+
+        .setting-input {
+            width: 100%;
+            padding: var(--spacing-md);
+            border: 2px solid var(--gray-300);
+            border-radius: var(--radius-lg);
+            font-family: var(--font-primary);
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .setting-input:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--gray-300);
+            transition: 0.4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: 0.4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--success-green);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        .toggle-setting {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .host-button {
+            width: 100%;
+            padding: var(--spacing-lg) var(--spacing-xl);
+            background: var(--success-green);
+            color: var(--white);
+            border: 3px solid var(--black);
+            border-radius: var(--radius-xl);
+            font-family: var(--font-primary);
+            font-size: 1.3rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .host-button:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-xl);
+            background: #45a555;
+        }
+
+        .host-button:active {
+            transform: translateY(0);
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+        }
+
+        .loading-overlay.active {
+            display: flex;
+        }
+
+        .loading-content {
+            text-align: center;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--gray-300);
+            border-top: 4px solid var(--primary-blue);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto var(--spacing-md);
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .notification-container {
+            position: fixed;
+            top: var(--spacing-lg);
+            right: var(--spacing-lg);
+            z-index: 10001;
+            max-width: 400px;
+        }
+
+        .notification {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-md) var(--spacing-lg);
+            margin-bottom: var(--spacing-sm);
+            box-shadow: var(--shadow-lg);
+            border-left: 4px solid var(--primary-blue);
+            transform: translateX(100%);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        .notification-error {
+            border-left-color: var(--error-red);
+        }
+
+        @media (max-width: 768px) {
+            .game-modes {
+                grid-template-columns: 1fr;
+            }
+
+            .settings-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <button class="back-btn" id="back-btn">← Back</button>
+
+        <div class="host-card">
+            <div class="card-header">
+                <h1>🎮 Host Game</h1>
+                <p class="quiz-title" id="quiz-title">Loading...</p>
+            </div>
+
+            <div class="settings-section">
+                <h2 class="section-title">🎯 Game Mode</h2>
+                <div class="game-modes">
+                    <label class="mode-option">
+                        <input type="radio" name="game-mode" value="classic" checked>
+                        <div class="mode-card">
+                            <div class="mode-icon">⚡</div>
+                            <div class="mode-title">Classic</div>
+                            <div class="mode-desc">Fast-paced quiz game</div>
+                        </div>
+                    </label>
+                    <label class="mode-option">
+                        <input type="radio" name="game-mode" value="team">
+                        <div class="mode-card">
+                            <div class="mode-icon">👥</div>
+                            <div class="mode-title">Team Mode</div>
+                            <div class="mode-desc">Collaborate in teams</div>
+                        </div>
+                    </label>
+                    <label class="mode-option">
+                        <input type="radio" name="game-mode" value="fishing">
+                        <div class="mode-card">
+                            <div class="mode-icon">🎣</div>
+                            <div class="mode-title">Fishing</div>
+                            <div class="mode-desc">Relaxed fishing adventure</div>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <h2 class="section-title">⚙️ Game Settings</h2>
+                <div class="settings-grid">
+                    <div class="setting-item">
+                        <label class="setting-label">Max Players</label>
+                        <input type="number" class="setting-input" id="max-players" min="2" max="100" value="50">
+                    </div>
+
+                    <div class="setting-item">
+                        <label class="setting-label">Questions per Game</label>
+                        <select class="setting-input" id="question-limit">
+                            <option value="all">All Questions</option>
+                            <option value="5">5 Questions</option>
+                            <option value="10" selected>10 Questions</option>
+                            <option value="15">15 Questions</option>
+                            <option value="20">20 Questions</option>
+                        </select>
+                    </div>
+
+                    <div class="setting-item">
+                        <label class="setting-label">Question Timer (seconds)</label>
+                        <input type="number" class="setting-input" id="question-timer" min="5" max="120" value="20">
+                    </div>
+
+                    <div class="setting-item">
+                        <label class="setting-label">Points to Win</label>
+                        <select class="setting-input" id="points-limit">
+                            <option value="unlimited" selected>Unlimited</option>
+                            <option value="1000">1000 Points</option>
+                            <option value="2500">2500 Points</option>
+                            <option value="5000">5000 Points</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="settings-grid">
+                    <div class="setting-item">
+                        <div class="toggle-setting">
+                            <span class="setting-label">Custom Names</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="custom-names" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="mode-desc" style="margin-top: var(--spacing-sm);">Allow students to choose their own names</div>
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="toggle-setting">
+                            <span class="setting-label">Show Leaderboard</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="show-leaderboard" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="mode-desc" style="margin-top: var(--spacing-sm);">Display live rankings</div>
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="toggle-setting">
+                            <span class="setting-label">Randomize Questions</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="randomize-questions">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="mode-desc" style="margin-top: var(--spacing-sm);">Shuffle question order</div>
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="toggle-setting">
+                            <span class="setting-label">Show Correct Answers</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="show-answers" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="mode-desc" style="margin-top: var(--spacing-sm);">Reveal answers after each question</div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="host-button" id="create-lobby-btn">
+                🚀 Create Lobby
+            </button>
+        </div>
+    </div>
+
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <p id="loading-text">Creating game...</p>
+        </div>
+    </div>
+
+    <div id="notification-container" class="notification-container"></div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+    <script>
+        const CONFIG = {
+            firebase: {
+                apiKey: "AIzaSyBYcuke7uz4kAQzMjUpEqbY6zvwOiY9C1k",
+                authDomain: "polorapi.firebaseapp.com",
+                databaseURL: "https://polorapi-default-rtdb.firebaseio.com",
+                projectId: "polorapi",
+                storageBucket: "polorapi.firebasestorage.app",
+                messagingSenderId: "945305666819",
+                appId: "1:945305666819:web:a3c535e6cb9273882a1536",
+                measurementId: "G-PQ0J44YZTN"
+            }
+        };
+
+        firebase.initializeApp(CONFIG.firebase);
+        const auth = firebase.auth();
+        const database = firebase.database();
+
+        let currentUser = null;
+        let quizId = null;
+        let quizData = null;
+
+        const LoadingManager = {
+            show: function(text = 'Loading...') {
+                document.getElementById('loading-text').textContent = text;
+                document.getElementById('loading-overlay').classList.add('active');
+            },
+            hide: function() {
+                document.getElementById('loading-overlay').classList.remove('active');
+            }
+        };
+
+        const NotificationManager = {
+            show: function(message, type = 'info') {
+                const container = document.getElementById('notification-container');
+                const notification = document.createElement('div');
+                notification.className = `notification notification-${type}`;
+                notification.textContent = message;
+                container.appendChild(notification);
+                
+                setTimeout(() => notification.classList.add('show'), 10);
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                    setTimeout(() => notification.remove(), 300);
+                }, 3000);
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', init);
+
+        function init() {
+            const urlParams = new URLSearchParams(window.location.search);
+            quizId = urlParams.get('quiz');
+
+            if (!quizId) {
+                NotificationManager.show('No quiz specified', 'error');
+                setTimeout(() => window.location.href = 'dashboard.html', 2000);
+                return;
+            }
+
+            auth.onAuthStateChanged(user => {
+                if (user) {
+                    currentUser = user;
+                    loadQuiz();
+                } else {
+                    NotificationManager.show('Please log in', 'error');
+                    setTimeout(() => window.location.href = 'auth.html', 2000);
+                }
+            });
+
+            setupEventListeners();
+        }
+
+        function setupEventListeners() {
+            document.getElementById('back-btn').addEventListener('click', () => {
+                window.location.href = `quiz.html?quiz=${quizId}`;
+            });
+
+            document.getElementById('create-lobby-btn').addEventListener('click', createLobby);
+        }
+
+        async function loadQuiz() {
+            LoadingManager.show('Loading quiz...');
+
+            try {
+                const snapshot = await database.ref(`users/${currentUser.uid}/quizSets/${quizId}`).once('value');
+                
+                if (snapshot.exists()) {
+                    quizData = snapshot.val();
+                    document.getElementById('quiz-title').textContent = quizData.title || 'Untitled Quiz';
+                    LoadingManager.hide();
+                } else {
+                    throw new Error('Quiz not found');
+                }
+            } catch (error) {
+                console.error('Error loading quiz:', error);
+                LoadingManager.hide();
+                NotificationManager.show('Failed to load quiz', 'error');
+                setTimeout(() => window.location.href = 'dashboard.html', 2000);
+            }
+        }
+
+        function generateRoomCode() {
+            const chars = '0123456789';
+            let code = '';
+            for (let i = 0; i < 6; i++) {
+                code += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return code;
+        }
+
+        async function createLobby() {
+            if (!quizData || !currentUser) return;
+
+            LoadingManager.show('Creating lobby...');
+
+            try {
+                // Generate unique room code
+                let roomCode = generateRoomCode();
+                let exists = true;
+
+                // Make sure code is unique
+                while (exists) {
+                    const checkSnapshot = await database.ref(`rooms/${roomCode}`).once('value');
+                    if (!checkSnapshot.exists()) {
+                        exists = false;
+                    } else {
+                        roomCode = generateRoomCode();
+                    }
+                }
+
+                // Get game settings
+                const gameMode = document.querySelector('input[name="game-mode"]:checked').value;
+                const maxPlayers = parseInt(document.getElementById('max-players').value);
+                const questionLimit = document.getElementById('question-limit').value;
+                const questionTimer = parseInt(document.getElementById('question-timer').value);
+                const pointsLimit = document.getElementById('points-limit').value;
+                const customNames = document.getElementById('custom-names').checked;
+                const showLeaderboard = document.getElementById('show-leaderboard').checked;
+                const randomizeQuestions = document.getElementById('randomize-questions').checked;
+                const showAnswers = document.getElementById('show-answers').checked;
+
+                // Prepare questions
+                let questions = quizData.questions || [];
+                if (questionLimit !== 'all') {
+                    const limit = parseInt(questionLimit);
+                    questions = questions.slice(0, Math.min(limit, questions.length));
+                }
+
+                if (randomizeQuestions) {
+                    questions = shuffleArray([...questions]);
+                }
+
+                // Create room data
+                const roomData = {
+                    code: roomCode,
+                    quizId: quizId,
+                    quizTitle: quizData.title || 'Untitled Quiz',
+                    hostId: currentUser.uid,
+                    hostName: currentUser.displayName || currentUser.email,
+                    createdAt: Date.now(),
+                    status: 'lobby', // lobby, playing, finished
+                    gameMode: gameMode,
+                    settings: {
+                        maxPlayers: maxPlayers,
+                        questionTimer: questionTimer,
+                        pointsLimit: pointsLimit,
+                        customNames: customNames,
+                        showLeaderboard: showLeaderboard,
+                        showAnswers: showAnswers
+                    },
+                    questions: questions,
+                    players: {},
+                    currentQuestion: 0,
+                    scores: {}
+                };
+
+                // Save to Firebase
+                await database.ref(`rooms/${roomCode}`).set(roomData);
+
+                LoadingManager.hide();
+                
+                // Redirect to lobby
+                window.location.href = `lobby.html?room=${roomCode}`;
+
+            } catch (error) {
+                console.error('Error creating lobby:', error);
+                LoadingManager.hide();
+                NotificationManager.show('Failed to create lobby', 'error');
+            }
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+    </script>
+</body>
+</html>
