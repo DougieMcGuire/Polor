@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Lobby - Polor</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=OpenDyslexic:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Polor - Main Stylesheet */
+
+        /* CSS Variables */
+        :root {
+            /* Primary Colors */
+            --primary-blue: #52C4F5;
+            --primary-blue-dark: #3BA8D1;
+            
+            /* Answer Button Colors */
+            --answer-red: #FF6B6B;
+            --answer-yellow: #FFE66D;
+            --answer-blue: #4ECDC4;
+            --answer-green: #45B7D1;
+            
+            /* Accent Colors */
+            --success-green: #51CF66;
+            --error-red: #FF6B6B;
+            --warning-orange: #FF922B;
+            --purple-accent: #9775FA;
+            --pink-accent: #F783AC;
+            
+            /* Neutrals */
+            --white: #FFFFFF;
+            --black: #000000;
+            --light-blue: #E3F2FD;
+            --gray-100: #F8F9FA;
+            --gray-200: #E9ECEF;
+            --gray-300: #DEE2E6;
+            --gray-400: #CED4DA;
+            --gray-500: #ADB5BD;
+            --gray-600: #6C757D;
+            --gray-700: #495057;
+            --gray-800: #343A40;
+            --gray-900: #212529;
+            
+            /* Typography */
+            --font-primary: 'Fredoka', sans-serif;
+            --font-dyslexia: 'OpenDyslexic', sans-serif;
+            
+            /* Spacing */
+            --spacing-xs: 0.25rem;
+            --spacing-sm: 0.5rem;
+            --spacing-md: 1rem;
+            --spacing-lg: 1.5rem;
+            --spacing-xl: 2rem;
+            --spacing-2xl: 3rem;
+            
+            /* Border Radius */
+            --radius-sm: 0.375rem;
+            --radius-md: 0.5rem;
+            --radius-lg: 0.75rem;
+            --radius-xl: 1rem;
+            --radius-2xl: 1.5rem;
+            
+            /* Shadows */
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        /* Global Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            background: linear-gradient(135deg, var(--primary-blue) 0%, #87CEEB 100%);
+            min-height: 100vh;
+            color: var(--black);
+            overflow-x: hidden;
+        }
+
+        /* Dyslexia Font Toggle */
+        body.dyslexia-font {
+            font-family: var(--font-dyslexia);
+        }
+
+        /* Lobby Container */
+        .lobby-container {
+            padding: var(--spacing-xl);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .lobby-header {
+            text-align: center;
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .lobby-header h2 {
+            color: var(--white);
+            font-size: 2.5rem;
+            margin-bottom: var(--spacing-lg);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .room-code-display {
+            background: var(--white);
+            border: 4px solid var(--black);
+            border-radius: var(--radius-xl);
+            padding: var(--spacing-lg);
+            display: inline-block;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .room-code-label {
+            font-weight: 600;
+            margin-right: var(--spacing-md);
+            color: var(--gray-700);
+        }
+
+        .room-code {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-blue);
+            letter-spacing: 0.1em;
+        }
+
+        .lobby-content {
+            background: var(--white);
+            border: 4px solid var(--black);
+            border-radius: var(--radius-2xl);
+            padding: var(--spacing-xl);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .students-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .student-card {
+            background: var(--white);
+            border: 3px solid var(--gray-300);
+            border-radius: var(--radius-xl);
+            padding: var(--spacing-lg);
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-md);
+        }
+
+        .student-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary-blue);
+        }
+
+        .student-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--gray-200);
+            margin: 0 auto var(--spacing-md);
+            border: 3px solid var(--black);
+            background-size: cover;
+            background-position: center;
+        }
+
+        .student-name {
+            font-weight: 600;
+            color: var(--gray-800);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .kick-btn {
+            background: var(--error-red);
+            color: var(--white);
+            border: none;
+            border-radius: var(--radius-md);
+            padding: var(--spacing-sm) var(--spacing-md);
+            font-family: var(--font-primary);
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .kick-btn:hover {
+            background: #e55a5a;
+            transform: scale(1.05);
+        }
+
+        .empty-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: var(--spacing-2xl);
+            color: var(--gray-600);
+        }
+
+        .empty-state h3 {
+            margin-bottom: var(--spacing-md);
+            color: var(--gray-700);
+        }
+
+        .lobby-actions {
+            display: flex;
+            gap: var(--spacing-lg);
+            justify-content: center;
+        }
+
+        /* Button Styles */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--spacing-md) var(--spacing-lg);
+            border: 2px solid transparent;
+            border-radius: var(--radius-lg);
+            font-family: var(--font-primary);
+            font-weight: 500;
+            font-size: 1rem;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-sm);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-primary {
+            background: var(--primary-blue);
+            color: var(--white);
+            border-color: var(--primary-blue);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: var(--primary-blue-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-danger {
+            background: var(--error-red);
+            color: var(--white);
+            border-color: var(--error-red);
+        }
+
+        .btn-danger:hover {
+            background: #e55a5a;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-large {
+            padding: var(--spacing-lg) var(--spacing-xl);
+            font-size: 1.1rem;
+            min-width: 200px;
+        }
+
+        /* Loading Screen */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .loading-content {
+            text-align: center;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--gray-300);
+            border-top: 4px solid var(--primary-blue);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto var(--spacing-md);
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        #loading-text {
+            color: var(--gray-700);
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        /* Notification System */
+        .notification-container {
+            position: fixed;
+            top: var(--spacing-lg);
+            right: var(--spacing-lg);
+            z-index: 10000;
+            max-width: 400px;
+        }
+
+        .notification {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-md) var(--spacing-lg);
+            margin-bottom: var(--spacing-sm);
+            box-shadow: var(--shadow-lg);
+            border-left: 4px solid var(--primary-blue);
+            transform: translateX(100%);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        .notification-success {
+            border-left-color: var(--success-green);
+        }
+
+        .notification-error {
+            border-left-color: var(--error-red);
+        }
+
+        .notification-warning {
+            border-left-color: var(--warning-orange);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .lobby-container {
+                padding: var(--spacing-md);
+            }
+            
+            .lobby-content {
+                padding: var(--spacing-lg);
+            }
+            
+            .students-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: var(--spacing-md);
+            }
+            
+            .lobby-actions {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="lobby-container">
+        <div class="lobby-header">
+            <h2>Game Lobby</h2>
+            <div class="room-code-display">
+                <span class="room-code-label">Room Code:</span>
+                <span class="room-code" id="lobby-room-code">000000</span>
+            </div>
+        </div>
+        
+        <div class="lobby-content">
+            <div class="students-grid" id="students-grid">
+                <!-- Students will be populated by JavaScript -->
+            </div>
+            
+            <div class="lobby-actions">
+                <button id="start-game-lobby-btn" class="btn btn-primary btn-large">
+                    Start Game
+                </button>
+                <button id="end-game-btn" class="btn btn-danger">
+                    End Game
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="loading-overlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <p id="loading-text">Loading...</p>
+        </div>
+    </div>
+
+    <!-- Notification System -->
+    <div id="notification-container" class="notification-container"></div>
+
+    <!-- Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+    
+    <script>
+        // Polor Configuration
+        const CONFIG = {
+            // Firebase Configuration
+            firebase: {
+                apiKey: "AIzaSyBYcuke7uz4kAQzMjUpEqbY6zvwOiY9C1k",
+                authDomain: "polorapi.firebaseapp.com",
+                databaseURL: "https://polorapi-default-rtdb.firebaseio.com",
+                projectId: "polorapi",
+                storageBucket: "polorapi.firebasestorage.app",
+                messagingSenderId: "945305666819",
+                appId: "1:945305666819:web:a3c535e6cb9273882a1536",
+                measurementId: "G-PQ0J44YZTN"
+            }
+        };
+
+        // Utility managers
+        const LoadingManager = {
+            show: function(text = 'Loading...') {
+                const loadingScreen = document.getElementById('loading-screen');
+                const loadingText = document.getElementById('loading-text');
+                if (loadingText) loadingText.textContent = text;
+                if (loadingScreen) loadingScreen.style.display = 'flex';
+            },
+            hide: function() {
+                const loadingScreen = document.getElementById('loading-screen');
+                if (loadingScreen) loadingScreen.style.display = 'none';
+            }
+        };
+
+        const NotificationManager = {
+            show: function(message, type = 'info') {
+                const container = document.getElementById('notification-container');
+                if (!container) return;
+                
+                const notification = document.createElement('div');
+                notification.className = `notification notification-${type}`;
+                notification.textContent = message;
+                
+                container.appendChild(notification);
+                
+                setTimeout(() => {
+                    notification.classList.add('show');
+                }, 10);
+                
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                    setTimeout(() => {
+                        notification.remove();
+                    }, 300);
+                }, 3000);
+            },
+            
+            success: function(message) {
+                this.show(message, 'success');
+            },
+            
+            error: function(message) {
+                this.show(message, 'error');
+            },
+            
+            warning: function(message) {
+                this.show(message, 'warning');
+            }
+        };
+
+        // DOM Utilities
+        const $ = (selector) => document.querySelector(selector);
+        const $$ = (selector) => document.querySelectorAll(selector);
+
+        // Error Handler
+        class ErrorHandler {
+            static handle(error, context = 'Unknown') {
+                console.error(`Error in ${context}:`, error);
+                
+                // Show user-friendly error message
+                let message = 'An unexpected error occurred. Please try again.';
+                
+                if (error.message) {
+                    message = error.message;
+                } else if (typeof error === 'string') {
+                    message = error;
+                }
+                
+                NotificationManager.error(message);
+            }
+        }
+
+        // Polor Firebase Integration
+        class FirebaseManager {
+            constructor() {
+                this.app = null;
+                this.auth = null;
+                this.database = null;
+                this.storage = null;
+                this.currentUser = null;
+                this.init();
+            }
+            
+            init() {
+                // Check if Firebase is available
+                if (typeof firebase === 'undefined') {
+                    console.warn('Firebase not loaded, retrying in 100ms...');
+                    setTimeout(() => this.init(), 100);
+                    return;
+                }
+                
+                try {
+                    // Initialize Firebase
+                    this.app = firebase.initializeApp(CONFIG.firebase);
+                    this.auth = firebase.auth();
+                    this.database = firebase.database();
+                    this.storage = firebase.storage();
+                    
+                    // Set up auth state listener
+                    this.auth.onAuthStateChanged((user) => {
+                        this.currentUser = user;
+                        this.handleAuthStateChange(user);
+                    });
+                    
+                    console.log('Firebase initialized successfully');
+                } catch (error) {
+                    console.error('Failed to initialize Firebase:', error);
+                    // Retry initialization
+                    setTimeout(() => this.init(), 1000);
+                }
+            }
+            
+            // Handle authentication state changes
+            handleAuthStateChange(user) {
+                if (user) {
+                    console.log('User signed in:', user.uid);
+                } else {
+                    console.log('User signed out');
+                }
+            }
+            
+            // Get current user
+            getCurrentUser() {
+                return this.currentUser;
+            }
+            
+            // Check if user is authenticated
+            isAuthenticated() {
+                return !!this.currentUser;
+            }
+            
+            // Start game
+            async startGame(gameId) {
+                try {
+                    await this.database.ref(`games/${gameId}/status`).set('active');
+                    return true;
+                } catch (error) {
+                    ErrorHandler.handle(error, 'Start game');
+                    throw error;
+                }
+            }
+            
+            // End game
+            async endGame(gameId) {
+                try {
+                    await this.database.ref(`games/${gameId}/status`).set('ended');
+                    return true;
+                } catch (error) {
+                    ErrorHandler.handle(error, 'End game');
+                    throw error;
+                }
+            }
+            
+            // Kick student
+            async kickStudent(gameId, studentId) {
+                try {
+                    await this.database.ref(`games/${gameId}/students/${studentId}`).remove();
+                    return true;
+                } catch (error) {
+                    ErrorHandler.handle(error, 'Kick student');
+                    throw error;
+                }
+            }
+            
+            // Listen to students
+            listenToStudents(gameId, callback) {
+                const studentsRef = this.database.ref(`games/${gameId}/students`);
+                
+                studentsRef.on('value', (snapshot) => {
+                    const students = snapshot.val() || {};
+                    callback(students);
+                });
+                
+                return () => studentsRef.off('value');
+            }
+        }
+
+        // Initialize global Firebase manager
+        window.firebaseManager = new FirebaseManager();
+
+        // Game Lobby JavaScript
+        class GameLobbyManager {
+            constructor() {
+                this.gameId = null;
+                this.roomCode = null;
+                this.gameData = null;
+                this.unlistenStudents = null;
+                this.init();
+            }
+            
+            init() {
+                // Get game ID and room code from URL
+                const urlParams = new URLSearchParams(window.location.search);
+                this.gameId = urlParams.get('gameId');
+                this.roomCode = urlParams.get('roomCode');
+                
+                if (!this.gameId) {
+                    NotificationManager.error('Invalid game session');
+                    window.location.href = 'dashboard.html';
+                    return;
+                }
+                
+                // Check if Firebase is available
+                if (typeof window.firebaseManager === 'undefined' || !window.firebaseManager.app) {
+                    console.log('Firebase not ready, waiting...');
+                    setTimeout(() => this.init(), 100);
+                    return;
+                }
+                
+                // Check authentication
+                if (!firebaseManager.isAuthenticated()) {
+                    window.location.href = 'auth.html';
+                    return;
+                }
+                
+                this.setupEventListeners();
+                this.loadGameData();
+                this.setupStudentsListener();
+                LoadingManager.hide();
+            }
+            
+            // Setup event listeners
+            setupEventListeners() {
+                $('#start-game-lobby-btn').addEventListener('click', () => this.startGame());
+                $('#end-game-btn').addEventListener('click', () => this.endGame());
+            }
+            
+            // Load game data
+            async loadGameData() {
+                try {
+                    const gameData = await firebaseManager.database.ref(`games/${this.gameId}`).once('value');
+                    this.gameData = gameData.val();
+                    
+                    if (!this.gameData) {
+                        NotificationManager.error('Game not found');
+                        window.location.href = 'dashboard.html';
+                        return;
+                    }
+                    
+                    this.updateRoomCodeDisplay();
+                } catch (error) {
+                    ErrorHandler.handle(error, 'Load game data');
+                }
+            }
+            
+            // Update room code display
+            updateRoomCodeDisplay() {
+                const roomCodeElement = $('#lobby-room-code');
+                if (roomCodeElement && this.gameData) {
+                    roomCodeElement.textContent = this.gameData.roomCode;
+                }
+            }
+            
+            // Setup students listener
+            setupStudentsListener() {
+                this.unlistenStudents = firebaseManager.listenToStudents(this.gameId, (students) => {
+                    this.updateStudentsGrid(students);
+                });
+            }
+            
+            // Update students grid
+            updateStudentsGrid(students) {
+                const grid = $('#students-grid');
+                if (!grid) return;
+                
+                grid.innerHTML = '';
+                
+                const studentsArray = Object.entries(students);
+                
+                if (studentsArray.length === 0) {
+                    grid.innerHTML = `
+                        <div class="empty-state">
+                            <h3>No students yet</h3>
+                            <p>Share the room code with your students to get started!</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                studentsArray.forEach(([studentId, student]) => {
+                    const card = this.createStudentCard(studentId, student);
+                    grid.appendChild(card);
+                });
+            }
+            
+            // Create student card
+            createStudentCard(studentId, student) {
+                const card = document.createElement('div');
+                card.className = 'student-card';
+                
+                card.innerHTML = `
+                    <div class="student-avatar" data-avatar='${JSON.stringify(student.avatar)}'></div>
+                    <div class="student-name">${student.name}</div>
+                    <button class="kick-btn" onclick="gameLobbyManager.kickStudent('${studentId}')">Kick</button>
+                `;
+                
+                // Render avatar
+                const avatarElement = card.querySelector('.student-avatar');
+                if (avatarElement && student.avatar) {
+                    this.renderAvatar(student.avatar, avatarElement);
+                }
+                
+                return card;
+            }
+            
+            // Render avatar
+            renderAvatar(avatarData, element) {
+                if (!avatarData || !element) return;
+                
+                // Create avatar URL from data
+                const params = new URLSearchParams();
+                
+                // Add selected parts
+                Object.entries(avatarData.selectedParts || {}).forEach(([category, item]) => {
+                    params.append(category, item || '');
+                });
+                
+                // Add colors
+                Object.entries(avatarData.colors || {}).forEach(([category, color]) => {
+                    params.append(`${category}Color`, color.replace('#', ''));
+                });
+                
+                const avatarUrl = `avatar-editor.html?${params.toString()}`;
+                element.style.backgroundImage = `url(${avatarUrl})`;
+                element.style.backgroundSize = 'cover';
+                element.style.backgroundPosition = 'center';
+            }
+            
+            // Start game
+            async startGame() {
+                try {
+                    LoadingManager.show('Starting game...');
+                    
+                    await firebaseManager.startGame(this.gameId);
+                    
+                    // Redirect to game screen
+                    window.location.href = `game.html?gameId=${this.gameId}&mode=host`;
+                    
+                    LoadingManager.hide();
+                } catch (error) {
+                    LoadingManager.hide();
+                    ErrorHandler.handle(error, 'Start game');
+                }
+            }
+            
+            // End game
+            async endGame() {
+                if (!confirm('Are you sure you want to end the game? All students will be disconnected.')) {
+                    return;
+                }
+                
+                try {
+                    LoadingManager.show('Ending game...');
+                    
+                    await firebaseManager.endGame(this.gameId);
+                    
+                    // Redirect to dashboard
+                    window.location.href = 'dashboard.html';
+                    
+                    LoadingManager.hide();
+                } catch (error) {
+                    LoadingManager.hide();
+                    ErrorHandler.handle(error, 'End game');
+                }
+            }
+            
+            // Kick student
+            async kickStudent(studentId) {
+                if (!confirm('Are you sure you want to kick this student?')) {
+                    return;
+                }
+                
+                try {
+                    await firebaseManager.kickStudent(this.gameId, studentId);
+                    NotificationManager.success('Student kicked');
+                } catch (error) {
+                    ErrorHandler.handle(error, 'Kick student');
+                }
+            }
+            
+            // Clean up
+            cleanup() {
+                if (this.unlistenStudents) {
+                    this.unlistenStudents();
+                }
+            }
+        }
+
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            window.gameLobbyManager = new GameLobbyManager();
+        });
+
+        // Clean up on page unload
+        window.addEventListener('beforeunload', () => {
+            if (window.gameLobbyManager) {
+                window.gameLobbyManager.cleanup();
+            }
+        });
+
+        // Fallback to hide loading screen after 3 seconds
+        setTimeout(() => {
+            if (document.getElementById('loading-screen')) {
+                LoadingManager.hide();
+            }
+        }, 3000);
+    </script>
+</body>
+</html>

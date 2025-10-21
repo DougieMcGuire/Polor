@@ -1,95 +1,679 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Join Lobby - Polor</title>
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
-  <style>
-    body { font-family: Arial, sans-serif; padding: 2rem; max-width: 400px; margin: auto; }
-    label, input, button { display: block; width: 100%; margin: 10px 0; }
-    #message { margin-top: 10px; color: green; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Join Game - Polor</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-blue: #52C4F5;
+            --primary-blue-dark: #3BA8D1;
+            --success-green: #51CF66;
+            --error-red: #FF6B6B;
+            --white: #FFFFFF;
+            --black: #000000;
+            --gray-100: #F8F9FA;
+            --gray-200: #E9ECEF;
+            --gray-300: #DEE2E6;
+            --gray-600: #6C757D;
+            --gray-700: #495057;
+            --font-primary: 'Fredoka', sans-serif;
+            --spacing-sm: 0.5rem;
+            --spacing-md: 1rem;
+            --spacing-lg: 1.5rem;
+            --spacing-xl: 2rem;
+            --spacing-2xl: 3rem;
+            --radius-lg: 0.75rem;
+            --radius-xl: 1rem;
+            --radius-2xl: 1.5rem;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: var(--font-primary);
+            background: linear-gradient(135deg, var(--primary-blue) 0%, #87CEEB 100%);
+            min-height: 100vh;
+            color: var(--black);
+            overflow-x: hidden;
+        }
+
+        .join-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: var(--spacing-lg);
+            position: relative;
+        }
+
+        .back-btn {
+            position: absolute;
+            top: var(--spacing-lg);
+            left: var(--spacing-lg);
+            background: var(--white);
+            border: 2px solid var(--gray-300);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-sm) var(--spacing-md);
+            font-family: var(--font-primary);
+            font-weight: 500;
+            color: var(--gray-700);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            background: var(--gray-100);
+        }
+
+        .join-card {
+            background: var(--white);
+            border: 4px solid var(--black);
+            border-radius: var(--radius-2xl);
+            padding: var(--spacing-2xl);
+            box-shadow: var(--shadow-xl);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .card-title {
+            font-size: 2rem;
+            color: var(--gray-700);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .avatar-section {
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .avatar-display {
+            position: relative;
+            display: inline-block;
+        }
+
+        .avatar-preview {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: var(--gray-100);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border: 4px solid var(--black);
+            margin: 0 auto;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .avatar-edit-btn {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--primary-blue);
+            border: 3px solid var(--white);
+            color: var(--white);
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .avatar-edit-btn:hover {
+            transform: scale(1.1);
+            background: var(--primary-blue-dark);
+        }
+
+        .input-section {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-lg);
+        }
+
+        .input-group {
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: var(--spacing-sm);
+            font-weight: 600;
+            color: var(--gray-700);
+        }
+
+        .input-group input[type="text"] {
+            width: 100%;
+            padding: var(--spacing-md);
+            border: 2px solid var(--gray-300);
+            border-radius: var(--radius-lg);
+            font-family: var(--font-primary);
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-group input[type="text"]:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+        }
+
+        .room-code-input {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .room-code-char {
+            width: 40px;
+            height: 56px;
+            font-size: 2rem;
+            font-weight: 700;
+            text-align: center;
+            border: 3px solid var(--gray-300);
+            border-radius: var(--radius-lg);
+            background: var(--white);
+            font-family: var(--font-primary);
+            transition: border-color 0.3s ease;
+        }
+
+        .room-code-char:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+        }
+
+        .room-code-sep {
+            font-size: 2rem;
+            color: var(--gray-600);
+            margin: 0 var(--spacing-sm);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--spacing-md) var(--spacing-lg);
+            border: 3px solid var(--black);
+            border-radius: var(--radius-lg);
+            font-family: var(--font-primary);
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-primary {
+            background: var(--primary-blue);
+            color: var(--white);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: var(--primary-blue-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-large {
+            padding: var(--spacing-lg) var(--spacing-xl);
+            font-size: 1.2rem;
+            width: 100%;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(5px);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            padding: var(--spacing-lg);
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--white);
+            border: 3px solid var(--gray-300);
+            border-radius: var(--radius-2xl);
+            padding: var(--spacing-xl);
+            max-width: 90vw;
+            max-height: 90vh;
+            overflow: auto;
+            position: relative;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .modal-header h2 {
+            color: var(--gray-700);
+            font-size: 1.5rem;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 2rem;
+            cursor: pointer;
+            color: var(--gray-600);
+            transition: color 0.3s ease;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-close:hover {
+            color: var(--error-red);
+        }
+
+        .avatar-editor-iframe {
+            width: 100%;
+            height: 700px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .avatar-editor-iframe iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: var(--radius-lg);
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+        }
+
+        .loading-overlay.active {
+            display: flex;
+        }
+
+        .loading-content {
+            text-align: center;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--gray-300);
+            border-top: 4px solid var(--primary-blue);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto var(--spacing-md);
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        #loading-text {
+            color: var(--gray-700);
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .notification-container {
+            position: fixed;
+            top: var(--spacing-lg);
+            right: var(--spacing-lg);
+            z-index: 10001;
+            max-width: 400px;
+        }
+
+        .notification {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-md) var(--spacing-lg);
+            margin-bottom: var(--spacing-sm);
+            box-shadow: var(--shadow-lg);
+            border-left: 4px solid var(--primary-blue);
+            transform: translateX(100%);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        .notification-success {
+            border-left-color: var(--success-green);
+        }
+
+        .notification-error {
+            border-left-color: var(--error-red);
+        }
+
+        @media (max-width: 768px) {
+            .join-container {
+                padding: var(--spacing-md);
+            }
+            
+            .join-card {
+                padding: var(--spacing-lg);
+            }
+            
+            .avatar-preview {
+                width: 100px;
+                height: 100px;
+            }
+
+            .room-code-char {
+                width: 35px;
+                height: 50px;
+                font-size: 1.5rem;
+            }
+        }
+    </style>
 </head>
 <body>
-  <h1>Join Lobby</h1>
+    <div class="join-container">
+        <button class="back-btn" onclick="window.location.href='index.html'">
+            ← Back
+        </button>
+        
+        <div class="join-card">
+            <h1 class="card-title">🐻‍❄️ Join Game</h1>
 
-  <label for="lobbyCode">Lobby Code:</label>
-  <input type="text" id="lobbyCode" maxlength="6" placeholder="Enter 6-digit code" />
+            <div class="avatar-section">
+                <div class="avatar-display">
+                    <div class="avatar-preview" id="avatar-preview">
+                        <div style="font-size:48px;color:#999;">👤</div>
+                    </div>
+                    <button class="avatar-edit-btn" id="avatar-edit-btn">✏️</button>
+                </div>
+            </div>
+            
+            <div class="input-section">
+                <div class="input-group">
+                    <label for="student-name">Your Name</label>
+                    <input type="text" id="student-name" placeholder="Enter your name..." maxlength="20">
+                </div>
+                
+                <div class="input-group">
+                    <label>Room Code</label>
+                    <div class="room-code-input">
+                        <input type="text" maxlength="1" pattern="[0-9]" class="room-code-char" id="room-code-1">
+                        <input type="text" maxlength="1" pattern="[0-9]" class="room-code-char" id="room-code-2">
+                        <input type="text" maxlength="1" pattern="[0-9]" class="room-code-char" id="room-code-3">
+                        <span class="room-code-sep"></span>
+                        <input type="text" maxlength="1" pattern="[0-9]" class="room-code-char" id="room-code-4">
+                        <input type="text" maxlength="1" pattern="[0-9]" class="room-code-char" id="room-code-5">
+                        <input type="text" maxlength="1" pattern="[0-9]" class="room-code-char" id="room-code-6">
+                    </div>
+                </div>
+                
+                <button id="join-game-submit" class="btn btn-primary btn-large">
+                    Join Game
+                </button>
+            </div>
+        </div>
+    </div>
 
-  <label for="playerName">Your Display Name:</label>
-  <input type="text" id="playerName" maxlength="30" placeholder="Enter your name" />
+    <div id="avatar-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Customize Your Avatar</h2>
+                <button class="modal-close" id="avatar-modal-close">&times;</button>
+            </div>
+            
+            <div class="avatar-editor-iframe">
+                <iframe id="avatar-editor-iframe" src="avatar-editor.html"></iframe>
+            </div>
+        </div>
+    </div>
 
-  <button id="joinBtn">Join</button>
-  <div id="message"></div>
+    <div id="loading-screen" class="loading-overlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <p id="loading-text">Loading...</p>
+        </div>
+    </div>
 
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyA8HcTDiCQtJHRiMES2p1iUlA30AkZPx1Y",
-      authDomain: "polor-62c29.firebaseapp.com",
-      databaseURL: "https://polor-62c29-default-rtdb.firebaseio.com",
-      projectId: "polor-62c29",
-      appId: "1:232986823513:web:a6ee6bef6b0609ace3da48"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+    <div id="notification-container" class="notification-container"></div>
 
-    const lobbyCodeInput = document.getElementById('lobbyCode');
-    const playerNameInput = document.getElementById('playerName');
-    const joinBtn = document.getElementById('joinBtn');
-    const messageDiv = document.getElementById('message');
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    
+    <script>
+        const CONFIG = {
+            firebase: {
+                apiKey: "AIzaSyBYcuke7uz4kAQzMjUpEqbY6zvwOiY9C1k",
+                authDomain: "polorapi.firebaseapp.com",
+                databaseURL: "https://polorapi-default-rtdb.firebaseio.com",
+                projectId: "polorapi",
+                storageBucket: "polorapi.firebasestorage.app",
+                messagingSenderId: "945305666819",
+                appId: "1:945305866819:web:a3c535e6cb9273882a1536"
+            }
+        };
 
-    // If lobby code is in URL, autofill input
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.has('code')) {
-      lobbyCodeInput.value = urlParams.get('code').slice(0,6);
-    }
+        firebase.initializeApp(CONFIG.firebase);
+        const database = firebase.database();
 
-    function generatePlayerId() {
-      return Math.random().toString(36).substring(2, 10);
-    }
-
-    joinBtn.onclick = () => {
-      const code = lobbyCodeInput.value.trim();
-      const playerName = playerNameInput.value.trim();
-
-      if (!code.match(/^\d{6}$/)) {
-        messageDiv.style.color = 'red';
-        messageDiv.textContent = "Please enter a valid 6-digit lobby code.";
-        return;
-      }
-      if (!playerName || playerName.length > 30) {
-        messageDiv.style.color = 'red';
-        messageDiv.textContent = "Please enter a valid display name (1-30 characters).";
-        return;
-      }
-
-      // Check if lobby exists
-      db.ref('lobbies/' + code).get()
-        .then(snapshot => {
-          if (!snapshot.exists()) {
-            messageDiv.style.color = 'red';
-            messageDiv.textContent = "Lobby not found.";
-            return;
-          }
-          // Write player name anonymously
-          const playerId = generatePlayerId();
-          return db.ref(`lobbies/${code}/players/${playerId}`).set(playerName)
-            .then(() => {
-              // Save playerId & lobby code locally for later
-              localStorage.setItem('playerId', playerId);
-              localStorage.setItem('lobbyCode', code);
-              localStorage.setItem('playerName', playerName);
-
-              // Redirect to lobby page
-              window.location.href = `lobby.html?code=${code}`;
-            });
-        })
-        .catch(err => {
-          messageDiv.style.color = 'red';
-          messageDiv.textContent = "Error checking lobby: " + err.message;
+        document.addEventListener('DOMContentLoaded', function() {
+            setupAvatarDisplay();
+            setupAvatarEditor();
+            setupRoomCodeInputs();
+            setupJoinButton();
+            
+            // Check if there's a pending room from redirect
+            const pendingRoom = localStorage.getItem('polor_pending_room');
+            if (pendingRoom) {
+                // Auto-fill room code
+                const code = pendingRoom;
+                for (let i = 0; i < 6; i++) {
+                    document.getElementById(`room-code-${i + 1}`).value = code.charAt(i);
+                }
+                localStorage.removeItem('polor_pending_room');
+            }
         });
-    };
-  </script>
+
+        function setupAvatarDisplay() {
+            const avatarPreview = document.getElementById('avatar-preview');
+            const savedAvatarImage = localStorage.getItem('polor_avatar_image');
+            
+            if (savedAvatarImage) {
+                avatarPreview.style.backgroundImage = `url(${savedAvatarImage})`;
+                avatarPreview.innerHTML = '';
+            }
+        }
+
+        function setupAvatarEditor() {
+            const avatarEditBtn = document.getElementById('avatar-edit-btn');
+            const avatarModal = document.getElementById('avatar-modal');
+            const modalClose = document.getElementById('avatar-modal-close');
+            
+            avatarEditBtn.addEventListener('click', () => {
+                avatarModal.classList.add('active');
+            });
+            
+            modalClose.addEventListener('click', () => {
+                avatarModal.classList.remove('active');
+            });
+            
+            avatarModal.addEventListener('click', (e) => {
+                if (e.target === avatarModal) {
+                    avatarModal.classList.remove('active');
+                }
+            });
+            
+            window.addEventListener('message', (event) => {
+                if (event.data.type === 'avatarSaved') {
+                    if (event.data.avatarImage) {
+                        localStorage.setItem('polor_avatar_image', event.data.avatarImage);
+                    }
+                    setupAvatarDisplay();
+                    showNotification('Avatar saved!', 'success');
+                    avatarModal.classList.remove('active');
+                }
+            });
+        }
+
+        function setupRoomCodeInputs() {
+            const inputs = document.querySelectorAll('.room-code-char');
+            
+            inputs.forEach((input, index) => {
+                input.addEventListener('input', (e) => {
+                    const value = e.target.value;
+                    if (value.length === 1 && index < inputs.length - 1) {
+                        inputs[index + 1].focus();
+                    }
+                });
+                
+                input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Backspace' && !e.target.value && index > 0) {
+                        inputs[index - 1].focus();
+                    }
+                });
+                
+                input.addEventListener('paste', (e) => {
+                    e.preventDefault();
+                    const pastedData = e.clipboardData.getData('text').replace(/[^0-9]/g, '');
+                    
+                    for (let i = 0; i < pastedData.length && index + i < inputs.length; i++) {
+                        inputs[index + i].value = pastedData[i];
+                    }
+                    
+                    if (index + pastedData.length < inputs.length) {
+                        inputs[index + pastedData.length].focus();
+                    }
+                });
+            });
+        }
+
+        function setupJoinButton() {
+            const joinBtn = document.getElementById('join-game-submit');
+            const nameInput = document.getElementById('student-name');
+            
+            joinBtn.addEventListener('click', async () => {
+                const name = nameInput.value.trim();
+                const roomCode = getRoomCode();
+                
+                if (!name) {
+                    showNotification('Please enter your name', 'error');
+                    nameInput.focus();
+                    return;
+                }
+                
+                if (roomCode.length !== 6) {
+                    showNotification('Please enter a complete room code', 'error');
+                    document.getElementById('room-code-1').focus();
+                    return;
+                }
+                
+                const avatarImage = localStorage.getItem('polor_avatar_image');
+                
+                if (!avatarImage) {
+                    showNotification('Please customize your avatar first', 'error');
+                    return;
+                }
+                
+                showLoading('Checking room...');
+                
+                const exists = await checkRoomExists(roomCode);
+                
+                if (!exists) {
+                    hideLoading();
+                    showNotification('Room not found. Check your code!', 'error');
+                    return;
+                }
+                
+                showLoading('Joining game...');
+                
+                localStorage.setItem('polor_student_name', name);
+                
+                setTimeout(() => {
+                    window.location.href = `lobby.html?room=${roomCode}`;
+                }, 500);
+            });
+        }
+
+        function getRoomCode() {
+            const inputs = document.querySelectorAll('.room-code-char');
+            return Array.from(inputs).map(input => input.value).join('');
+        }
+
+        async function checkRoomExists(roomCode) {
+            try {
+                const roomRef = database.ref(`rooms/${roomCode}`);
+                const snapshot = await roomRef.once('value');
+                return snapshot.exists();
+            } catch (error) {
+                console.error('Error checking room:', error);
+                return false;
+            }
+        }
+
+        function showLoading(text) {
+            document.getElementById('loading-text').textContent = text;
+            document.getElementById('loading-screen').classList.add('active');
+        }
+
+        function hideLoading() {
+            document.getElementById('loading-screen').classList.remove('active');
+        }
+
+        function showNotification(message, type = 'info') {
+            const container = document.getElementById('notification-container');
+            const notification = document.createElement('div');
+            notification.className = `notification notification-${type}`;
+            notification.textContent = message;
+            container.appendChild(notification);
+            
+            setTimeout(() => notification.classList.add('show'), 10);
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+    </script>
 </body>
 </html>

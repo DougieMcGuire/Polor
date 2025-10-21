@@ -3,862 +3,989 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Polor - Sign Up</title>
+    <title>Teacher Login - Polor</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=OpenDyslexic:wght@400;700&display=swap" rel="stylesheet">
+    
     <style>
+        /* Polor - Main Stylesheet */
+
+        /* CSS Variables */
+        :root {
+            /* Primary Colors */
+            --primary-blue: #52C4F5;
+            --primary-blue-dark: #3BA8D1;
+            
+            /* Answer Button Colors */
+            --answer-red: #FF6B6B;
+            --answer-yellow: #FFE66D;
+            --answer-blue: #4ECDC4;
+            --answer-green: #45B7D1;
+            
+            /* Accent Colors */
+            --success-green: #51CF66;
+            --error-red: #FF6B6B;
+            --warning-orange: #FF922B;
+            --purple-accent: #9775FA;
+            --pink-accent: #F783AC;
+            
+            /* Neutrals */
+            --white: #FFFFFF;
+            --black: #000000;
+            --light-blue: #E3F2FD;
+            --gray-100: #F8F9FA;
+            --gray-200: #E9ECEF;
+            --gray-300: #DEE2E6;
+            --gray-400: #CED4DA;
+            --gray-500: #ADB5BD;
+            --gray-600: #6C757D;
+            --gray-700: #495057;
+            --gray-800: #343A40;
+            --gray-900: #212529;
+            
+            /* Typography */
+            --font-primary: 'Fredoka', sans-serif;
+            --font-dyslexia: 'OpenDyslexic', sans-serif;
+            
+            /* Spacing */
+            --spacing-xs: 0.25rem;
+            --spacing-sm: 0.5rem;
+            --spacing-md: 1rem;
+            --spacing-lg: 1.5rem;
+            --spacing-xl: 2rem;
+            --spacing-2xl: 3rem;
+            
+            /* Border Radius */
+            --radius-sm: 0.375rem;
+            --radius-md: 0.5rem;
+            --radius-lg: 0.75rem;
+            --radius-xl: 1rem;
+            --radius-2xl: 1.5rem;
+            
+            /* Shadows */
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        /* Global Styles */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: var(--font-primary);
+            background: linear-gradient(135deg, var(--primary-blue) 0%, #87CEEB 100%);
+            min-height: 100vh;
+            color: var(--black);
+            overflow-x: hidden;
+        }
+
+        /* Dyslexia Font Toggle */
+        body.dyslexia-font {
+            font-family: var(--font-dyslexia);
+        }
+
+        /* Auth Container */
+        .auth-container {
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px;
-        }
-        
-        .auth-container {
-            background: white;
-            border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            width: 100%;
-            max-width: 450px;
-        }
-        
-        .auth-header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        
-        .auth-header h1 {
-            color: #333;
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-        }
-        
-        .auth-header p {
-            color: #666;
-            font-size: 1.1rem;
-        }
-        
-        .auth-tabs {
-            display: flex;
-            margin-bottom: 30px;
-            background: #f8f9fa;
-            border-radius: 12px;
-            padding: 4px;
-        }
-        
-        .auth-tab {
-            flex: 1;
-            text-align: center;
-            padding: 12px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-weight: 500;
-            color: #666;
-        }
-        
-        .auth-tab.active {
-            background: white;
-            color: #667eea;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-        
-        .auth-form {
-            display: none;
-        }
-        
-        .auth-form.active {
-            display: block;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        .form-label {
-            display: block;
-            margin-bottom: 6px;
-            color: #333;
-            font-weight: 500;
-        }
-        
-        .form-input {
-            width: 100%;
-            padding: 14px 16px;
-            border: 2px solid #e9ecef;
-            border-radius: 10px;
-            font-size: 16px;
-            transition: border-color 0.2s ease;
-            background: #f8f9fa;
-        }
-        
-        .form-input:focus {
-            outline: none;
-            border-color: #667eea;
-            background: white;
-        }
-        
-        .form-input.error {
-            border-color: #dc3545;
-            background: #fff5f5;
-        }
-        
-        .error-message {
-            color: #dc3545;
-            font-size: 14px;
-            margin-top: 6px;
-            display: none;
-        }
-        
-        .error-message.show {
-            display: block;
-        }
-        
-        .auth-button {
-            width: 100%;
-            padding: 14px;
-            border: none;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            margin-bottom: 15px;
+            padding: var(--spacing-lg);
             position: relative;
         }
-        
-        .auth-button:disabled {
+
+        .back-btn {
+            position: absolute;
+            top: var(--spacing-lg);
+            left: var(--spacing-lg);
+            background: var(--white);
+            border: 2px solid var(--gray-300);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-sm) var(--spacing-md);
+            font-family: var(--font-primary);
+            font-weight: 500;
+            color: var(--gray-700);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            background: var(--gray-100);
+        }
+
+        .auth-card {
+            background: var(--white);
+            border-radius: var(--radius-2xl);
+            padding: var(--spacing-2xl);
+            box-shadow: var(--shadow-xl);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .auth-header h1 {
+            color: var(--primary-blue);
+            margin-bottom: var(--spacing-sm);
+            font-size: 2.5rem;
+        }
+
+        .auth-header p {
+            color: var(--gray-600);
+            margin-bottom: var(--spacing-xl);
+            font-size: 1.1rem;
+        }
+
+        .auth-content {
+            margin-bottom: var(--spacing-xl);
+        }
+
+        /* Button Styles */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--spacing-md) var(--spacing-lg);
+            border: 2px solid transparent;
+            border-radius: var(--radius-lg);
+            font-family: var(--font-primary);
+            font-weight: 500;
+            font-size: 1rem;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-sm);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn:disabled {
             opacity: 0.6;
             cursor: not-allowed;
         }
-        
-        .btn-primary {
-            background: #667eea;
-            color: white;
+
+        .btn-large {
+            padding: var(--spacing-lg) var(--spacing-xl);
+            font-size: 1.1rem;
+            min-width: 200px;
         }
-        
-        .btn-primary:hover:not(:disabled) {
-            background: #5a6fd8;
-            transform: translateY(-1px);
-        }
-        
+
         .btn-google {
-            background: white;
-            color: #333;
-            border: 2px solid #e9ecef;
+            background: var(--white);
+            border-color: var(--gray-300);
+            color: var(--gray-700);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-google:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+            background: var(--gray-100);
+        }
+
+        .btn-icon {
+            margin-right: var(--spacing-sm);
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 10px;
         }
-        
-        .btn-google:hover:not(:disabled) {
-            border-color: #667eea;
-            transform: translateY(-1px);
+
+        .auth-features {
+            margin-top: var(--spacing-xl);
+            text-align: left;
         }
-        
-        .google-icon {
-            width: 20px;
-            height: 20px;
+
+        .auth-features h3 {
+            color: var(--gray-700);
+            margin-bottom: var(--spacing-md);
+            font-size: 1.2rem;
         }
-        
-        .divider {
-            text-align: center;
-            margin: 20px 0;
+
+        .auth-features ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .auth-features li {
+            padding: var(--spacing-sm) 0;
+            color: var(--gray-600);
             position: relative;
-            color: #666;
+            padding-left: var(--spacing-lg);
         }
-        
-        .divider:before {
-            content: '';
+
+        .auth-features li::before {
+            content: "✓";
             position: absolute;
-            top: 50%;
             left: 0;
-            right: 0;
-            height: 1px;
-            background: #e9ecef;
+            color: var(--success-green);
+            font-weight: bold;
         }
-        
-        .divider span {
-            background: white;
-            padding: 0 15px;
+
+        /* Loading Screen */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
         }
-        
-        .spinner {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255,255,255,0.3);
-            border-top: 3px solid white;
+
+        .loading-content {
+            text-align: center;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--gray-300);
+            border-top: 4px solid var(--primary-blue);
             border-radius: 50%;
             animation: spin 1s linear infinite;
+            margin: 0 auto var(--spacing-md);
         }
-        
+
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        
-        .success-message {
-            background: #d4edda;
-            color: #155724;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            display: none;
+
+        #loading-text {
+            color: var(--gray-700);
+            font-size: 1.1rem;
+            font-weight: 500;
         }
-        
-        .success-message.show {
-            display: block;
+
+        /* Notification System */
+        .notification-container {
+            position: fixed;
+            top: var(--spacing-lg);
+            right: var(--spacing-lg);
+            z-index: 10000;
+            max-width: 400px;
+        }
+
+        .notification {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-md) var(--spacing-lg);
+            margin-bottom: var(--spacing-sm);
+            box-shadow: var(--shadow-lg);
+            border-left: 4px solid var(--primary-blue);
+            transform: translateX(100%);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        .notification-success {
+            border-left-color: var(--success-green);
+        }
+
+        .notification-error {
+            border-left-color: var(--error-red);
+        }
+
+        .notification-warning {
+            border-left-color: var(--warning-orange);
+        }
+
+        .logged-in-section {
+            text-align: center;
+            padding: var(--spacing-xl);
+        }
+
+        .success-icon {
+            font-size: 4rem;
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .logged-in-section h2 {
+            color: var(--success-green);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .logged-in-section p {
+            color: var(--gray-700);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .auth-actions {
+            display: flex;
+            gap: var(--spacing-md);
+            margin-top: var(--spacing-lg);
+            justify-content: center;
         }
     </style>
 </head>
 <body>
     <div class="auth-container">
-        <div class="auth-header">
-            <h1>Polor</h1>
-            <p>Create your custom avatar</p>
+        <!-- Back Button -->
+        <button class="back-btn" onclick="window.location.href='landing.html'">
+            ← Back to Home
+        </button>
+
+        <!-- Auth Card -->
+        <div class="auth-card">
+            <div class="auth-header">
+                <h1>Teacher Login</h1>
+                <p>Sign in to create and host quizzes</p>
+            </div>
+            
+            <div class="auth-content login-section">
+                <button id="google-login-btn" class="btn btn-google btn-large">
+                    <span class="btn-icon"><img src="assets/google-logo.svg" alt="Google logo" style="width: 24px; height: 24px; vertical-align: middle;"></span>
+                    Sign in with Google
+                </button>
+                
+                <div class="auth-features">
+                    <h3>What you can do:</h3>
+                    <ul>
+                        <li>Create quizzes with AI assistance</li>
+                        <li>Import from Google Drive</li>
+                        <li>Host real-time multiplayer games</li>
+                        <li>Manage your quiz library</li>
+                    </ul>
+                </div>
+            </div>
         </div>
-        
-        <div class="auth-tabs">
-            <div class="auth-tab active" onclick="switchTab('signup')">Sign Up</div>
-            <div class="auth-tab" onclick="switchTab('login')">Login</div>
-        </div>
-        
-        <div id="success-message" class="success-message">
-            <strong>✅ Account created!</strong> Redirecting to your dashboard...
-        </div>
-        
-        <!-- Signup Form -->
-        <form id="signup-form" class="auth-form active">
-            <div class="form-group">
-                <label class="form-label">Username</label>
-                <input type="text" class="form-input" id="signup-username" required>
-                <div class="error-message" id="signup-username-error"></div>
-            </div>
-            
-            <div class="form-group">
-                <label class="form-label">Email</label>
-                <input type="email" class="form-input" id="signup-email" required>
-                <div class="error-message" id="signup-email-error"></div>
-            </div>
-            
-            <div class="form-group">
-                <label class="form-label">Password</label>
-                <input type="password" class="form-input" id="signup-password" required>
-                <div class="error-message" id="signup-password-error"></div>
-            </div>
-            
-            <button type="submit" class="auth-button btn-primary" id="signup-btn">
-                Create Account
-            </button>
-            
-            <div class="divider"><span>or</span></div>
-            
-            <button type="button" class="auth-button btn-google" onclick="signInWithGoogle()">
-                <svg class="google-icon" viewBox="0 0 24 24">
-                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-                </svg>
-                Sign up with Google
-            </button>
-        </form>
-        
-        <!-- Login Form -->
-        <form id="login-form" class="auth-form">
-            <div class="form-group">
-                <label class="form-label">Email</label>
-                <input type="email" class="form-input" id="login-email" required>
-                <div class="error-message" id="login-email-error"></div>
-            </div>
-            
-            <div class="form-group">
-                <label class="form-label">Password</label>
-                <input type="password" class="form-input" id="login-password" required>
-                <div class="error-message" id="login-password-error"></div>
-            </div>
-            
-            <button type="submit" class="auth-button btn-primary" id="login-btn">
-                Login
-            </button>
-            
-            <div class="divider"><span>or</span></div>
-            
-            <button type="button" class="auth-button btn-google" onclick="signInWithGoogle()">
-                <svg class="google-icon" viewBox="0 0 24 24">
-                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-                </svg>
-                Continue with Google
-            </button>
-        </form>
     </div>
 
-    <!-- Firebase SDK -->
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="loading-overlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <p id="loading-text">Loading...</p>
+        </div>
+    </div>
+
+    <!-- Notification System -->
+    <div id="notification-container" class="notification-container"></div>
+
+    <!-- Scripts -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+    
     <script>
-        // Firebase config
-        const firebaseConfig = {
-            apiKey: "AIzaSyA8HcTDiCQtJHRiMES2p1iUlA30AkZPx1Y",
-            authDomain: "polor-62c29.firebaseapp.com",
-            databaseURL: "https://polor-62c29-default-rtdb.firebaseio.com",
-            projectId: "polor-62c29",
-            storageBucket: "polor-62c29.firebasestorage.app",
-            messagingSenderId: "232986823513",
-            appId: "1:232986823513:web:a6ee6bef6b0609ace3da48",
-            measurementId: "G-KRT42D5TQK"
+        // Polor Configuration
+        const CONFIG = {
+            // Firebase Configuration
+            firebase: {
+                apiKey: "AIzaSyBYcuke7uz4kAQzMjUpEqbY6zvwOiY9C1k",
+                authDomain: "polorapi.firebaseapp.com",
+                databaseURL: "https://polorapi-default-rtdb.firebaseio.com",
+                projectId: "polorapi",
+                storageBucket: "polorapi.firebasestorage.app",
+                messagingSenderId: "945305666819",
+                appId: "1:945305666819:web:a3c535e6cb9273882a1536",
+                measurementId: "G-PQ0J44YZTN"
+            },
+            
+            // Pollinations API
+            pollinations: {
+                textApi: "https://text.pollinations.ai/",
+                imageApi: "https://image.pollinations.ai/prompt/",
+                imageParams: "?nologo=true&width=800&height=600&token=",
+                // Tokens will be loaded from keys.txt
+                tokens: []
+            },
+            
+            // Game Settings
+            game: {
+                maxQuestions: 50,
+                questionTimeLimit: 30, // seconds
+                roomCodeLength: 6,
+                maxStudentsPerGame: 50,
+                scoreUpdateInterval: 5000, // 5 seconds
+                maxNameLength: 20
+            },
+            
+            // Avatar Settings
+            avatar: {
+                categories: [
+                    'backgrounds', 'bases', 'brows', 'eyes', 'glasses', 
+                    'hair', 'hats', 'mouths', 'neck', 'noses', 'tops'
+                ],
+                defaultConfig: "bg:1,base:1,brow:1,eye:1,glass:0,hair:1,hat:0,mouth:1,neck:0,nose:1,top:1",
+                imageSize: 200
+            },
+            
+            // UI Settings
+            ui: {
+                animationDuration: 300,
+                notificationDuration: 3000,
+                loadingTimeout: 10000
+            },
+            
+            // Languages
+            languages: {
+                en: { name: "English", flag: "🇺🇸" },
+                es: { name: "Español", flag: "🇪🇸" },
+                fr: { name: "Français", flag: "🇫🇷" },
+                ru: { name: "Русский", flag: "🇷🇺" },
+                de: { name: "Deutsch", flag: "🇩🇪" },
+                it: { name: "Italiano", flag: "🇮🇹" },
+                pt: { name: "Português", flag: "🇵🇹" },
+                ja: { name: "日本語", flag: "🇯🇵" },
+                ko: { name: "한국어", flag: "🇰🇷" },
+                zh: { name: "中文", flag: "🇨🇳" }
+            },
+            
+            // Quiz Settings
+            quiz: {
+                tones: [
+                    { value: "educational", label: "Educational" },
+                    { value: "fun", label: "Fun & Playful" },
+                    { value: "formal", label: "Formal" },
+                    { value: "simplified", label: "Simplified" }
+                ],
+                ageLevels: [
+                    { value: "5-7", label: "Ages 5-7" },
+                    { value: "8-10", label: "Ages 8-10" },
+                    { value: "11-13", label: "Ages 11-13" },
+                    { value: "14-16", label: "Ages 14-16" },
+                    { value: "17+", label: "Ages 17+" }
+                ]
+            },
+            
+            // Storage Keys
+            storage: {
+                studentName: "polor_student_name",
+                studentAvatar: "polor_student_avatar",
+                studentLanguage: "polor_student_language",
+                savedTeachers: "polor_saved_teachers",
+                teacherAuth: "polor_teacher_auth",
+                dyslexiaFont: "polor_dyslexia_font"
+            },
+            
+            // API Endpoints
+            api: {
+                googleDrive: "https://www.googleapis.com/drive/v3",
+                googleDocs: "https://docs.googleapis.com/v1",
+                googleForms: "https://forms.googleapis.com/v1"
+            }
         };
 
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const firestore = firebase.firestore();
+        // Load API keys from keys.txt
+        async function loadApiKeys() {
+            try {
+                const response = await fetch('keys.txt');
+                if (response.ok) {
+                    const keys = await response.text();
+                    CONFIG.pollinations.tokens = keys.trim().split('\n').filter(key => key.trim());
+                }
+            } catch (error) {
+                console.warn('Could not load API keys from keys.txt:', error);
+            }
+        }
 
-        // Configure Google Auth Provider
-        const googleProvider = new firebase.auth.GoogleAuthProvider();
-        googleProvider.addScope('email');
-        googleProvider.addScope('profile');
+        // Initialize configuration
+        loadApiKeys();
 
-        // Default avatar config for new users
-        const DEFAULT_AVATAR_URL = `https://polor.org/Avatars/?backgrounds=bg1.png&bases=base.png&hair=&eyes=BasicMale.png&brows=Basic.png&mouths=Basic.png&noses=basic.png&neck=&tops=16.png&glasses=&hats=editme.png&backgroundsColor=808080&basesColor=FFF8F5&hairColor=F4C2A1&eyesColor=F4C2A1&browsColor=654321&mouthsColor=000000&nosesColor=FFA07A&neckColor=FFB6C1&topsColor=676767&glassesColor=6B4423&hatsColor=FF4500`;
+        // Polor Utility Functions
+        // DOM Utilities
+        const $ = (selector) => document.querySelector(selector);
+        const $$ = (selector) => document.querySelectorAll(selector);
 
-        // Check if user is already logged in - Simplified
-        auth.onAuthStateChanged(async (user) => {
-            console.log('🔄 Auth state changed:', user ? `User: ${user.email}` : 'No user');
-            
-            if (user) {
-                console.log('👤 User is authenticated, checking profile...');
+        // Page Management
+        class PageManager {
+            static showPage(pageId) {
+                // Hide all pages
+                $$('.page').forEach(page => page.classList.remove('active'));
                 
+                // Show target page
+                const targetPage = $(`#${pageId}`);
+                if (targetPage) {
+                    targetPage.classList.add('active');
+                }
+            }
+            
+            static getCurrentPage() {
+                const activePage = $('.page.active');
+                return activePage ? activePage.id : null;
+            }
+        }
+
+        // Notification System
+        class NotificationManager {
+            static show(message, type = 'info', duration = CONFIG.ui.notificationDuration) {
+                const container = $('#notification-container');
+                if (!container) return;
+                
+                const notification = document.createElement('div');
+                notification.className = `notification notification-${type}`;
+                notification.textContent = message;
+                
+                container.appendChild(notification);
+                
+                // Auto remove after duration
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, duration);
+            }
+            
+            static success(message) {
+                this.show(message, 'success');
+            }
+            
+            static error(message) {
+                this.show(message, 'error');
+            }
+            
+            static warning(message) {
+                this.show(message, 'warning');
+            }
+        }
+
+        // Loading Screen
+        class LoadingManager {
+            static show(text = 'Loading...') {
+                const loadingScreen = $('#loading-screen');
+                const loadingText = $('#loading-text');
+                
+                if (loadingScreen) {
+                    loadingScreen.style.display = 'flex';
+                    if (loadingText) {
+                        loadingText.textContent = text;
+                    }
+                }
+            }
+            
+            static hide() {
+                const loadingScreen = $('#loading-screen');
+                if (loadingScreen) {
+                    loadingScreen.style.display = 'none';
+                }
+            }
+        }
+
+        // Local Storage Utilities
+        class StorageManager {
+            static get(key, defaultValue = null) {
                 try {
-                    // Small delay to ensure Firestore is ready
-                    await new Promise(resolve => setTimeout(resolve, 100));
-                    
-                    const userDoc = await firestore.collection('users').doc(user.uid).get();
-                    console.log('📄 User doc exists:', userDoc.exists);
-                    
-                    if (!userDoc.exists) {
-                        console.log('📝 No profile found, creating one...');
-                        document.getElementById('success-message').innerHTML = '<strong>✅ Setting up your account...</strong>';
-                        document.getElementById('success-message').classList.add('show');
-                        
-                        await createUserProfile(user);
-                        console.log('✅ Profile created successfully');
-                    }
-                    
-                    console.log('🏠 Redirecting to home page...');
-                    window.location.href = 'home.html';
-                    
+                    const item = localStorage.getItem(key);
+                    return item ? JSON.parse(item) : defaultValue;
                 } catch (error) {
-                    console.error('❌ Error in auth state handler:', error);
-                    alert('Error setting up account: ' + error.message);
+                    console.warn(`Error reading from localStorage key "${key}":`, error);
+                    return defaultValue;
                 }
-            } else {
-                console.log('ℹ️ No authenticated user');
             }
-        });
-
-        // Tab switching
-        function switchTab(tab) {
-            // Update tab buttons
-            document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
-            document.querySelector(`.auth-tab:nth-child(${tab === 'signup' ? '1' : '2'})`).classList.add('active');
             
-            // Update forms
-            document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
-            document.getElementById(`${tab}-form`).classList.add('active');
+            static set(key, value) {
+                try {
+                    localStorage.setItem(key, JSON.stringify(value));
+                    return true;
+                } catch (error) {
+                    console.warn(`Error writing to localStorage key "${key}":`, error);
+                    return false;
+                }
+            }
             
-            // Clear any error messages
-            clearErrors();
-        }
-
-        // Clear error messages
-        function clearErrors() {
-            document.querySelectorAll('.error-message').forEach(e => e.classList.remove('show'));
-            document.querySelectorAll('.form-input').forEach(i => i.classList.remove('error'));
-        }
-
-        // Show error message
-        function showError(inputId, message) {
-            const input = document.getElementById(inputId);
-            const errorDiv = document.getElementById(`${inputId}-error`);
+            static remove(key) {
+                try {
+                    localStorage.removeItem(key);
+                    return true;
+                } catch (error) {
+                    console.warn(`Error removing localStorage key "${key}":`, error);
+                    return false;
+                }
+            }
             
-            input.classList.add('error');
-            errorDiv.textContent = message;
-            errorDiv.classList.add('show');
-        }
-
-        // Show loading state
-        function setLoading(buttonId, loading) {
-            const button = document.getElementById(buttonId);
-            if (loading) {
-                button.disabled = true;
-                button.innerHTML = '<span class="spinner"></span> Loading...';
-            } else {
-                button.disabled = false;
-                if (buttonId === 'login-btn') {
-                    button.innerHTML = 'Login';
-                } else {
-                    button.innerHTML = 'Create Account';
+            static clear() {
+                try {
+                    localStorage.clear();
+                    return true;
+                } catch (error) {
+                    console.warn('Error clearing localStorage:', error);
+                    return false;
                 }
             }
         }
 
-        // Create user profile in Firestore
-        async function createUserProfile(user, username = null) {
-            try {
-                // Clean username for Google users
-                let finalUsername = username;
-                
-                if (!finalUsername) {
-                    if (user.displayName) {
-                        // Clean Google display name: remove spaces, special chars, make lowercase
-                        finalUsername = user.displayName
-                            .toLowerCase()
-                            .replace(/[^a-zA-Z0-9]/g, '') // Remove all non-alphanumeric
-                            .substring(0, 20); // Limit length
-                        
-                        // If cleaning resulted in empty string, use email
-                        if (!finalUsername) {
-                            finalUsername = user.email.split('@')[0].replace(/[^a-zA-Z0-9]/g, '');
-                        }
-                    } else {
-                        // Use email username part and clean it
-                        finalUsername = user.email.split('@')[0].replace(/[^a-zA-Z0-9]/g, '');
-                    }
-                }
-                
-                // Ensure username is at least 3 characters
-                if (finalUsername.length < 3) {
-                    finalUsername += Math.random().toString(36).substring(2, 5);
-                }
-                
-                console.log('🏷️ Final username:', finalUsername);
-                
-                // Generate base64 avatar image from default.png
-                console.log('🎨 Generating default avatar as base64...');
-                const avatarBase64 = await generateDefaultAvatarBase64();
-                
-                const userProfile = {
-                    uid: user.uid,
-                    email: user.email,
-                    username: finalUsername,
-                    displayName: user.displayName || finalUsername,
-                    avatarURL: DEFAULT_AVATAR_URL,
-                    avatarIMG: avatarBase64, // Save default.png as base64
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
-                    isActive: true
-                };
-
-                // Save to Firestore with merge to avoid overwriting
-                await firestore.collection('users').doc(user.uid).set(userProfile, { merge: true });
-
-                // Update Auth displayName if not already set
-                if (!user.displayName) {
-                    await user.updateProfile({
-                        displayName: finalUsername
-                    });
-                }
-
-                console.log('✅ User profile created successfully with base64 avatar');
-                return userProfile;
-            } catch (error) {
-                console.error('❌ Error creating user profile:', error);
-                throw error;
-            }
-        }
-
-        // Generate default avatar as base64
-        async function generateDefaultAvatarBase64() {
-            return new Promise((resolve) => {
-                // Create a canvas to render the default avatar
-                const canvas = document.createElement('canvas');
-                canvas.width = 200;
-                canvas.height = 200;
-                const ctx = canvas.getContext('2d');
-                
-                // Load the default.png image directly
-                const img = new Image();
-                img.crossOrigin = 'anonymous';
-                
-                img.onload = () => {
-                    // Draw the image on canvas
-                    ctx.drawImage(img, 0, 0, 200, 200);
-                    
-                    // Convert to base64 WebP format
-                    const base64 = canvas.toDataURL('image/webp', 0.8);
-                    console.log('✅ Generated base64 avatar from default.png');
-                    resolve(base64);
-                };
-                
-                img.onerror = () => {
-                    console.log('❌ Failed to load default.png, using simple placeholder');
-                    // Final fallback - simple gray circle
-                    ctx.fillStyle = '#808080';
-                    ctx.fillRect(0, 0, 200, 200);
-                    ctx.fillStyle = '#FFF8F5';
-                    ctx.beginPath();
-                    ctx.arc(100, 100, 80, 0, 2 * Math.PI);
-                    ctx.fill();
-                    const base64 = canvas.toDataURL('image/webp', 0.8);
-                    console.log('✅ Generated fallback placeholder');
-                    resolve(base64);
-                };
-                
-                // Load default.png directly
-                img.src = 'https://polor.org/Avatars/default.png';
-            });
-        }
-
-        // Update last login
-        async function updateLastLogin(user) {
-            try {
-                await firestore.collection('users').doc(user.uid).update({
-                    lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
-                    isActive: true
-                });
-            } catch (error) {
-                console.error('Error updating last login:', error);
-            }
-        }
-
-        // Account cleanup function (to be called by a scheduled function)
-        async function cleanupInactiveAccounts() {
-            try {
-                const thirtyDaysAgo = new Date();
-                thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-                
-                const inactiveUsers = await firestore.collection('users')
-                    .where('lastLogin', '<', thirtyDaysAgo)
-                    .where('isActive', '==', true)
-                    .get();
-                
-                console.log(`Found ${inactiveUsers.size} inactive accounts to clean up`);
-                
-                const batch = firestore.batch();
-                
-                inactiveUsers.forEach(doc => {
-                    // Mark as inactive instead of deleting to preserve data integrity
-                    batch.update(doc.ref, { 
-                        isActive: false,
-                        deactivatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                });
-                
-                if (inactiveUsers.size > 0) {
-                    await batch.commit();
-                    console.log(`Marked ${inactiveUsers.size} accounts as inactive`);
-                }
-                
-            } catch (error) {
-                console.error('Error cleaning up inactive accounts:', error);
-            }
-        }
-
-        // Check for username availability
-        async function checkUsernameAvailability(username) {
-            try {
-                console.log('🔍 Checking username availability for:', username);
-                
-                const snapshot = await firestore.collection('users')
-                    .where('username', '==', username)
-                    .get();
-                
-                const isAvailable = snapshot.empty;
-                console.log('📊 Username available:', isAvailable, 'Found docs:', snapshot.size);
-                
-                return isAvailable;
-            } catch (error) {
-                console.error('❌ Error checking username:', error);
-                // If there's an error checking, assume it's available to not block signup
-                console.log('⚠️ Error occurred, allowing username to proceed');
-                return true;
-            }
-        }
-
-        // Handle login
-        document.getElementById('login-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            clearErrors();
-            
-            const email = document.getElementById('login-email').value;
-            const password = document.getElementById('login-password').value;
-            
-            // Basic validation
-            if (!email || !password) {
-                if (!email) showError('login-email', 'Email is required');
-                if (!password) showError('login-password', 'Password is required');
-                return;
+        // Polor Firebase Integration
+        class FirebaseManager {
+            constructor() {
+                this.app = null;
+                this.auth = null;
+                this.database = null;
+                this.storage = null;
+                this.currentUser = null;
+                this.init();
             }
             
-            setLoading('login-btn', true);
-            
-            try {
-                const userCredential = await auth.signInWithEmailAndPassword(email, password);
-                await updateLastLogin(userCredential.user);
-                // Redirect handled by auth state change
-            } catch (error) {
-                console.error('Login error:', error);
-                let message = 'Login failed. Please try again.';
-                
-                switch (error.code) {
-                    case 'auth/user-not-found':
-                        message = 'No account found with this email.';
-                        showError('login-email', message);
-                        break;
-                    case 'auth/wrong-password':
-                        message = 'Incorrect password.';
-                        showError('login-password', message);
-                        break;
-                    case 'auth/invalid-email':
-                        message = 'Invalid email address.';
-                        showError('login-email', message);
-                        break;
-                    case 'auth/too-many-requests':
-                        message = 'Too many failed attempts. Please try again later.';
-                        showError('login-email', message);
-                        break;
-                    default:
-                        showError('login-email', message);
-                }
-            } finally {
-                setLoading('login-btn', false);
-            }
-        });
-
-        // Handle signup
-        document.getElementById('signup-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            clearErrors();
-            
-            const username = document.getElementById('signup-username').value.trim();
-            const email = document.getElementById('signup-email').value;
-            const password = document.getElementById('signup-password').value;
-            
-            // Validation
-            if (!username || !email || !password) {
-                if (!username) showError('signup-username', 'Username is required');
-                if (!email) showError('signup-email', 'Email is required');
-                if (!password) showError('signup-password', 'Password is required');
-                return;
-            }
-            
-            if (username.length < 3) {
-                showError('signup-username', 'Username must be at least 3 characters');
-                return;
-            }
-            
-            if (!/^[a-zA-Z0-9_]+$/.test(username)) {
-                showError('signup-username', 'Username can only contain letters, numbers, and underscores');
-                return;
-            }
-            
-            if (password.length < 6) {
-                showError('signup-password', 'Password must be at least 6 characters');
-                return;
-            }
-            
-            setLoading('signup-btn', true);
-            
-            try {
-                // Check username availability
-                const isUsernameAvailable = await checkUsernameAvailability(username);
-                if (!isUsernameAvailable) {
-                    showError('signup-username', 'Username is already taken');
-                    setLoading('signup-btn', false);
+            init() {
+                // Check if Firebase is available
+                if (typeof firebase === 'undefined') {
+                    console.warn('Firebase not loaded, retrying in 100ms...');
+                    setTimeout(() => this.init(), 100);
                     return;
                 }
                 
-                // Create user account
-                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-                
-                // Create user profile in Firestore
-                await createUserProfile(userCredential.user, username);
-                
-                // Show success message
-                document.getElementById('success-message').classList.add('show');
-                
-                // Redirect after a short delay
-                setTimeout(() => {
-                    window.location.href = 'home.html';
-                }, 1500);
-                
-            } catch (error) {
-                console.error('Signup error:', error);
-                let message = 'Account creation failed. Please try again.';
-                
-                switch (error.code) {
-                    case 'auth/email-already-in-use':
-                        message = 'An account with this email already exists.';
-                        showError('signup-email', message);
-                        break;
-                    case 'auth/invalid-email':
-                        message = 'Invalid email address.';
-                        showError('signup-email', message);
-                        break;
-                    case 'auth/weak-password':
-                        message = 'Password is too weak. Use at least 6 characters.';
-                        showError('signup-password', message);
-                        break;
-                    default:
-                        showError('signup-email', message);
-                }
-            } finally {
-                setLoading('signup-btn', false);
-            }
-        });
-
-        // Handle Google Sign In - Simplified and debugged
-        async function signInWithGoogle() {
-            try {
-                console.log('🚀 Starting Google sign in...');
-                
-                // Disable buttons during sign in
-                const googleButtons = document.querySelectorAll('.btn-google');
-                googleButtons.forEach(btn => {
-                    btn.disabled = true;
-                    btn.innerHTML = '<span class="spinner"></span> Signing in...';
-                });
-                
-                // Try popup first, fallback to redirect
                 try {
-                    console.log('🔄 Attempting popup method...');
-                    const result = await auth.signInWithPopup(googleProvider);
-                    console.log('✅ Popup successful:', result.user.email);
+                    // Initialize Firebase
+                    this.app = firebase.initializeApp(CONFIG.firebase);
+                    this.auth = firebase.auth();
+                    this.database = firebase.database();
+                    this.storage = firebase.storage();
                     
-                    // Handle the result immediately
-                    await handleGoogleSignInResult(result);
+                    // Set up auth state listener
+                    this.auth.onAuthStateChanged((user) => {
+                        this.currentUser = user;
+                        this.handleAuthStateChange(user);
+                    });
                     
-                } catch (popupError) {
-                    console.log('❌ Popup failed, trying redirect...', popupError.code);
-                    
-                    if (popupError.code === 'auth/popup-blocked' || 
-                        popupError.code === 'auth/popup-closed-by-user') {
-                        // Fall back to redirect
-                        console.log('🔄 Using redirect method...');
-                        await auth.signInWithRedirect(googleProvider);
-                        return; // Don't re-enable buttons, redirect will handle
-                    } else {
-                        throw popupError; // Re-throw other errors
-                    }
+                    console.log('Firebase initialized successfully');
+                } catch (error) {
+                    console.error('Failed to initialize Firebase:', error);
+                    // Retry initialization
+                    setTimeout(() => this.init(), 1000);
+                }
+            }
+            
+            // Handle authentication state changes
+            handleAuthStateChange(user) {
+                if (user) {
+                    console.log('User signed in:', user.uid);
+                    this.updateTeacherUI(user);
+                } else {
+                    console.log('User signed out');
+                    this.clearTeacherUI();
+                }
+            }
+            
+            // Update teacher UI with user info
+            updateTeacherUI(user) {
+                const teacherName = $('#teacher-name');
+                const teacherAvatar = $('#teacher-avatar');
+                
+                if (teacherName) {
+                    teacherName.textContent = user.displayName || user.email;
                 }
                 
-            } catch (error) {
-                console.error('❌ Google sign in error:', error);
-                
-                // Re-enable buttons
-                const googleButtons = document.querySelectorAll('.btn-google');
-                googleButtons.forEach((btn, index) => {
-                    btn.disabled = false;
-                    btn.innerHTML = index === 0 ? 
-                        'Sign up with Google' : 
-                        'Continue with Google';
-                });
-                
-                let message = 'Google sign in failed. Please try again.';
-                
-                switch (error.code) {
-                    case 'auth/network-request-failed':
-                        message = 'Network error. Please check your connection.';
-                        break;
-                    case 'auth/too-many-requests':
-                        message = 'Too many requests. Please wait and try again.';
-                        break;
-                    case 'auth/operation-not-allowed':
-                        message = 'Google sign-in is not enabled. Please contact support.';
-                        break;
-                    case 'auth/unauthorized-domain':
-                        message = 'This domain is not authorized for Google sign-in.';
-                        break;
+                if (teacherAvatar) {
+                    // Set teacher avatar (could be profile picture or default)
+                    teacherAvatar.style.backgroundImage = user.photoURL ? 
+                        `url(${user.photoURL})` : 
+                        'linear-gradient(135deg, #52C4F5, #87CEEB)';
                 }
                 
-                alert('Google Sign-In Error: ' + message);
-                console.error('Full error details:', error);
+                // Show teacher dashboard
+                PageManager.showPage('teacher-dashboard');
+            }
+            
+            // Clear teacher UI
+            clearTeacherUI() {
+                const teacherName = $('#teacher-name');
+                const teacherAvatar = $('#teacher-avatar');
+                
+                if (teacherName) {
+                    teacherName.textContent = '';
+                }
+                
+                if (teacherAvatar) {
+                    teacherAvatar.style.backgroundImage = '';
+                }
+            }
+            
+            // Get current user
+            getCurrentUser() {
+                return this.currentUser;
+            }
+            
+            // Check if user is authenticated
+            isAuthenticated() {
+                return !!this.currentUser;
             }
         }
 
-        // Handle Google sign in result
-        async function handleGoogleSignInResult(result) {
+        // Initialize global Firebase manager
+        window.firebaseManager = new FirebaseManager();
+
+        // Auth.js - Fixed authentication and redirect
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, starting auth initialization...');
+            // Wait for all dependencies to load
+            waitForDependencies().then(() => {
+                console.log('All dependencies loaded, initializing auth...');
+                initializeAuth();
+            }).catch(error => {
+                console.error('Error waiting for dependencies:', error);
+                LoadingManager.hide();
+                if (NotificationManager) {
+                    NotificationManager.show('Failed to load required components. Please refresh the page.', 'error');
+                }
+            });
+        });
+
+        async function waitForDependencies() {
+            console.log('Waiting for Firebase...');
+            // Wait for Firebase to be available
+            while (typeof firebase === 'undefined') {
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+            console.log('Firebase loaded');
+            
+            console.log('Waiting for utils...');
+            // Wait for utils to be available
+            while (typeof LoadingManager === 'undefined' || typeof NotificationManager === 'undefined') {
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+            console.log('Utils loaded');
+            
+            console.log('Waiting for Firebase manager...');
+            // Wait for Firebase to be initialized
+            while (!window.firebaseManager || !window.firebaseManager.app) {
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+            console.log('Firebase manager loaded');
+        }
+
+        function initializeAuth() {
             try {
-                console.log('🔄 Processing Google sign in result...');
-                const user = result.user;
-                
-                // Show success message immediately
-                document.getElementById('success-message').innerHTML = '<strong>✅ Google sign in successful!</strong> Setting up your account...';
-                document.getElementById('success-message').classList.add('show');
-                
-                console.log('👤 User info:', {
-                    uid: user.uid,
-                    email: user.email,
-                    displayName: user.displayName
+                // Check if user is already logged in
+                firebase.auth().onAuthStateChanged(function(user) {
+                    if (user) {
+                        // User is already signed in, show option to go to dashboard
+                        console.log('User already authenticated');
+                        LoadingManager.hide();
+                        setupGoogleLogin();
+                        showLoggedInState(user);
+                    } else {
+                        // No user, show login button
+                        LoadingManager.hide();
+                        setupGoogleLogin();
+                    }
                 });
+            } catch (error) {
+                console.error('Error initializing auth:', error);
+                LoadingManager.hide();
+                if (NotificationManager) {
+                    NotificationManager.show('Failed to initialize authentication. Please refresh the page.', 'error');
+                }
+            }
+        }
+
+        function showLoggedInState(user) {
+            const authCard = document.querySelector('.auth-card');
+            const loginSection = document.querySelector('.login-section');
+            
+            // Hide login section
+            if (loginSection) {
+                loginSection.style.display = 'none';
+            }
+            
+            // Show logged in state
+            const loggedInSection = document.createElement('div');
+            loggedInSection.className = 'logged-in-section';
+            loggedInSection.innerHTML = `
+                <div class="success-icon">✅</div>
+                <h2>Welcome back!</h2>
+                <p>You're signed in as <strong>${user.displayName || user.email}</strong></p>
+                <div class="auth-actions">
+                    <button class="btn btn-primary" onclick="window.location.href='dashboard.html'">
+                        Go to Dashboard
+                    </button>
+                    <button class="btn btn-secondary" onclick="signOut()">
+                        Sign Out
+                    </button>
+                </div>
+            `;
+            
+            authCard.appendChild(loggedInSection);
+        }
+
+        function signOut() {
+            firebase.auth().signOut().then(() => {
+                // Reload the page to show login form again
+                window.location.reload();
+            }).catch((error) => {
+                console.error('Sign out error:', error);
+                NotificationManager.show('Error signing out', 'error');
+            });
+        }
+
+        function setupGoogleLogin() {
+            console.log('Setting up Google login...');
+            const googleLoginBtn = document.getElementById('google-login-btn');
+            
+            if (!googleLoginBtn) {
+                console.error('Google login button not found');
+                console.log('Available elements with IDs:', Array.from(document.querySelectorAll('[id]')).map(el => el.id));
+                if (NotificationManager) {
+                    NotificationManager.show('Login button not found. Please refresh the page.', 'error');
+                }
+                return;
+            }
+            
+            console.log('Google login button found:', googleLoginBtn);
+            console.log('Button classes:', googleLoginBtn.className);
+            console.log('Button disabled:', googleLoginBtn.disabled);
+            
+            // Remove any existing event listeners to prevent duplicates
+            googleLoginBtn.removeEventListener('click', signInWithGoogle);
+            
+            googleLoginBtn.addEventListener('click', function(event) {
+                event.preventDefault();
+                console.log('Google login button clicked');
+                console.log('Button element:', googleLoginBtn);
+                console.log('Event:', event);
+                signInWithGoogle();
+            });
+            
+            console.log('Google login button setup complete');
+            
+            // Test if the button is clickable
+            googleLoginBtn.style.pointerEvents = 'auto';
+            googleLoginBtn.style.cursor = 'pointer';
+        }
+
+        function signInWithGoogle() {
+            try {
+                // Check if Firebase is available
+                if (typeof firebase === 'undefined') {
+                    throw new Error('Firebase is not loaded');
+                }
+                
+                // Check if Firebase auth is available
+                if (!firebase.auth) {
+                    throw new Error('Firebase Auth is not available');
+                }
+                
+                LoadingManager.show('Signing in with Google...');
+                
+                const provider = new firebase.auth.GoogleAuthProvider();
+                
+                firebase.auth().signInWithPopup(provider)
+                    .then((result) => {
+                        // User signed in successfully
+                        const user = result.user;
+                        console.log('User signed in:', user.email);
+                        
+                        // Create or update user profile in database
+                        saveUserProfile(user);
+                        
+                        // Show success and option to go to dashboard
+                        NotificationManager.show('Successfully signed in!', 'success');
+                        showLoggedInState(user);
+                    })
+                    .catch((error) => {
+                        console.error('Authentication error:', error);
+                        LoadingManager.hide();
+                        
+                        let errorMessage = 'Failed to sign in';
+                        
+                        switch (error.code) {
+                            case 'auth/popup-closed-by-user':
+                                errorMessage = 'Sign in cancelled';
+                                break;
+                            case 'auth/popup-blocked':
+                                errorMessage = 'Pop-up blocked. Please allow pop-ups for this site.';
+                                break;
+                            case 'auth/network-request-failed':
+                                errorMessage = 'Network error. Please check your connection.';
+                                break;
+                            case 'auth/operation-not-allowed':
+                                errorMessage = 'Google sign-in is not enabled. Please contact support.';
+                                break;
+                            default:
+                                errorMessage = error.message || 'An unknown error occurred';
+                        }
+                        
+                        NotificationManager.show(errorMessage, 'error');
+                    });
+            } catch (error) {
+                console.error('Error in signInWithGoogle:', error);
+                LoadingManager.hide();
+                NotificationManager.show('Failed to initialize sign-in. Please refresh the page.', 'error');
+            }
+        }
+
+        async function saveUserProfile(user) {
+            try {
+                // Check if Firebase database is available
+                if (!firebase.database) {
+                    console.warn('Firebase Database not available, skipping profile save');
+                    return;
+                }
+                
+                const db = firebase.database();
+                const userRef = db.ref(`users/${user.uid}`);
                 
                 // Check if user profile exists
-                console.log('🔍 Checking if user profile exists...');
-                const userDoc = await firestore.collection('users').doc(user.uid).get();
+                const snapshot = await userRef.once('value');
                 
-                if (!userDoc.exists) {
-                    console.log('📝 Creating new user profile...');
-                    document.getElementById('success-message').innerHTML = '<strong>✅ Creating your account...</strong> Almost done!';
-                    
-                    const profile = await createUserProfile(user);
-                    console.log('✅ Profile created:', profile);
-                    
-                    document.getElementById('success-message').innerHTML = '<strong>✅ Account created!</strong> Redirecting...';
+                if (!snapshot.exists()) {
+                    // Create new user profile
+                    await userRef.set({
+                        email: user.email,
+                        displayName: user.displayName,
+                        photoURL: user.photoURL,
+                        createdAt: Date.now(),
+                        lastLogin: Date.now()
+                    });
+                    console.log('User profile created');
                 } else {
-                    console.log('👋 Existing user, updating login...');
-                    document.getElementById('success-message').innerHTML = '<strong>✅ Welcome back!</strong> Redirecting...';
-                    await updateLastLogin(user);
+                    // Update last login
+                    await userRef.update({
+                        lastLogin: Date.now()
+                    });
+                    console.log('User profile updated');
                 }
-                
-                // Redirect after success
-                setTimeout(() => {
-                    console.log('🏠 Redirecting to home...');
-                    window.location.href = 'home.html';
-                }, 1500);
-                
             } catch (error) {
-                console.error('❌ Error processing Google result:', error);
-                document.getElementById('success-message').classList.remove('show');
-                alert('Failed to complete sign in: ' + error.message);
+                console.error('Error saving user profile:', error);
+                // Don't show error to user as this is not critical for sign-in
             }
         }
 
-        // Handle redirect result from Google Sign In
-        auth.getRedirectResult().then(async (result) => {
-            console.log('🔄 Checking redirect result...', result);
-            
-            if (result && result.user) {
-                console.log('✅ Redirect result found!');
-                await handleGoogleSignInResult(result);
+        // Fallback to hide loading screen after 3 seconds
+        setTimeout(() => {
+            if (document.getElementById('loading-screen')) {
+                LoadingManager.hide();
+            }
+        }, 3000);
+        
+        // Test function to verify button is clickable
+        window.testAuthButton = function() {
+            const button = document.getElementById('google-login-btn');
+            if (button) {
+                console.log('Button found, testing click...');
+                button.click();
             } else {
-                console.log('ℹ️ No redirect result found');
+                console.error('Button not found!');
             }
-        }).catch((error) => {
-            console.error('❌ Redirect result error:', error);
-            if (error.code !== 'auth/redirect-cancelled-by-user') {
-                alert('Google sign in failed: ' + error.message);
-            }
-        });
-
-        // Run cleanup on page load (in production, this should be a scheduled cloud function)
-        // Commented out for now - implement as a cloud function for production
-        // cleanupInactiveAccounts();
+        };
+        
+        // Add a test button for debugging
+        setTimeout(() => {
+            const testBtn = document.createElement('button');
+            testBtn.textContent = 'Test Auth Button';
+            testBtn.style.position = 'fixed';
+            testBtn.style.top = '10px';
+            testBtn.style.right = '10px';
+            testBtn.style.zIndex = '9999';
+            testBtn.onclick = window.testAuthButton;
+            document.body.appendChild(testBtn);
+        }, 2000);
     </script>
 </body>
 </html>

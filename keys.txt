@@ -1,0 +1,6 @@
+# Pollinations API Keys
+# Add your Pollinations API keys here, one per line
+# These will be used to generate images for quiz questions
+# Get your keys from: https://pollinations.ai/
+
+HzOkb3A_SO3fUe8U
