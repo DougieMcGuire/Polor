@@ -566,9 +566,9 @@
                             <feComposite in="nonGreenAreas" in2="coloredGreens" operator="over"/>
                         </filter>
                     </defs>
-                    <image href="Avatars/${category}/${item}" 
+                    <image href="Avatars/characters/${category}/${item}" 
                            x="0" y="0" width="60" height="60" filter="url(#filter_${svgId})"/>
-                    <image href="Avatars/${category}/${overlayFile}" 
+                    <image href="Avatars/characters/${category}/${overlayFile}" 
                            x="0" y="0" width="60" height="60"/>
                 </svg>`;
         }
@@ -597,12 +597,12 @@
                     const selectedItem = selectedParts[baseCategory];
                     if (selectedItem) {
                         const overlayFile = selectedItem.replace('.png', 'overlay.png');
-                        layers.push(`<image href="Avatars/${baseCategory}/${overlayFile}" x="0" y="0" width="140" height="140"/>`);
+                        layers.push(`<image href="Avatars/characters/${baseCategory}/${overlayFile}" x="0" y="0" width="140" height="140"/>`);
                     }
                 } else {
                     const selectedItem = selectedParts[layerName];
                     if (selectedItem) {
-                        layers.push(`<image href="Avatars/${layerName}/${selectedItem}" x="0" y="0" width="140" height="140" filter="url(#greenFilter_${layerName})"/>`);
+                        layers.push(`<image href="Avatars/characters/${layerName}/${selectedItem}" x="0" y="0" width="140" height="140" filter="url(#greenFilter_${layerName})"/>`);
                     }
                 }
             });
@@ -790,7 +790,7 @@
                     resolve();
                 };
                 
-                img.src = `Avatars/${category}/${item}`;
+                img.src = `Avatars/characters/${category}/${item}`;
             });
         }
         
@@ -809,7 +809,7 @@
                     resolve();
                 };
                 
-                img.src = `Avatars/${category}/${overlayFile}`;
+                img.src = `Avatars/characters/${category}/${overlayFile}`;
             });
         }
 
