@@ -1,816 +1,663 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Game - Polor</title>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Game - Polor (Fixed)</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
-    :root{
-        --primary-blue:#52C4F5;
-        --success-green:#51CF66;
-        --error-red:#FF6B6B;
-        --answer-red:#FF6B6B;
-        --answer-blue:#4ECDC4;
-        --answer-yellow:#FFE66D;
-        --answer-green:#95E1D3;
-        --white:#FFFFFF;
-        --black:#000000;
-        --gray-100:#F8F9FA;
-        --gray-200:#E9ECEF;
-        --gray-300:#DEE2E6;
-        --gray-600:#6C757D;
-        --gray-700:#495057;
-        --gray-800:#343A40;
-        --font-primary: 'Fredoka', sans-serif;
-        --spacing-md:1rem;
-        --spacing-lg:1.5rem;
-        --spacing-xl:2rem;
-        --radius-xl:1rem;
-        --radius-2xl:1.5rem;
-        --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
-        --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
-    }
-    *{margin:0;padding:0;box-sizing:border-box;}
-    body{
-        font-family:var(--font-primary);
-        background:linear-gradient(135deg,var(--primary-blue) 0%, #87CEEB 100%);
-        min-height:100vh;
-        color:var(--black);
-        overflow-x:hidden;
-    }
+:root{
+  --primary-blue:#52C4F5; --success-green:#51CF66; --error-red:#FF6B6B;
+  --answer-red:#FF6B6B; --answer-blue:#4ECDC4; --answer-yellow:#FFE66D; --answer-green:#95E1D3;
+  --white:#fff; --black:#000; --gray-100:#F8F9FA; --gray-300:#DEE2E6; --gray-800:#343A40;
+  --font-primary: 'Fredoka',sans-serif; --spacing-md:1rem; --spacing-lg:1.5rem; --spacing-xl:2rem;
+  --radius-xl:1rem; --radius-2xl:1.5rem; --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-primary);background:linear-gradient(135deg,var(--primary-blue) 0%,#87CEEB 100%);min-height:100vh;color:var(--black)}
+.host-view{display:none;padding:var(--spacing-xl);max-width:1200px;margin:0 auto;position:relative}
+.host-view.active{display:block}
+.game-header{background:var(--white);border-radius:var(--radius-2xl);padding:var(--spacing-lg);margin-bottom:var(--spacing-xl);text-align:center;border:4px solid var(--black);box-shadow:var(--shadow-xl);position:relative}
+.question-display{font-size:2rem;font-weight:700;color:var(--gray-800);margin-bottom:var(--spacing-lg)}
+.timer-display{font-size:3rem;font-weight:700;color:var(--primary-blue)}
+.submission-count{position:absolute;right:16px;top:16px;font-weight:700;color:var(--gray-800);background:var(--gray-100);padding:8px 12px;border-radius:12px;border:2px solid var(--gray-300)}
+.leaderboard{background:var(--white);border-radius:var(--radius-2xl);padding:var(--spacing-xl);border:4px solid var(--black);box-shadow:var(--shadow-xl)}
+.leaderboard-title{font-size:1.8rem;font-weight:700;text-align:center;margin-bottom:var(--spacing-lg);color:var(--gray-800)}
+.leaderboard-item{display:flex;align-items:center;gap:var(--spacing-md);padding:var(--spacing-md);background:var(--gray-100);border-radius:var(--radius-xl);margin-bottom:var(--spacing-md);border:2px solid var(--gray-300)}
+.rank{font-size:1.5rem;font-weight:700;width:40px;text-align:center}
+.rank.first{color:#FFD700}.rank.second{color:#C0C0C0}.rank.third{color:#CD7F32}
+.player-avatar-small{width:50px;height:50px;border-radius:50%;background:var(--gray-300);border:3px solid var(--white);background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--primary-blue)}
+.player-info{flex:1}
+.player-name-small{font-weight:600;color:var(--gray-800)}
+.player-score{font-size:1.3rem;font-weight:700;color:var(--primary-blue)}
 
-    /* Host View - Leaderboard */
-    .host-view{ display:none; padding:var(--spacing-xl); max-width:1200px; margin:0 auto; position:relative;}
-    .host-view.active{ display:block; }
+.student-view{display:none;padding:var(--spacing-xl);max-width:800px;margin:0 auto}
+.student-view.active{display:block}
+.question-card{background:var(--white);border-radius:var(--radius-2xl);padding:var(--spacing-xl);margin-bottom:var(--spacing-xl);text-align:center;border:4px solid var(--black);box-shadow:var(--shadow-xl)}
+.question-number{font-size:1.2rem;color:#6C757D;margin-bottom:var(--spacing-md)}
+.question-text{font-size:1.8rem;font-weight:700;color:var(--gray-800);margin-bottom:var(--spacing-lg)}
+.timer-student{font-size:2rem;font-weight:700;color:var(--primary-blue)}
+.answers-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--spacing-lg)}
+.answer-btn{padding:var(--spacing-xl);border:4px solid var(--black);border-radius:var(--radius-xl);font-size:1.3rem;font-weight:700;cursor:pointer;transition:all .3s ease;box-shadow:0 10px 15px rgba(0,0,0,0.06);min-height:100px;display:flex;align-items:center;justify-content:center;text-align:center}
+.answer-btn:hover:not(:disabled){transform:translateY(-5px)}
+.answer-btn:disabled{opacity:.7;cursor:not-allowed}
+.answer-btn.answer-0{background:var(--answer-red);color:var(--white)}
+.answer-btn.answer-1{background:var(--answer-blue);color:var(--white)}
+.answer-btn.answer-2{background:var(--answer-yellow);color:var(--gray-800)}
+.answer-btn.answer-3{background:var(--answer-green);color:var(--white)}
+.answer-btn.selected{transform:scale(.95);opacity:.8}
+.answer-btn.correct{box-shadow:0 0 0 4px rgba(46,204,113,0.12);border:4px solid #2ecc71}
+.answer-btn.incorrect{box-shadow:0 0 0 4px rgba(231,76,60,0.08);border:4px solid #e74c3c}
+.waiting-screen{text-align:center;padding:var(--spacing-xl);background:var(--white);border-radius:var(--radius-2xl);border:4px solid var(--black);box-shadow:var(--shadow-xl)}
+.waiting-screen h2{font-size:2rem;color:var(--gray-800);margin-bottom:var(--spacing-md)}
+.waiting-screen p{font-size:1.2rem;color:#6C757D}
 
-    .game-header{
-        background:var(--white);
-        border-radius:var(--radius-2xl);
-        padding:var(--spacing-lg);
-        margin-bottom:var(--spacing-xl);
-        text-align:center;
-        border:4px solid var(--black);
-        box-shadow:var(--shadow-xl);
-        position:relative;
-    }
+.results-screen{display:none;text-align:center;padding:var(--spacing-xl)}
+.results-screen.active{display:block}
+.results-card{background:var(--white);border-radius:var(--radius-2xl);padding:var(--spacing-xl);border:4px solid var(--black);box-shadow:var(--shadow-xl)}
+.final-score{font-size:3rem;font-weight:700;color:var(--primary-blue);margin:var(--spacing-lg) 0}
 
-    .question-display{ font-size:2rem; font-weight:700; color:var(--gray-800); margin-bottom:var(--spacing-lg); }
-    .timer-display{ font-size:3rem; font-weight:700; color:var(--primary-blue); }
-    .submission-count{ position:absolute; right:16px; top:16px; font-weight:700; color:var(--gray-700); background:var(--gray-100); padding:8px 12px; border-radius:12px; border:2px solid var(--gray-300); }
+.next-question-btn{padding:var(--spacing-lg) var(--spacing-xl);background:var(--success-green);color:var(--white);border:4px solid var(--black);border-radius:var(--radius-xl);font-size:1.2rem;font-weight:700;cursor:pointer;box-shadow:0 10px 15px rgba(0,0,0,0.06);transition:all .3s ease}
+.next-question-btn:hover{transform:translateY(-3px)}
 
-    .leaderboard{
-        background:var(--white);
-        border-radius:var(--radius-2xl);
-        padding:var(--spacing-xl);
-        border:4px solid var(--black);
-        box-shadow:var(--shadow-xl);
-    }
+.round-leaderboard-overlay{display:none;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:var(--white);padding:var(--spacing-xl);border-radius:12px;border:4px solid var(--black);z-index:20;width:80%;max-width:800px;box-shadow:var(--shadow-xl)}
+.round-title{font-size:1.6rem;font-weight:800;margin-bottom:var(--spacing-md);text-align:center}
+.round-list{max-height:320px;overflow:auto;margin-top:12px}
 
-    .leaderboard-title{ font-size:1.8rem; font-weight:700; text-align:center; margin-bottom:var(--spacing-lg); color:var(--gray-800); }
-    .leaderboard-item{ display:flex; align-items:center; gap:var(--spacing-md); padding:var(--spacing-md); background:var(--gray-100); border-radius:var(--radius-xl); margin-bottom:var(--spacing-md); border:2px solid var(--gray-300); transition:all .3s ease; }
-    .leaderboard-item:hover{ transform:translateX(5px); border-color:var(--primary-blue); }
-    .rank{ font-size:1.5rem; font-weight:700; width:40px; text-align:center; }
-    .rank.first{ color:#FFD700; } .rank.second{ color:#C0C0C0; } .rank.third{ color:#CD7F32; }
+.podium-screen{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);align-items:center;justify-content:center;z-index:50}
+.podium-card{background:var(--white);padding:30px;border-radius:12px;border:4px solid var(--black);width:90%;max-width:900px;text-align:center;box-shadow:var(--shadow-xl)}
+.podium-list{display:flex;gap:20px;align-items:flex-end;justify-content:center;margin-top:20px}
+.podium-item{width:160px;padding:10px;border-radius:8px;background:var(--gray-100);transition:all .6s ease;transform:translateY(40px);opacity:0.05;border:3px solid var(--gray-300)}
+.podium-item.show{transform:translateY(0);opacity:1}
+.podium-rank{font-size:1.4rem;font-weight:800}
+.podium-name{font-size:1.1rem;font-weight:700;margin-top:6px}
+.podium-score{font-weight:700;color:var(--primary-blue);margin-top:4px}
 
-    .player-avatar-small{ width:50px; height:50px; border-radius:50%; background:var(--gray-300); border:3px solid var(--white); background-size:cover; background-position:center; display:flex; align-items:center; justify-content:center; font-weight:700; color:var(--primary-blue); }
-    .player-info{ flex:1; }
-    .player-name-small{ font-weight:600; color:var(--gray-800); }
-    .player-score{ font-size:1.3rem; font-weight:700; color:var(--primary-blue); }
-
-    /* Student View */
-    .student-view{ display:none; padding:var(--spacing-xl); max-width:800px; margin:0 auto; }
-    .student-view.active{ display:block; }
-    .question-card{ background:var(--white); border-radius:var(--radius-2xl); padding:var(--spacing-xl); margin-bottom:var(--spacing-xl); text-align:center; border:4px solid var(--black); box-shadow:var(--shadow-xl); }
-    .question-number{ font-size:1.2rem; color:var(--gray-600); margin-bottom:var(--spacing-md); }
-    .question-text{ font-size:1.8rem; font-weight:700; color:var(--gray-800); margin-bottom:var(--spacing-lg); }
-    .timer-student{ font-size:2rem; font-weight:700; color:var(--primary-blue); }
-    .answers-grid{ display:grid; grid-template-columns:1fr 1fr; gap:var(--spacing-lg); }
-    .answer-btn{ padding:var(--spacing-xl); border:4px solid var(--black); border-radius:var(--radius-xl); font-family:var(--font-primary); font-size:1.3rem; font-weight:700; cursor:pointer; transition:all .3s ease; box-shadow:var(--shadow-lg); min-height:100px; display:flex; align-items:center; justify-content:center; text-align:center; }
-    .answer-btn:hover:not(:disabled){ transform:translateY(-5px); box-shadow:var(--shadow-xl); }
-    .answer-btn:disabled{ opacity:0.7; cursor:not-allowed; }
-    .answer-btn.answer-0{ background:var(--answer-red); color:var(--white); }
-    .answer-btn.answer-1{ background:var(--answer-blue); color:var(--white); }
-    .answer-btn.answer-2{ background:var(--answer-yellow); color:var(--gray-800); }
-    .answer-btn.answer-3{ background:var(--answer-green); color:var(--white); }
-
-    .answer-btn.selected{ transform:scale(.95); opacity:.8; }
-    .answer-btn.correct{ animation: correctPulse .5s ease; border:5px solid #2ecc71; }
-    .answer-btn.incorrect{ animation: shake .5s ease; opacity:.5; border:5px solid #e74c3c; }
-    @keyframes correctPulse{ 0%,100%{ transform:scale(1);} 50%{ transform:scale(1.05);} }
-    @keyframes shake{ 0%,100%{ transform:translateX(0);} 25%{ transform:translateX(-10px);} 75%{ transform:translateX(10px);} }
-
-    .waiting-screen{text-align:center; padding:var(--spacing-xl); background:var(--white); border-radius:var(--radius-2xl); border:4px solid var(--black); box-shadow:var(--shadow-xl); }
-    .waiting-screen h2{ font-size:2rem; color:var(--gray-800); margin-bottom:var(--spacing-md); }
-    .waiting-screen p{ font-size:1.2rem; color:var(--gray-600); }
-
-    .results-screen{ display:none; text-align:center; padding:var(--spacing-xl); }
-    .results-screen.active{ display:block; }
-    .results-card{ background:var(--white); border-radius:var(--radius-2xl); padding:var(--spacing-xl); border:4px solid var(--black); box-shadow:var(--shadow-xl); }
-    .final-score{ font-size:3rem; font-weight:700; color:var(--primary-blue); margin:var(--spacing-lg) 0; }
-
-    .next-question-btn{ padding:var(--spacing-lg) var(--spacing-xl); background:var(--success-green); color:var(--white); border:4px solid var(--black); border-radius:var(--radius-xl); font-family:var(--font-primary); font-size:1.2rem; font-weight:700; cursor:pointer; box-shadow:var(--shadow-lg); transition:all .3s ease; }
-    .next-question-btn:hover{ transform:translateY(-3px); box-shadow:var(--shadow-xl); }
-
-    /* Round leaderboard overlay (host only) */
-    .round-leaderboard-overlay{ display:none; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); background:var(--white); padding:var(--spacing-xl); border-radius:12px; border:4px solid var(--black); z-index:20; width:80%; max-width:800px; box-shadow:var(--shadow-xl); }
-    .round-title{ font-size:1.6rem; font-weight:800; margin-bottom:var(--spacing-md); text-align:center; }
-    .round-list{ max-height:320px; overflow:auto; margin-top:12px; }
-
-    /* Podium / final cinematic */
-    .podium-screen{ display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); align-items:center; justify-content:center; z-index:50; }
-    .podium-card{ background:var(--white); padding:30px; border-radius:12px; border:4px solid var(--black); width:90%; max-width:900px; text-align:center; box-shadow:var(--shadow-xl); }
-    .podium-list{ display:flex; gap:20px; align-items:flex-end; justify-content:center; margin-top:20px; }
-    .podium-item{ width:160px; padding:10px; border-radius:8px; background:var(--gray-100); transition:all .6s ease; transform:translateY(40px); opacity:0.05; border:3px solid var(--gray-300); }
-    .podium-item.show{ transform:translateY(0); opacity:1; }
-    .podium-rank{ font-size:1.4rem; font-weight:800; }
-    .podium-name{ font-size:1.1rem; font-weight:700; margin-top:6px; }
-    .podium-score{ font-weight:700; color:var(--primary-blue); margin-top:4px; }
-
-    /* media */
-    @media (max-width:768px){
-        .answers-grid{ grid-template-columns:1fr; }
-        .question-text{ font-size:1.4rem; }
-        .answer-btn{ font-size:1.1rem; }
-        .podium-list{ flex-direction:column-reverse; }
-    }
+@media(max-width:768px){.answers-grid{grid-template-columns:1fr}.question-text{font-size:1.4rem}.answer-btn{font-size:1.1rem}.podium-list{flex-direction:column-reverse}}
 </style>
 </head>
 <body>
-    <!-- Host View -->
-    <div id="host-view" class="host-view">
-        <div class="game-header">
-            <div class="question-display" id="host-question">Loading question...</div>
-            <div class="timer-display" id="host-timer">20</div>
-            <div id="submission-count" class="submission-count">0 / 0 submitted</div>
-        </div>
 
-        <div class="leaderboard">
-            <h2 class="leaderboard-title">🏆 Leaderboard</h2>
-            <div id="leaderboard-list"></div>
-        </div>
+<!-- Host -->
+<div id="host-view" class="host-view">
+  <div class="game-header">
+    <div id="host-question" class="question-display">Loading question...</div>
+    <div id="host-timer" class="timer-display">20</div>
+    <div id="submission-count" class="submission-count">0 / 0 submitted</div>
+  </div>
 
-        <div style="text-align:center; margin-top:var(--spacing-xl);">
-            <button id="next-question-btn" class="next-question-btn" style="display:none;">Next Question →</button>
-            <button id="end-game-btn" class="next-question-btn" style="display:none;">🏁 End Game</button>
-        </div>
+  <div class="leaderboard">
+    <h2 class="leaderboard-title">🏆 Leaderboard</h2>
+    <div id="leaderboard-list"></div>
+  </div>
 
-        <!-- Round leaderboard overlay: shown to host when round ends -->
-        <div id="round-leaderboard" class="round-leaderboard-overlay">
-            <div class="round-title">Top players this round</div>
-            <div id="round-list" class="round-list"></div>
-            <div style="text-align:center; margin-top:12px;">
-                <button id="close-round-leaderboard" class="next-question-btn">Continue</button>
-            </div>
-        </div>
+  <div style="text-align:center;margin-top:var(--spacing-xl)">
+    <button id="next-question-btn" class="next-question-btn" style="display:none">Next Question →</button>
+    <button id="end-game-btn" class="next-question-btn" style="display:none">🏁 End Game</button>
+  </div>
+
+  <div id="round-leaderboard" class="round-leaderboard-overlay">
+    <div class="round-title">Top players this round</div>
+    <div id="round-list" class="round-list"></div>
+    <div style="text-align:center;margin-top:12px"><button id="close-round-leaderboard" class="next-question-btn">Continue</button></div>
+  </div>
+</div>
+
+<!-- Student -->
+<div id="student-view" class="student-view">
+  <div class="question-card">
+    <div id="question-number" class="question-number">Question 1 of 10</div>
+    <div id="question-text" class="question-text">Loading...</div>
+    <div id="student-timer" class="timer-student">20</div>
+  </div>
+
+  <div id="answers-grid" class="answers-grid"></div>
+
+  <div id="waiting-next" class="waiting-screen" style="display:none">
+    <h2>✓ Answer Submitted!</h2>
+    <p>Waiting for everyone to finish...</p>
+  </div>
+</div>
+
+<!-- Podium host cinematic -->
+<div id="podium-screen" class="podium-screen" style="display:none;align-items:center;">
+  <div class="podium-card">
+    <h2 style="font-size:2rem;font-weight:900;">Final Results</h2>
+    <div class="podium-list" id="podium-list">
+      <div class="podium-item" id="podium-3"><div class="podium-rank">3rd</div><div class="podium-name" id="podium-3-name">—</div><div class="podium-score" id="podium-3-score">0 pts</div></div>
+      <div class="podium-item" id="podium-2"><div class="podium-rank">2nd</div><div class="podium-name" id="podium-2-name">—</div><div class="podium-score" id="podium-2-score">0 pts</div></div>
+      <div class="podium-item" id="podium-1"><div class="podium-rank">1st</div><div class="podium-name" id="podium-1-name">—</div><div class="podium-score" id="podium-1-score">0 pts</div></div>
     </div>
+    <div style="margin-top:20px"><button id="podium-close" class="next-question-btn">Back to Dashboard</button></div>
+  </div>
+</div>
 
-    <!-- Student View -->
-    <div id="student-view" class="student-view">
-        <div class="question-card">
-            <div class="question-number" id="question-number">Question 1 of 10</div>
-            <div class="question-text" id="question-text">Loading...</div>
-            <div class="timer-student" id="student-timer">20</div>
-        </div>
+<!-- Personal results (player) -->
+<div id="results-screen" class="results-screen">
+  <div class="results-card">
+    <h1>🎉 Game Over!</h1>
+    <div id="final-score" class="final-score">0 points</div>
+    <p id="final-rank">Great job!</p>
+    <button class="next-question-btn" onclick="window.location.href='dashboard.html'" style="margin-top:var(--spacing-xl)">Back to Dashboard</button>
+  </div>
+</div>
 
-        <div class="answers-grid" id="answers-grid"></div>
+<!-- Firebase compat libs -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
-        <div id="waiting-next" class="waiting-screen" style="display:none;">
-            <h2>✓ Answer Submitted!</h2>
-            <p>Waiting for everyone to finish...</p>
-        </div>
-    </div>
+<script>
+/* CONFIG: keep your config */
+const CONFIG = {
+  firebase: {
+    apiKey: "AIzaSyBYcuke7uz4kAQzMjUpEqbY6zvwOiY9C1k",
+    authDomain: "polorapi.firebaseapp.com",
+    databaseURL: "https://polorapi-default-rtdb.firebaseio.com",
+    projectId: "polorapi",
+    storageBucket: "polorapi.firebasestorage.app",
+    messagingSenderId: "945305666819",
+    appId: "1:945305666819:web:a3c535e6cb9273882a1536"
+  }
+};
+firebase.initializeApp(CONFIG.firebase);
+const auth = firebase.auth();
+const database = firebase.database();
 
-    <!-- Podium / final cinematic (host) -->
-    <div id="podium-screen" class="podium-screen" style="display:none; align-items:center;">
-        <div class="podium-card">
-            <h2 style="font-size:2rem; font-weight:900;">Final Results</h2>
-            <div class="podium-list" id="podium-list">
-                <!-- will populate 3 podium items -->
-                <div class="podium-item" id="podium-3">
-                    <div class="podium-rank">3rd</div>
-                    <div class="podium-name" id="podium-3-name">—</div>
-                    <div class="podium-score" id="podium-3-score">0 pts</div>
-                </div>
-                <div class="podium-item" id="podium-2">
-                    <div class="podium-rank">2nd</div>
-                    <div class="podium-name" id="podium-2-name">—</div>
-                    <div class="podium-score" id="podium-2-score">0 pts</div>
-                </div>
-                <div class="podium-item" id="podium-1">
-                    <div class="podium-rank">1st</div>
-                    <div class="podium-name" id="podium-1-name">—</div>
-                    <div class="podium-score" id="podium-1-score">0 pts</div>
-                </div>
-            </div>
-            <div style="margin-top:20px;">
-                <button id="podium-close" class="next-question-btn">Back to Dashboard</button>
-            </div>
-        </div>
-    </div>
+/* State */
+let roomCode = null;
+let roomData = null;
+let isHost = false;
+let playerId = null;
+let currentUser = null;
+let currentQuestionIndex = 0;
+let timerInterval = null;
+let timeRemaining = 0;
+let hasAnswered = false;
+let localPlayMode = false;
 
-    <!-- Results Screen for a single player (when they view their own final) -->
-    <div id="results-screen" class="results-screen">
-        <div class="results-card">
-            <h1>🎉 Game Over!</h1>
-            <div class="final-score" id="final-score">0 points</div>
-            <p id="final-rank">Great job!</p>
-            <button class="next-question-btn" onclick="window.location.href='dashboard.html'" style="margin-top:var(--spacing-xl);">Back to Dashboard</button>
-        </div>
-    </div>
+/* UI refs */
+const hostView = document.getElementById('host-view');
+const studentView = document.getElementById('student-view');
+const hostQuestionEl = document.getElementById('host-question');
+const hostTimerEl = document.getElementById('host-timer');
+const submissionCountEl = document.getElementById('submission-count');
+const nextQuestionBtn = document.getElementById('next-question-btn');
+const endGameBtn = document.getElementById('end-game-btn');
+const leaderboardList = document.getElementById('leaderboard-list');
+const answersGrid = document.getElementById('answers-grid');
+const waitingNext = document.getElementById('waiting-next');
+const studentTimerEl = document.getElementById('student-timer');
+const roundLbOverlay = document.getElementById('round-leaderboard');
+const roundList = document.getElementById('round-list');
+const closeRoundLb = document.getElementById('close-round-leaderboard');
+const podiumScreen = document.getElementById('podium-screen');
+const podiumClose = document.getElementById('podium-close');
+const podium1Name = document.getElementById('podium-1-name');
+const podium2Name = document.getElementById('podium-2-name');
+const podium3Name = document.getElementById('podium-3-name');
+const podium1Score = document.getElementById('podium-1-score');
+const podium2Score = document.getElementById('podium-2-score');
+const podium3Score = document.getElementById('podium-3-score');
+const resultsScreen = document.getElementById('results-screen');
+const finalScoreEl = document.getElementById('final-score');
+const finalRankEl = document.getElementById('final-rank');
 
-    <!-- Firebase -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+document.addEventListener('DOMContentLoaded', init);
 
-    <script>
-    // ---------- CONFIG ----------
-    const CONFIG = {
-        firebase: {
-            apiKey: "AIzaSyBYcuke7uz4kAQzMjUpEqbY6zvwOiY9C1k",
-            authDomain: "polorapi.firebaseapp.com",
-            databaseURL: "https://polorapi-default-rtdb.firebaseio.com",
-            projectId: "polorapi",
-            storageBucket: "polorapi.firebasestorage.app",
-            messagingSenderId: "945305666819",
-            appId: "1:945305666819:web:a3c535e6cb9273882a1536"
-        }
+async function init(){
+  const urlParams = new URLSearchParams(window.location.search);
+  roomCode = urlParams.get('room');
+  localPlayMode = urlParams.get('play') === '1';
+
+  if (!roomCode) { alert('No room code provided'); window.location.href='index.html'; return; }
+
+  // Keep roomData synced
+  database.ref(`rooms/${roomCode}`).on('value', snap=>{
+    roomData = snap.val();
+    if (!roomData) { alert('Room not found'); window.location.href='index.html'; return; }
+    // keep currentQuestionIndex in sync with DB authoritative value
+    currentQuestionIndex = roomData.currentQuestion || 0;
+  });
+
+  auth.onAuthStateChanged(async (user)=>{
+    currentUser = user;
+    // get hostId from DB
+    const hostSnap = await database.ref(`rooms/${roomCode}/hostId`).once('value');
+    const hostUid = hostSnap.val();
+
+    if (user && hostUid === user.uid && !localPlayMode) {
+      // this tab is host view
+      isHost = true;
+      playerId = 'host_' + user.uid;
+      setupHostView();
+    } else {
+      // student path (covers non-auth too)
+      await joinAsStudent();
+    }
+
+    // set up game listeners after role decided
+    listenToGameState();
+  });
+}
+
+/* JOIN LOGIC with duplicate-name protections */
+async function joinAsStudent(){
+  // try to reuse stored player id for this room
+  const storedId = localStorage.getItem(`polor_player_${roomCode}`);
+  const storedName = localStorage.getItem('polor_student_name');
+  const playersSnap = await database.ref(`rooms/${roomCode}/players`).once('value');
+  const players = playersSnap.val() || {};
+
+  if (storedId && players[storedId]) {
+    // reuse valid stored player entry
+    playerId = storedId;
+    // ensure name in localStorage matches DB if not set
+    if (!storedName && players[storedId].name) localStorage.setItem('polor_student_name', players[storedId].name);
+  } else {
+    // pick / ask name; must not clash with existing players' names (case-insensitive)
+    let chosenName = storedName || (currentUser ? (currentUser.displayName || `Player${Math.floor(Math.random()*900+100)}`) : `Player${Math.floor(Math.random()*900+100)}`);
+    chosenName = chosenName.trim().substring(0, 40) || `Player${Math.floor(Math.random()*900+100)}`;
+
+    // build a set of current names lowercased
+    const existingNames = new Set(Object.values(players).map(p => (p.name||'').toLowerCase()));
+
+    // loop until name unique (simple prompt fallback)
+    while (existingNames.has(chosenName.toLowerCase())) {
+      chosenName = prompt(`The name "${chosenName}" is already taken in this room. Please enter a different display name:`) || '';
+      chosenName = chosenName.trim().substring(0,40);
+      if (!chosenName) chosenName = `Player${Math.floor(Math.random()*900+100)}`;
+    }
+
+    // create player entry under rooms/{roomCode}/players
+    const newRef = database.ref(`rooms/${roomCode}/players`).push();
+    const newId = newRef.key;
+    const newPlayer = {
+      name: chosenName,
+      score: 0,
+      avatar: null,
+      joinedAt: Date.now(),
+      isHost: false
     };
-    firebase.initializeApp(CONFIG.firebase);
-    const auth = firebase.auth();
-    const database = firebase.database();
+    await newRef.set(newPlayer);
+    playerId = newId;
+    localStorage.setItem(`polor_student_name`, chosenName);
+    localStorage.setItem(`polor_player_${roomCode}`, playerId);
+  }
 
-    // ---------- STATE ----------
-    let roomCode = null;
-    let roomData = null;        // mirrors full room object (kept in sync)
-    let isHost = false;
-    let playerId = null;        // this client's player id (if a player)
-    let currentUser = null;
-    let currentQuestionIndex = 0;
-    let timerInterval = null;
-    let timeRemaining = 0;
-    let hasAnswered = false;
-    let localPlayMode = false;  // if ?play=1 used in URL, treat host account as player in this tab
+  // show student view
+  setupStudentView();
+}
 
-    // ---------- UI refs ----------
-    const hostView = document.getElementById('host-view');
-    const studentView = document.getElementById('student-view');
-    const resultsScreen = document.getElementById('results-screen');
-    const hostQuestionEl = document.getElementById('host-question');
-    const hostTimerEl = document.getElementById('host-timer');
-    const submissionCountEl = document.getElementById('submission-count');
-    const nextQuestionBtn = document.getElementById('next-question-btn');
-    const endGameBtn = document.getElementById('end-game-btn');
-    const leaderboardList = document.getElementById('leaderboard-list');
-    const answersGrid = document.getElementById('answers-grid');
-    const waitingNext = document.getElementById('waiting-next');
-    const studentTimerEl = document.getElementById('student-timer');
-    const roundLbOverlay = document.getElementById('round-leaderboard');
-    const roundList = document.getElementById('round-list');
-    const closeRoundLb = document.getElementById('close-round-leaderboard');
-    const podiumScreen = document.getElementById('podium-screen');
-    const podiumClose = document.getElementById('podium-close');
-    const podium1Name = document.getElementById('podium-1-name');
-    const podium2Name = document.getElementById('podium-2-name');
-    const podium3Name = document.getElementById('podium-3-name');
-    const podium1Score = document.getElementById('podium-1-score');
-    const podium2Score = document.getElementById('podium-2-score');
-    const podium3Score = document.getElementById('podium-3-score');
+/* UI setup */
+function setupHostView(){
+  hostView.classList.add('active'); studentView.classList.remove('active'); resultsScreen.classList.remove('active');
+  nextQuestionBtn.addEventListener('click', hostAdvanceToNext);
+  endGameBtn.addEventListener('click', hostEndGame);
+  closeRoundLb.addEventListener('click', ()=>{ roundLbOverlay.style.display='none'; });
+  podiumClose.addEventListener('click', ()=>{ podiumScreen.style.display='none'; window.location.href='dashboard.html'; });
+  // host triggers question start (idempotent)
+  hostStartQuestion();
+}
 
-    document.addEventListener('DOMContentLoaded', init);
+function setupStudentView(){
+  studentView.classList.add('active'); hostView.classList.remove('active'); resultsScreen.classList.remove('active');
+}
 
-    async function init(){
-        const urlParams = new URLSearchParams(window.location.search);
-        roomCode = urlParams.get('room');
-        localPlayMode = urlParams.get('play') === '1';
+/* LISTENERS: game's important firebase nodes */
+function listenToGameState(){
+  // currentQuestion authoritative changes
+  database.ref(`rooms/${roomCode}/currentQuestion`).on('value', snap=>{
+    const idx = snap.val() || 0;
+    currentQuestionIndex = idx;
+    hasAnswered = false;
 
-        if (!roomCode) {
-            alert('No room code provided');
-            window.location.href = 'index.html';
-            return;
-        }
-
-        // Auth state
-        auth.onAuthStateChanged(async (user) => {
-            currentUser = user;
-            // Always start listening to latest room object so local roomData stays current.
-            database.ref(`rooms/${roomCode}`).on('value', (snap) => {
-                roomData = snap.val();
-                // If the room object disappears, redirect
-                if (!roomData) {
-                    alert('Room not found or closed');
-                    window.location.href = 'index.html';
-                    return;
-                }
-                // If currentQuestion value changed server-side, use that authoritative value
-                currentQuestionIndex = roomData.currentQuestion || 0;
-            });
-
-            // Decide whether to be host or player in this tab:
-            if (user) {
-                // Get room once to check hostId
-                const snapshot = await database.ref(`rooms/${roomCode}/hostId`).once('value');
-                const hostUid = snapshot.val();
-
-                if (hostUid === currentUser.uid && !localPlayMode) {
-                    // This tab becomes host (unless the URL forced play=1)
-                    isHost = true;
-                    playerId = 'host_' + currentUser.uid;
-                    setupHostView();
-                } else {
-                    // join as a student/player - if this account is the host but localPlayMode true, we'll still join as a player
-                    await joinAsStudent();
-                }
-            } else {
-                // Not logged in - use join path (should not happen if your app enforces auth earlier)
-                await joinAsStudent();
-            }
-
-            // Listen to global game state
-            listenToGameState();
-        });
+    // if beyond questions -> finished
+    if (roomData && currentQuestionIndex >= (roomData.questions ? roomData.questions.length : 0)) {
+      if (isHost) showFinalPodium();
+      else showResults();
+      return;
     }
 
-    // --------------------------
-    // Join logic (student/player)
-    // --------------------------
-    async function joinAsStudent() {
-        // Try to find an existing local player id in localStorage
-        let storedPlayerId = localStorage.getItem(`polor_player_${roomCode}`);
-        const studentName = localStorage.getItem('polor_student_name') || `Player${Math.floor(Math.random()*900+100)}`;
+    // when question changes, host or student do respective flows
+    if (isHost) hostStartQuestion();
+    else displayQuestionForStudent();
+  });
 
-        // First load current players snapshot
-        const snapshot = await database.ref(`rooms/${roomCode}/players`).once('value');
-        const players = snapshot.val() || {};
-
-        // If stored id exists and present in players, reuse it
-        if (storedPlayerId && players[storedPlayerId]) {
-            playerId = storedPlayerId;
-        } else {
-            // Create a fresh player entry in the DB (this lets same account open new tab and join as separate player)
-            const newPlayerRef = database.ref(`rooms/${roomCode}/players`).push();
-            const newId = newPlayerRef.key;
-            const newPlayer = {
-                name: studentName,
-                score: 0,
-                avatar: null,
-                joinedAt: Date.now(),
-                isHost: false
-            };
-            await newPlayerRef.set(newPlayer);
-            playerId = newId;
-            localStorage.setItem(`polor_player_${roomCode}`, playerId);
-            localStorage.setItem('polor_student_name', studentName);
-        }
-
-        setupStudentView();
+  // roundStatus: "active" | "review" | "finished"
+  database.ref(`rooms/${roomCode}/roundStatus`).on('value', async snap=>{
+    const status = snap.val();
+    if (!status) return;
+    if (status === 'review') {
+      // host will compute scores once (if host triggers review)
+      if (!isHost) {
+        // students reveal answers & show correct/incorrect
+        await revealAnswersToStudent();
+      } else {
+        // host: compute scores for this question if not computed
+        await hostComputeScoresForQuestion(currentQuestionIndex);
+        // show round leaderboard overlay for host
+        showRoundLeaderboard();
+      }
+    } else if (status === 'active') {
+      // students should get ready for new question
+      if (!isHost) displayQuestionForStudent();
+    } else if (status === 'finished') {
+      if (isHost) showFinalPodium(); else showResults();
     }
+  });
 
-    function setupHostView() {
-        hostView.classList.add('active');
-        studentView.classList.remove('active');
+  // track answers submitted count for the current question
+  database.ref(`rooms/${roomCode}/answers/${currentQuestionIndex}`).on('value', snap=>{
+    const answers = snap.val() || {};
+    const submitted = Object.keys(answers).length;
+    const totalPlayers = Object.values(roomData.players || {}).filter(p => !p.isHost).length || 0;
+    submissionCountEl.textContent = `${submitted} / ${totalPlayers} submitted`;
 
-        nextQuestionBtn.addEventListener('click', nextQuestion);
-        endGameBtn.addEventListener('click', endGame);
-        closeRoundLb.addEventListener('click', () => {
-            roundLbOverlay.style.display = 'none';
-            // Host continues - Next button remains visible to proceed
-        });
-
-        podiumClose.addEventListener('click', () => {
-            podiumScreen.style.display = 'none';
-            window.location.href = 'dashboard.html';
-        });
-
-        // Host starts the question if not already started
-        startQuestion();
+    // if host and everyone submitted -> auto set review
+    if (isHost && totalPlayers>0 && submitted >= totalPlayers) {
+      // set roundStatus = review (host authoritative)
+      database.ref(`rooms/${roomCode}/roundStatus`).set('review');
     }
+  });
 
-    function setupStudentView() {
-        studentView.classList.add('active');
-        hostView.classList.remove('active');
-        resultsScreen.classList.remove('active');
+  // host leaderboard live
+  if (isHost) {
+    database.ref(`rooms/${roomCode}/players`).on('value', snap=>{
+      updateLeaderboard(snap.val() || {});
+    });
+  } else {
+    // students listen for revealAnswers flag if needed - handled through roundStatus listener
+  }
+}
+
+/* HOST: start question authoritative */
+function hostStartQuestion(){
+  if (!isHost || !roomData) return;
+  const question = roomData.questions[currentQuestionIndex];
+  if (!question) return;
+
+  // update UI text
+  hostQuestionEl.textContent = question.question;
+  // set roundStatus active so students will display the question
+  database.ref(`rooms/${roomCode}/roundStatus`).set('active');
+
+  // clear previous answers for this question (fresh start)
+  database.ref(`rooms/${roomCode}/answers/${currentQuestionIndex}`).remove();
+
+  // mark question as not-yet-scored
+  database.ref(`rooms/${roomCode}/scoredQuestions/${currentQuestionIndex}`).remove().catch(()=>{});
+
+  // timer
+  timeRemaining = (roomData.settings && roomData.settings.questionTimer) || 20;
+  hostTimerEl.textContent = timeRemaining;
+  nextQuestionBtn.style.display = 'none';
+  endGameBtn.style.display = 'none';
+  roundLbOverlay.style.display = 'none';
+
+  clearInterval(timerInterval);
+  timerInterval = setInterval(()=>{
+    timeRemaining--;
+    hostTimerEl.textContent = timeRemaining;
+    if (timeRemaining <= 0) {
+      clearInterval(timerInterval);
+      // move to review
+      database.ref(`rooms/${roomCode}/roundStatus`).set('review');
     }
+  }, 1000);
+}
 
-    // --------------------------
-    // Game state listeners
-    // --------------------------
-    function listenToGameState() {
-        // Watch currentQuestion index changes (we already keep roomData updated via top-level listener)
-        database.ref(`rooms/${roomCode}/currentQuestion`).on('value', (snapshot) => {
-            const idx = snapshot.val() || 0;
-            currentQuestionIndex = idx;
-            hasAnswered = false;
+/* STUDENT: display question */
+function displayQuestionForStudent(){
+  if (!roomData) return;
+  const question = roomData.questions[currentQuestionIndex];
+  if (!question) return;
 
-            // If end of quiz
-            if (roomData && currentQuestionIndex >= (roomData.questions ? roomData.questions.length : 0)) {
-                // Show final cinematic for host, or results for player
-                if (isHost) {
-                    showFinalPodium();
-                } else {
-                    showResults();
-                }
-                return;
-            }
+  document.getElementById('question-number').textContent = `Question ${currentQuestionIndex + 1} of ${roomData.questions.length}`;
+  document.getElementById('question-text').textContent = question.question;
+  answersGrid.innerHTML = '';
+  answersGrid.style.display = 'grid';
+  waitingNext.style.display = 'none';
+  hasAnswered = false;
 
-            // Normal behavior
-            if (isHost) {
-                startQuestion();
-            } else {
-                displayQuestionForStudent();
-            }
-        });
+  question.answers.forEach((answer, index)=>{
+    const btn = document.createElement('button');
+    btn.className = `answer-btn answer-${index}`;
+    btn.textContent = answer;
+    btn.disabled = false;
+    btn.addEventListener('click', ()=> submitAnswer(index));
+    answersGrid.appendChild(btn);
+  });
 
-        // Listen for reveal flags for current question (students show correct/incorrect only after this)
-        database.ref(`rooms/${roomCode}/revealAnswers/${/* question index path will be used below */''}`).on('value',()=>{}); // no-op: placeholder so db structure exists
-
-        // Listen for status change (e.g., finished)
-        database.ref(`rooms/${roomCode}/status`).on('value', (snapshot) => {
-            const status = snapshot.val();
-            if (status === 'finished') {
-                if (isHost) showFinalPodium();
-                else showResults();
-            }
-        });
-
-        // For host: watch players to update leaderboard realtime
-        if (isHost) {
-            database.ref(`rooms/${roomCode}/players`).on('value', (snapshot) => {
-                updateLeaderboard(snapshot.val() || {});
-            });
-        } else {
-            // For student: we should still update UI when revealAnswers for the current question flips true
-            database.ref(`rooms/${roomCode}/revealAnswers/${currentQuestionIndex}`).on('value', (snap) => {
-                const val = snap.val();
-                if (val === true) {
-                    // show correct / incorrect UI
-                    revealAnswersToStudent();
-                }
-            });
-        }
-
-        // Always listen to answers for the current question to update submitted count (host)
-        database.ref(`rooms/${roomCode}/answers/${currentQuestionIndex}`).on('value', (snap) => {
-            const answers = snap.val() || {};
-            const submitted = Object.keys(answers).length;
-            const totalPlayers = Object.values(roomData.players || {}).filter(p => !p.isHost).length || 0;
-            submissionCountEl.textContent = `${submitted} / ${totalPlayers} submitted`;
-
-            // if host and all submitted, auto-show round leaderboard (but do not advance automatically)
-            if (isHost) {
-                if (submitted >= totalPlayers && totalPlayers > 0) {
-                    // reveal answers and show leaderboard overlay
-                    database.ref(`rooms/${roomCode}/revealAnswers/${currentQuestionIndex}`).set(true);
-                    showRoundLeaderboard(); // host-only overlay
-                    // Host may click Next to proceed; Next button visible
-                    if (currentQuestionIndex >= (roomData.questions.length - 1)) {
-                        endGameBtn.style.display = 'inline-block';
-                        nextQuestionBtn.style.display = 'none';
-                    } else {
-                        nextQuestionBtn.style.display = 'inline-block';
-                        endGameBtn.style.display = 'none';
-                    }
-                }
-            }
-        });
+  // start timer
+  timeRemaining = (roomData.settings && roomData.settings.questionTimer) || 20;
+  studentTimerEl.textContent = timeRemaining;
+  clearInterval(timerInterval);
+  timerInterval = setInterval(()=>{
+    timeRemaining--;
+    studentTimerEl.textContent = timeRemaining;
+    if (timeRemaining <= 0) {
+      clearInterval(timerInterval);
+      if (!hasAnswered) submitAnswer(-1); // auto-submit no answer
     }
+  }, 1000);
+}
 
-    // --------------------------
-    // Host starts question
-    // --------------------------
-    function startQuestion() {
-        if (!isHost) return;
-        if (!roomData) return;
+/* SUBMIT ANSWER (student) */
+async function submitAnswer(answerIndex){
+  if (hasAnswered) return;
+  hasAnswered = true;
+  clearInterval(timerInterval);
 
-        const question = roomData.questions[currentQuestionIndex];
-        if (!question) {
-            // nothing to show
-            return;
-        }
+  // immediate feedback: disable buttons, show waiting
+  const buttons = document.querySelectorAll('.answer-btn');
+  buttons.forEach(btn=>btn.disabled = true);
+  waitingNext.style.display = 'block';
 
-        hostQuestionEl.textContent = question.question;
+  // Write answer to DB under answers/{questionIndex}/{playerId}
+  const answerObj = {
+    playerId,
+    answer: answerIndex,
+    timeRemaining,
+    timestamp: Date.now()
+  };
+  await database.ref(`rooms/${roomCode}/answers/${currentQuestionIndex}/${playerId}`).set(answerObj);
+  // Do not update score on submit. Score happens once in review (hostComputeScoresForQuestion).
+}
 
-        // reset reveal flag for this question
-        database.ref(`rooms/${roomCode}/revealAnswers/${currentQuestionIndex}`).set(false);
+/* STUDENT: reveal answers UI when roundStatus === review */
+async function revealAnswersToStudent(){
+  if (!roomData) return;
+  const question = roomData.questions[currentQuestionIndex];
+  if (!question) return;
 
-        // Reset answers node for this question (so each round is clean)
-        database.ref(`rooms/${roomCode}/answers/${currentQuestionIndex}`).remove();
+  // Disable buttons and mark correct
+  const buttons = document.querySelectorAll('.answer-btn');
+  buttons.forEach((btn, idx)=>{
+    btn.disabled = true;
+    if (idx === question.correct) btn.classList.add('correct');
+  });
 
-        // Reset and start timer
-        timeRemaining = (roomData.settings && roomData.settings.questionTimer) || 20;
-        hostTimerEl.textContent = timeRemaining;
-
-        nextQuestionBtn.style.display = 'none';
-        endGameBtn.style.display = 'none';
-        roundLbOverlay.style.display = 'none';
-
-        clearInterval(timerInterval);
-        timerInterval = setInterval(async () => {
-            timeRemaining--;
-            hostTimerEl.textContent = timeRemaining;
-
-            // Update a small per-question timer value (optional)
-            if (timeRemaining <= 0) {
-                clearInterval(timerInterval);
-                // At time up: reveal answers (host-controlled), show round leaderboard
-                database.ref(`rooms/${roomCode}/revealAnswers/${currentQuestionIndex}`).set(true);
-                showRoundLeaderboard();
-                // show next / end buttons
-                if (currentQuestionIndex >= roomData.questions.length - 1) {
-                    endGameBtn.style.display = 'inline-block';
-                } else {
-                    nextQuestionBtn.style.display = 'inline-block';
-                }
-            }
-        }, 1000);
+  // fetch this player's answer
+  const snap = await database.ref(`rooms/${roomCode}/answers/${currentQuestionIndex}/${playerId}`).once('value');
+  const ans = snap.val();
+  if (ans) {
+    const chosen = ans.answer;
+    if (chosen !== -1 && chosen !== question.correct) {
+      const btn = document.querySelector(`.answer-btn.answer-${chosen}`);
+      if (btn) btn.classList.add('incorrect');
     }
+  } else {
+    // you didn't answer - optionally mark nothing
+  }
 
-    // --------------------------
-    // Student view: display a question
-    // --------------------------
-    function displayQuestionForStudent(){
-        if (!roomData) return;
-        const question = roomData.questions[currentQuestionIndex];
-        if (!question) return;
+  // show result for a few seconds then show waiting for next question
+  setTimeout(()=>{
+    answersGrid.style.display = 'none';
+    waitingNext.style.display = 'block';
+  }, 900);
+}
 
-        document.getElementById('question-number').textContent = `Question ${currentQuestionIndex + 1} of ${roomData.questions.length}`;
-        document.getElementById('question-text').textContent = question.question;
+/* HOST: compute scores for the question (idempotent, sets scoredQuestions/{index} = true) */
+async function hostComputeScoresForQuestion(qIndex){
+  // ensure host only runs once
+  const scoredSnap = await database.ref(`rooms/${roomCode}/scoredQuestions/${qIndex}`).once('value');
+  if (scoredSnap.exists()) return; // already scored
 
-        answersGrid.innerHTML = '';
-        waitingNext.style.display = 'none';
+  // read question, answers, players
+  const question = roomData.questions[qIndex];
+  const answersSnap = await database.ref(`rooms/${roomCode}/answers/${qIndex}`).once('value');
+  const answers = answersSnap.val() || {};
+  const playersSnap = await database.ref(`rooms/${roomCode}/players`).once('value');
+  const players = playersSnap.val() || {};
 
-        question.answers.forEach((answer, index) => {
-            const btn = document.createElement('button');
-            btn.className = `answer-btn answer-${index}`;
-            btn.textContent = answer;
-            btn.disabled = false;
-            btn.addEventListener('click', () => submitAnswer(index));
-            answersGrid.appendChild(btn);
-        });
-
-        // Start timer
-        timeRemaining = (roomData.settings && roomData.settings.questionTimer) || 20;
-        studentTimerEl.textContent = timeRemaining;
-
-        clearInterval(timerInterval);
-        timerInterval = setInterval(() => {
-            timeRemaining--;
-            studentTimerEl.textContent = timeRemaining;
-            if (timeRemaining <= 0) {
-                clearInterval(timerInterval);
-                if (!hasAnswered) {
-                    submitAnswer(-1); // auto submit no answer
-                }
-            }
-        }, 1000);
+  // compute new scores in memory
+  const updates = {};
+  for (const [pid, a] of Object.entries(answers)) {
+    // ignore host-only entries accidentally present
+    if (!players[pid]) continue;
+    const chosen = a.answer;
+    if (chosen === question.correct) {
+      const questionTimer = (roomData.settings && roomData.settings.questionTimer) || 20;
+      const timeBonus = Math.floor((a.timeRemaining / questionTimer) * 500);
+      const points = 500 + timeBonus;
+      const currentScore = (players[pid].score || 0);
+      updates[`players/${pid}/score`] = currentScore + points;
     }
+  }
 
-    // --------------------------
-    // Submit answer (student)
-    // --------------------------
-    async function submitAnswer(answerIndex) {
-        if (hasAnswered) return;
-        hasAnswered = true;
-        clearInterval(timerInterval);
+  // apply updates atomically
+  await database.ref(`rooms/${roomCode}`).update(updates);
 
-        // Show "submitted" UI immediately
-        const buttons = document.querySelectorAll('.answer-btn');
-        buttons.forEach(btn => btn.disabled = true);
-        waitingNext.style.display = 'block';
+  // mark scored
+  await database.ref(`rooms/${roomCode}/scoredQuestions/${qIndex}`).set(true);
+}
 
-        // Record answer under rooms/{roomCode}/answers/{questionIndex}/{playerId}
-        const answerObj = {
-            playerId,
-            answer: answerIndex,
-            timeRemaining,
-            timestamp: Date.now()
-        };
-        await database.ref(`rooms/${roomCode}/answers/${currentQuestionIndex}/${playerId}`).set(answerObj);
+/* HOST: build & show round leaderboard overlay (top 10) */
+async function showRoundLeaderboard(){
+  if (!isHost) return;
+  const playersSnap = await database.ref(`rooms/${roomCode}/players`).once('value');
+  const players = playersSnap.val() || {};
+  const sorted = Object.entries(players).sort((a,b)=> (b[1].score||0) - (a[1].score||0)).slice(0,10);
 
-        // Calculate points server-side here: we still update player score now if correct, but we will compute correctness only when reveal occurs:
-        // To avoid cheating, we will compute correctness on reveal: BUT storing the answer allows server (or host client) to compute points when revealAnswers flips true.
-        // For simplicity, update becomes handled by the host playback when reveal occurs => no immediate score change.
-    }
+  roundList.innerHTML = '';
+  sorted.forEach(([id,p],i)=>{
+    const div = document.createElement('div');
+    div.style.display='flex'; div.style.justifyContent='space-between'; div.style.padding='8px'; div.style.borderBottom='1px solid #eee';
+    div.innerHTML = `<div style="font-weight:800">${i+1}. ${p.name||'Player'}</div><div style="font-weight:800">${(p.score||0)} pts</div>`;
+    if (i===0) div.style.background='#fff7cc';
+    if (i===1) div.style.background='#f0f4f8';
+    if (i===2) div.style.background='#fcf0ea';
+    roundList.appendChild(div);
+  });
+  roundLbOverlay.style.display = 'block';
 
-    // --------------------------
-    // When host triggers reveal, students show correct/incorrect
-    // --------------------------
-    async function revealAnswersToStudent() {
-        // Fetch question to check correct index
-        if (!roomData) return;
-        const question = roomData.questions[currentQuestionIndex];
-        if (!question) return;
+  // show Next / End buttons visible to host (host must click to advance)
+  if (currentQuestionIndex >= (roomData.questions.length - 1)) {
+    endGameBtn.style.display = 'inline-block';
+    nextQuestionBtn.style.display = 'none';
+  } else {
+    nextQuestionBtn.style.display = 'inline-block';
+    endGameBtn.style.display = 'none';
+  }
+}
 
-        // Disable buttons and mark correct/incorrect
-        const buttons = document.querySelectorAll('.answer-btn');
-        buttons.forEach((btn, index) => {
-            btn.disabled = true;
-            if (index === question.correct) {
-                btn.classList.add('correct');
-            }
-        });
+/* HOST: advance to next (host clicks Next) */
+async function hostAdvanceToNext(){
+  // when host advances, increment currentQuestion and set roundStatus active
+  // Ensure scoring done already (should be via roundStatus 'review' handler)
+  // hide overlay
+  roundLbOverlay.style.display = 'none';
+  // increment question index
+  await database.ref(`rooms/${roomCode}/currentQuestion`).set(currentQuestionIndex + 1);
+  // set roundStatus to active (students will display new question)
+  await database.ref(`rooms/${roomCode}/roundStatus`).set('active');
+}
 
-        // Now check this player's submitted answer
-        const answerSnap = await database.ref(`rooms/${roomCode}/answers/${currentQuestionIndex}/${playerId}`).once('value');
-        const ans = answerSnap.val();
-        if (ans) {
-            const chosen = ans.answer;
-            if (chosen !== -1 && chosen !== question.correct) {
-                // mark selected incorrect
-                const btn = document.querySelector(`.answer-btn.answer-${chosen}`);
-                if (btn) btn.classList.add('incorrect');
-            }
-            // Calculate and update player's score if correct: (we update only once at reveal time so no early score advantage)
-            if (chosen === question.correct) {
-                // timeBonus same formula as before
-                const timeBonus = Math.floor((ans.timeRemaining / ((roomData.settings && roomData.settings.questionTimer) || 20)) * 500);
-                const points = 500 + timeBonus;
-                const playerScoreRef = database.ref(`rooms/${roomCode}/players/${playerId}/score`);
-                const currentScore = (await playerScoreRef.once('value')).val() || 0;
-                await playerScoreRef.set(currentScore + points);
-            }
-        }
+/* HOST: end game */
+async function hostEndGame(){
+  // set roundStatus finished and status finished
+  await database.ref(`rooms/${roomCode}/roundStatus`).set('finished');
+  await database.ref(`rooms/${roomCode}/status`).set('finished');
+  // show final podium
+  showFinalPodium();
+}
 
-        // After a short pause show waiting / allow host to continue
-        setTimeout(() => {
-            answersGrid.style.display = 'none';
-            waitingNext.style.display = 'block';
-        }, 1200);
-    }
+/* HOST: final podium cinematic */
+async function showFinalPodium(){
+  if (isHost) {
+    const playersSnap = await database.ref(`rooms/${roomCode}/players`).once('value');
+    const players = playersSnap.val() || {};
+    const sorted = Object.entries(players).sort((a,b)=> (b[1].score||0) - (a[1].score||0));
 
-    // --------------------------
-    // Update leaderboard (host)
-    // --------------------------
-    function updateLeaderboard(players) {
-        leaderboardList.innerHTML = '';
+    const first = sorted[0] ? sorted[0][1] : {name:'—', score:0};
+    const second = sorted[1] ? sorted[1][1] : {name:'—', score:0};
+    const third = sorted[2] ? sorted[2][1] : {name:'—', score:0};
 
-        // Convert to array of [id,player] sorted by score desc
-        const sortedPlayers = Object.entries(players).sort((a,b) => (b[1].score||0) - (a[1].score||0));
+    podium1Name.textContent = first.name || '—'; podium1Score.textContent = (first.score||0) + ' pts';
+    podium2Name.textContent = second.name || '—'; podium2Score.textContent = (second.score||0) + ' pts';
+    podium3Name.textContent = third.name || '—'; podium3Score.textContent = (third.score||0) + ' pts';
 
-        // Show top players (all) in host sidebar
-        sortedPlayers.forEach(([id, player], index) => {
-            const item = document.createElement('div');
-            item.className = 'leaderboard-item';
+    podiumScreen.style.display = 'flex';
+    const p3 = document.getElementById('podium-3'), p2 = document.getElementById('podium-2'), p1 = document.getElementById('podium-1');
+    p3.classList.remove('show'); p2.classList.remove('show'); p1.classList.remove('show');
+    setTimeout(()=>p3.classList.add('show'), 700);
+    setTimeout(()=>p2.classList.add('show'), 1500);
+    setTimeout(()=>p1.classList.add('show'), 2400);
+  } else {
+    showResults();
+  }
+}
 
-            const rank = document.createElement('div');
-            rank.className = 'rank';
-            if (index === 0) rank.classList.add('first');
-            if (index === 1) rank.classList.add('second');
-            if (index === 2) rank.classList.add('third');
-            rank.textContent = index + 1;
+/* PLAYER: show personal results */
+async function showResults(){
+  clearInterval(timerInterval);
+  hostView.classList.remove('active');
+  studentView.classList.remove('active');
+  resultsScreen.classList.add('active');
 
-            const avatar = document.createElement('div');
-            avatar.className = 'player-avatar-small';
-            if (player.avatar) {
-                avatar.style.backgroundImage = `url(${player.avatar})`;
-            } else {
-                avatar.textContent = (player.name || '?').charAt(0).toUpperCase();
-            }
+  // get final score and rank
+  const scoreSnap = await database.ref(`rooms/${roomCode}/players/${playerId}/score`).once('value');
+  const finalScore = scoreSnap.val() || 0;
+  finalScoreEl.textContent = finalScore + ' points';
 
-            const info = document.createElement('div');
-            info.className = 'player-info';
-            const name = document.createElement('div');
-            name.className = 'player-name-small';
-            name.textContent = player.name || 'Player';
-            info.appendChild(name);
+  const playersSnap = await database.ref(`rooms/${roomCode}/players`).once('value');
+  const players = playersSnap.val() || {};
+  const sortedPlayers = Object.entries(players).sort((a,b)=> (b[1].score||0) - (a[1].score||0));
+  const rank = sortedPlayers.findIndex(([id])=> id === playerId) + 1;
+  finalRankEl.textContent = `You ranked #${rank} out of ${sortedPlayers.length} players!`;
+}
 
-            const score = document.createElement('div');
-            score.className = 'player-score';
-            score.textContent = (player.score || 0) + ' pts';
+/* host-side leaderboard render */
+function updateLeaderboard(players){
+  leaderboardList.innerHTML = '';
+  const arr = Object.entries(players).sort((a,b)=> (b[1].score||0) - (a[1].score||0));
+  arr.forEach(([id,player],index)=>{
+    const item = document.createElement('div'); item.className='leaderboard-item';
+    const rank = document.createElement('div'); rank.className='rank'; if (index===0) rank.classList.add('first'); if (index===1) rank.classList.add('second'); if (index===2) rank.classList.add('third');
+    rank.textContent = index+1;
+    const avatar = document.createElement('div'); avatar.className='player-avatar-small';
+    if (player.avatar) avatar.style.backgroundImage = `url(${player.avatar})`; else avatar.textContent = (player.name||'?').charAt(0).toUpperCase();
+    const info = document.createElement('div'); info.className='player-info'; const name = document.createElement('div'); name.className='player-name-small'; name.textContent = player.name || 'Player'; info.appendChild(name);
+    const score = document.createElement('div'); score.className='player-score'; score.textContent = (player.score||0) + ' pts';
+    item.appendChild(rank); item.appendChild(avatar); item.appendChild(info); item.appendChild(score);
+    leaderboardList.appendChild(item);
+  });
 
-            item.appendChild(rank);
-            item.appendChild(avatar);
-            item.appendChild(info);
-            item.appendChild(score);
+  if (isHost && roomData) {
+    const q = roomData.questions[currentQuestionIndex];
+    if (q) hostQuestionEl.textContent = q.question;
+  }
+}
 
-            leaderboardList.appendChild(item);
-        });
+/* Clean up when leaving page (optional) */
+// window.addEventListener('beforeunload', async ()=>{
+//   // Optionally remove player entry on disconnect (not done here by default so you can reconnect)
+// });
 
-        // Update host question area (if host is viewing a question)
-        if (isHost && roomData) {
-            const question = roomData.questions[currentQuestionIndex];
-            if (question) {
-                hostQuestionEl.textContent = question.question;
-            }
-        }
-    }
-
-    // --------------------------
-    // Show round leaderboard overlay (host-only)
-    // --------------------------
-    async function showRoundLeaderboard(){
-        if (!isHost) return;
-        // Build top10 list from players
-        const playersSnapshot = await database.ref(`rooms/${roomCode}/players`).once('value');
-        const players = playersSnapshot.val() || {};
-        const sorted = Object.entries(players).sort((a,b) => (b[1].score||0) - (a[1].score||0)).slice(0,10);
-
-        roundList.innerHTML = '';
-        sorted.forEach(([id, p], i) => {
-            const div = document.createElement('div');
-            div.style.display = 'flex';
-            div.style.justifyContent = 'space-between';
-            div.style.padding = '8px';
-            div.style.borderBottom = '1px solid #eee';
-            div.innerHTML = `<div style="font-weight:800;">${i+1}. ${p.name||'Player'}</div><div style="font-weight:800;">${(p.score||0)} pts</div>`;
-            if (i === 0) div.style.background = '#fff7cc';
-            if (i === 1) div.style.background = '#f0f4f8';
-            if (i === 2) div.style.background = '#fcf0ea';
-            roundList.appendChild(div);
-        });
-
-        roundLbOverlay.style.display = 'block';
-    }
-
-    // --------------------------
-    // Host: nextQuestion / endGame
-    // --------------------------
-    async function nextQuestion(){
-        // When host advances, ensure reveal flag for current question is true (so students see answers)
-        await database.ref(`rooms/${roomCode}/revealAnswers/${currentQuestionIndex}`).set(true);
-
-        // Hide round overlay and update currentQuestion index in DB
-        roundLbOverlay.style.display = 'none';
-        // increment currentQuestion in database (authoritative)
-        await database.ref(`rooms/${roomCode}/currentQuestion`).set(currentQuestionIndex + 1);
-        // Host's startQuestion will run from listener
-    }
-
-    async function endGame(){
-        // Reveal final answers (if not already), set status finished
-        await database.ref(`rooms/${roomCode}/revealAnswers/${currentQuestionIndex}`).set(true);
-        await database.ref(`rooms/${roomCode}/status`).set('finished');
-    }
-
-    // --------------------------
-    // Show final podium cinematic (host)
-    // --------------------------
-    async function showFinalPodium(){
-        // Host-only cinematic. For players, show results-screen instead.
-        if (isHost) {
-            // Get players and sort
-            const playersSnap = await database.ref(`rooms/${roomCode}/players`).once('value');
-            const players = playersSnap.val() || {};
-            const sorted = Object.entries(players).sort((a,b) => (b[1].score||0) - (a[1].score||0));
-
-            // fill podium top3 (pad if not enough players)
-            const [first, second, third] = [sorted[0], sorted[1], sorted[2]].map(x => x ? x[1] : {name:'—', score:0});
-
-            podium1Name.textContent = first.name || '—';
-            podium1Score.textContent = (first.score||0) + ' pts';
-            podium2Name.textContent = second.name || '—';
-            podium2Score.textContent = (second.score||0) + ' pts';
-            podium3Name.textContent = third.name || '—';
-            podium3Score.textContent = (third.score||0) + ' pts';
-
-            // Show cinematic: reveal 3rd -> 2nd -> 1st with delay
-            podiumScreen.style.display = 'flex';
-            const p3 = document.getElementById('podium-3');
-            const p2 = document.getElementById('podium-2');
-            const p1 = document.getElementById('podium-1');
-
-            p3.classList.remove('show'); p2.classList.remove('show'); p1.classList.remove('show');
-            // reveal with dramatic timing
-            setTimeout(()=> p3.classList.add('show'), 700);
-            setTimeout(()=> p2.classList.add('show'), 1500);
-            setTimeout(()=> p1.classList.add('show'), 2400);
-
-        } else {
-            // player view: show their own final results
-            showResults();
-        }
-    }
-
-    // --------------------------
-    // Show results for a single player
-    // --------------------------
-    async function showResults(){
-        clearInterval(timerInterval);
-        hostView.classList.remove('active');
-        studentView.classList.remove('active');
-        resultsScreen.classList.add('active');
-
-        // Get final score and rank
-        const scoreSnap = await database.ref(`rooms/${roomCode}/players/${playerId}/score`).once('value');
-        const finalScore = scoreSnap.val() || 0;
-        document.getElementById('final-score').textContent = finalScore + ' points';
-
-        const playersSnapshot = await database.ref(`rooms/${roomCode}/players`).once('value');
-        const players = playersSnapshot.val() || {};
-        const sortedPlayers = Object.entries(players).sort((a,b) => (b[1].score||0) - (a[1].score||0));
-        const rank = sortedPlayers.findIndex(([id]) => id === playerId) + 1;
-        document.getElementById('final-rank').textContent = `You ranked #${rank} out of ${sortedPlayers.length} players!`;
-    }
-
-    // --------------------------
-    // Utility: allow host to login as player in same account (via ?play=1)
-    // --------------------------
-    // already handled: if host's UID matches room host and URL has play=1, we call joinAsStudent instead of setupHostView()
-
-    </script>
+</script>
 </body>
 </html>
