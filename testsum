@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Quiz URL Demo</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js"></script>
+<style>
+  body { font-family: sans-serif; margin: 2em; }
+  input, textarea { width: 100%; margin-bottom: 0.5em; }
+  .question { margin-bottom: 1em; padding: 0.5em; border: 1px solid #ccc; }
+</style>
+</head>
+<body>
+
+<h1>Quiz URL Demo</h1>
+
+<div id="quiz-container"></div>
+<button onclick="addQuestion()">Add Question</button>
+<button onclick="updateURL()">Generate URL</button>
+
+<h2>Generated URL</h2>
+<textarea id="generated-url" readonly></textarea>
+
+<script>
+const container = document.getElementById('quiz-container');
+
+function addQuestion(q='', a1='', a2='', a3='', correct=0) {
+    const div = document.createElement('div');
+    div.className = 'question';
+    div.innerHTML = `
+        <label>Question: <input type="text" class="q" value="${q}"></label><br>
+        <label>Answer 1: <input type="text" class="a" value="${a1}"></label><br>
+        <label>Answer 2: <input type="text" class="a" value="${a2}"></label><br>
+        <label>Answer 3: <input type="text" class="a" value="${a3}"></label><br>
+        <label>Correct Answer (0-2): <input type="number" class="c" value="${correct}" min="0" max="2"></label><br>
+        <button onclick="this.parentElement.remove(); updateURL();">Remove</button>
+    `;
+    container.appendChild(div);
+}
+
+function getQuizData() {
+    const questions = [];
+    document.querySelectorAll('.question').forEach(qDiv => {
+        const qText = qDiv.querySelector('.q').value;
+        const answers = Array.from(qDiv.querySelectorAll('.a')).map(i => i.value);
+        const correct = parseInt(qDiv.querySelector('.c').value);
+        questions.push({q: qText, a: answers, c: correct});
+    });
+    return questions;
+}
+
+function updateURL() {
+    const data = JSON.stringify(getQuizData());
+    const compressed = LZString.compressToEncodedURIComponent(data);
+    const url = window.location.origin + window.location.pathname + '?d=' + compressed;
+    document.getElementById('generated-url').value = url;
+    history.replaceState(null, '', '?d=' + compressed);
+}
+
+// Load quiz from URL if available
+function loadQuizFromURL() {
+    const params = new URLSearchParams(window.location.search);
+    const d = params.get('d');
+    if(d) {
+        try {
+            const json = LZString.decompressFromEncodedURIComponent(d);
+            const quiz = JSON.parse(json);
+            quiz.forEach(q => addQuestion(q.q, q.a[0], q.a[1], q.a[2], q.c));
+        } catch(e) {
+            console.error('Failed to load quiz from URL', e);
+        }
+    } else {
+        // Default sample quiz
+        addQuestion("2 + 2?", "3", "4", "5", 1);
+        addQuestion("Capital of France?", "Paris", "Rome", "Berlin", 0);
+    }
+}
+
+loadQuizFromURL();
+</script>
+
+</body>
+</html>
